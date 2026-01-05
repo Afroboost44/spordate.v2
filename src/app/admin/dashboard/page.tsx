@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   const [kpis] = useState({ revenue: 1250, registeredUsers: 157, activePartners: 12 });
   const [users, setUsers] = useState(mockUsersData);
   const [partnershipRequests, setPartnershipRequests] = useState(initialRequests);
-  const [paymentApis, setPaymentApis = useState({ twint: true, stripe: true, bank: false });
+  const [paymentApis, setPaymentApis] = useState({ twint: true, stripe: true, bank: false });
   const [commission, setCommission] = useState([10]);
   const [siteName, setSiteName] = useState("Spordate");
   const [primaryColor, setPrimaryColor] = useState("#8B5CF6");
@@ -282,3 +282,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+    
