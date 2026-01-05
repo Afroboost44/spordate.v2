@@ -1,111 +1,78 @@
 "use client";
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Building, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function PartnerRegisterPage() {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const router = useRouter();
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const { toast } = useToast();
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '', ide: '' });
     const [error, setError] = useState('');
-    const [establishmentName, setEstablishmentName] = useState('');
-    const [email, setEmail] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         setError('');
-        if (password !== confirmPassword) {
+
+        if (formData.password !== formData.confirm) {
             setError("Les mots de passe ne correspondent pas.");
             return;
         }
-        if (password.length < 8) {
-            setError("Le mot de passe est trop court.");
-            return;
-        }
 
-        if (typeof window !== 'undefined') {
-            const db = JSON.parse(localStorage.getItem('spordate_db') || '[]');
-            const newPartner = {
-               id: Date.now(),
-               name: establishmentName,
-               email: email,
-               status: 'pending',
-               date: new Date().toLocaleDateString()
-            };
-            db.push(newPartner);
-            localStorage.setItem('spordate_db', JSON.stringify(db));
-        }
-
-        // Also keeping the old localStorage item for compatibility with the admin dashboard for now
-        const newRequest = { id: Date.now(), name: establishmentName, date: new Date().toLocaleDateString(), status: 'pending' };
-        localStorage.setItem('pendingPartnerRequest', JSON.stringify(newRequest));
+        // SAUVEGARDE PERSISTANTE
+        const currentDB = JSON.parse(localStorage.getItem('spordate_db') || '[]');
+        const newPartner = {
+            id: Date.now(),
+            name: formData.name,
+            email: formData.email,
+            password: formData.password, // En vrai projet, à hasher !
+            ide: formData.ide,
+            status: 'pending', // IMPORTANT : Statut en attente
+            date: new Date().toLocaleDateString()
+        };
+        
+        const updatedDB = [newPartner, ...currentDB];
+        localStorage.setItem('spordate_db', JSON.stringify(updatedDB));
         
         setIsSubmitted(true);
+        toast({ title: "Candidature envoyée", description: "En attente de validation admin." });
     };
 
     if (isSubmitted) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-black p-4">
-                 <Card className="mx-auto max-w-lg w-full bg-green-950/30 border-green-800 text-center">
-                    <CardHeader className="items-center">
-                        <ShieldCheck className="h-16 w-16 text-green-400 mb-4" />
-                        <CardTitle className="text-3xl font-bold text-green-400">Candidature envoyée !</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <p className="text-gray-300 text-lg">
-                            L'administrateur validera votre compte sous 24h.
-                        </p>
-                        <Button onClick={() => router.push('/')} variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Retour à l'accueil
-                        </Button>
-                    </CardContent>
+            <div className="flex items-center justify-center min-h-screen bg-[#05090e] p-4">
+                 <Card className="max-w-md w-full bg-green-900/20 border-green-800 text-center p-6">
+                    <ShieldCheck className="h-16 w-16 text-green-400 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold text-green-400 mb-2">Candidature Envoyée !</h2>
+                    <p className="text-gray-300 mb-6">Votre dossier est enregistré. L'administrateur doit le valider avant que vous puissiez vous connecter.</p>
+                    <Button onClick={() => router.push('/')} variant="outline" className="w-full">Retour à l'accueil</Button>
                 </Card>
             </div>
         );
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-black p-4">
-            <Card className="mx-auto max-w-lg w-full bg-[#0a111a] border-cyan-900/50">
+        <div className="flex items-center justify-center min-h-screen bg-[#05090e] p-4">
+            <Card className="max-w-md w-full bg-[#0a111a] border-cyan-900/50">
                 <form onSubmit={handleSubmit}>
                     <CardHeader className="text-center">
                         <Building className="h-10 w-10 text-cyan-400 mx-auto mb-2" />
-                        <CardTitle className="text-2xl font-bold text-white">Devenir Partenaire</CardTitle>
-                        <CardDescription className="text-gray-400">Rejoignez le réseau Spordateur.</CardDescription>
+                        <CardTitle className="text-xl font-bold text-white">Devenir Partenaire</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-                        <div className="grid gap-2">
-                            <Label htmlFor="name" className="text-gray-300">Nom de l'établissement</Label>
-                            <Input id="name" required value={establishmentName} onChange={(e) => setEstablishmentName(e.target.value)} className="bg-black/50 border-gray-700 text-white" />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-gray-300">Email Pro</Label>
-                            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bg-black/50 border-gray-700 text-white" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="pass" className="text-gray-300">Mot de passe</Label>
-                                <Input id="pass" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="bg-black/50 border-gray-700 text-white" />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="conf" className="text-gray-300">Confirmation</Label>
-                                <Input id="conf" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="bg-black/50 border-gray-700 text-white" />
-                            </div>
-                        </div>
-                        <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-black font-bold mt-2">
-                            Envoyer ma candidature
-                        </Button>
-                        <div className="text-center pt-2">
-                            <Link href="/partner/login" className="text-sm text-gray-500 hover:text-cyan-400">Déjà inscrit ? Se connecter</Link>
-                        </div>
+                        <Input placeholder="Nom du Club" required onChange={e => setFormData({...formData, name: e.target.value})} className="bg-black/50 text-white border-gray-700"/>
+                        <Input placeholder="Numéro IDE" required onChange={e => setFormData({...formData, ide: e.target.value})} className="bg-black/50 text-white border-gray-700"/>
+                        <Input type="email" placeholder="Email Pro" required onChange={e => setFormData({...formData, email: e.target.value})} className="bg-black/50 text-white border-gray-700"/>
+                        <Input type="password" placeholder="Mot de passe" required onChange={e => setFormData({...formData, password: e.target.value})} className="bg-black/50 text-white border-gray-700"/>
+                        <Input type="password" placeholder="Confirmer" required onChange={e => setFormData({...formData, confirm: e.target.value})} className="bg-black/50 text-white border-gray-700"/>
+                        <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-black font-bold">Envoyer ma candidature</Button>
                     </CardContent>
                 </form>
             </Card>
