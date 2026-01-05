@@ -31,12 +31,6 @@ export default function Footer() {
             </Link>
           </div>
         </div>
-        <div className="mt-6 pt-6 border-t border-border/20 flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
-             <Link href="/partner/login" className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition-colors">
-                <Building size={16} />
-                Accès Partenaire
-            </Link>
-        </div>
       </div>
     </footer>
   );
