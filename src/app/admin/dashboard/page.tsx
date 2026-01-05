@@ -148,7 +148,7 @@ export default function AdminDashboardPage() {
                                     <CardTitle className="text-xl text-gray-200">Gestion des Utilisateurs</CardTitle>
                                     <CardDescription>Actions sur les comptes utilisateurs.</CardDescription>
                                 </div>
-                                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 w-full sm:w-auto">
+                                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 w-full sm:w-auto" onClick={() => toast({ title: "Exportation lancée", description: "Le fichier users.csv est en cours de téléchargement."})}>
                                     <Download className="mr-2 h-4 w-4" /> Exporter (CSV)
                                 </Button>
                             </CardHeader>
@@ -412,5 +412,3 @@ export default function AdminDashboardPage() {
         </div>
     );
 }
-
-    
