@@ -52,16 +52,6 @@ export default function ChatPage() {
 
         setMessages(prev => [...prev, newMessage]);
         setInputValue('');
-
-        // Simulate a reply from Marc
-        setTimeout(() => {
-            const replyMessage: Message = {
-                id: Date.now() + 1,
-                text: "Super, à tout à l'heure alors !",
-                sender: 'marc',
-            };
-            setMessages(prev => [...prev, replyMessage]);
-        }, 1500);
     };
 
 
@@ -135,4 +125,3 @@ export default function ChatPage() {
         </div>
     );
 }
-
