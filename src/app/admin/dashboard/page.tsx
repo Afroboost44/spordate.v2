@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 const initialUsers = [
     { id: 'u1', name: 'Alice', email: 'alice@spordate.com', status: 'Actif' },
@@ -21,7 +22,7 @@ const initialUsers = [
     { id: 'u4', name: 'Diana', email: 'diana@spordate.com', status: 'Bloqué' },
 ];
 
-const pendingPartners = [
+const initialPendingPartners = [
     { id: 'p1', name: 'FitClub Lausanne', demand: '27/07/2024' },
     { id: 'p2', name: 'Geneva Tennis Arena', demand: '26/07/2024' },
 ];
@@ -67,6 +68,32 @@ Les présentes CGU sont soumises au droit Suisse. En cas de litige, le for jurid
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const [users, setUsers] = useState(initialUsers);
+    const [pendingPartners, setPendingPartners] = useState(initialPendingPartners);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const newRequestRaw = localStorage.getItem('pendingPartnerRequest');
+            if (newRequestRaw) {
+                const newRequest = JSON.parse(newRequestRaw);
+                const transformedRequest = {
+                    id: newRequest.id.toString(),
+                    name: newRequest.name,
+                    demand: newRequest.date,
+                    isNew: true,
+                };
+                
+                // Check if the request already exists to avoid duplicates
+                if (!pendingPartners.some(p => p.id === transformedRequest.id)) {
+                    setPendingPartners(prev => [transformedRequest, ...prev]);
+                }
+                
+                // We can remove it after reading to avoid re-adding on every load
+                // Or handle it with the check above. For this simulation, we'll clear it.
+                localStorage.removeItem('pendingPartnerRequest');
+            }
+        }
+    }, []);
+
 
     const handleUserAction = (userId: string, newStatus: 'Actif' | 'Invisible' | 'Bloqué') => {
         setUsers(currentUsers =>
@@ -220,9 +247,12 @@ export default function AdminDashboardPage() {
                             <CardContent className="overflow-x-auto">
                                 <Table>
                                     <TableBody>
-                                        {pendingPartners.map((partner) => (
+                                        {pendingPartners.map((partner: any) => (
                                             <TableRow key={partner.id} className="border-gray-800">
-                                                <TableCell className="font-semibold">{partner.name}</TableCell>
+                                                <TableCell className="font-semibold flex items-center gap-2">
+                                                    {partner.name}
+                                                    {partner.isNew && <Badge variant="outline" className="border-yellow-400 text-yellow-400">NOUVEAU</Badge>}
+                                                </TableCell>
                                                 <TableCell>Demandé le: {partner.demand}</TableCell>
                                                 <TableCell className="text-right">
                                                     <Button variant="ghost" size="sm" className="text-green-400 hover:bg-green-900/50 hover:text-green-300"><CheckCircle size={16}/> Accepter</Button>

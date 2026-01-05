@@ -15,6 +15,7 @@ export default function PartnerRegisterPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [establishmentName, setEstablishmentName] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,6 +28,10 @@ export default function PartnerRegisterPage() {
             setError("Le mot de passe est trop court.");
             return;
         }
+        
+        const newRequest = { id: Date.now(), name: establishmentName, date: new Date().toLocaleDateString(), status: 'pending' };
+        localStorage.setItem('pendingPartnerRequest', JSON.stringify(newRequest));
+
         setIsSubmitted(true);
     };
 
@@ -64,7 +69,7 @@ export default function PartnerRegisterPage() {
                         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
                         <div className="grid gap-2">
                             <Label htmlFor="name" className="text-gray-300">Nom de l'établissement</Label>
-                            <Input id="name" required className="bg-black/50 border-gray-700 text-white" />
+                            <Input id="name" required value={establishmentName} onChange={(e) => setEstablishmentName(e.target.value)} className="bg-black/50 border-gray-700 text-white" />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="email" className="text-gray-300">Email Pro</Label>
