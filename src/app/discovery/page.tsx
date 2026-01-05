@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Heart, MapPin, Undo2, Zap } from 'lucide-react';
+import { X, Heart, MapPin, Undo2, Zap, Lock, CheckCircle, RefreshCcw, Handshake } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -11,17 +11,25 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useRouter } from 'next/navigation';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Separator } from '@/components/ui/separator';
 
 const initialProfiles = [
   { id: 1, name: 'Julie, 28', location: 'Paris', sports: ['Tennis', 'Yoga'], bio: 'Cherche un partenaire pour des matchs de tennis le week-end.', imageId: 'discovery-1' },
   { id: 2, name: 'Marc, 32', location: 'Lyon', sports: ['Crossfit', 'Running'], bio: 'Passionné de Crossfit, je m\'entraîne 4 fois par semaine.', imageId: 'discovery-2' },
   { id: 3, name: 'Sophie, 25', location: 'Marseille', sports: ['Danse', 'Fitness'], bio: 'Danseuse professionnelle cherche à partager sa passion.', imageId: 'discovery-3' },
 ];
+
+const boostedActivities = [
+    { title: 'Neon Crossfit', location: 'Lausanne', time: '18:00', price: '25 CHF', imageId: 'activity-gym' },
+    { title: 'City Tennis', location: 'Genève', time: '20:00', price: '40 CHF', imageId: 'activity-tennis' },
+    { title: 'Zen Yoga', location: 'Fribourg', time: '19:00', price: '30 CHF', imageId: 'activity-yoga' },
+];
+
 
 export default function DiscoveryPage() {
   const [profiles, setProfiles] = useState(initialProfiles);
@@ -30,6 +38,7 @@ export default function DiscoveryPage() {
   const router = useRouter();
 
   const discoveryImages = PlaceHolderImages.filter(p => p.id.startsWith('discovery-'));
+  const activityImages = PlaceHolderImages.filter(p => p.id.startsWith('activity-'));
 
   const handleNextProfile = () => {
     setCurrentIndex(prev => prev + 1);
@@ -51,7 +60,7 @@ export default function DiscoveryPage() {
   }
 
   const bookActivity = () => {
-    router.push('/activities');
+    router.push('/payment');
   }
 
   const currentProfile = profiles[currentIndex];
@@ -115,23 +124,67 @@ export default function DiscoveryPage() {
         </div>
       )}
 
-      <Dialog open={isMatch} onOpenChange={setIsMatch}>
-        <DialogContent className="sm:max-w-md bg-card border-border/20 text-foreground">
-          <DialogHeader className="items-center">
+       <Dialog open={isMatch} onOpenChange={setIsMatch}>
+        <DialogContent className="max-w-xl w-full bg-card border-border/20 text-foreground p-0">
+          <DialogHeader className="items-center p-6 pb-2">
             <DialogTitle className="text-4xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-rose-400 flex items-center gap-2">
                 IT'S A MATCH ! <Zap className="text-yellow-400 fill-current" />
             </DialogTitle>
-            <DialogDescription className="text-center pt-2 text-foreground/70">
-              {currentProfile && `Vous et ${currentProfile.name.split(',')[0]} partagez la même passion pour le ${currentProfile.sports[0]}.`}
+            <DialogDescription className="text-center pt-2 text-foreground/70 !mt-2">
+              Pour discuter avec {currentProfile?.name.split(',')[0]}, réservez une activité sportive commune.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
-            <Button onClick={bookActivity} className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">Réserver une activité maintenant</Button>
-            <Button onClick={closeMatchModal} variant="ghost" className="w-full">Continuer à chercher</Button>
-          </DialogFooter>
+          
+          <div className="px-6 py-4">
+              <ul className="space-y-2 text-sm text-foreground/60 mb-6">
+                  <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-500"/> Le Chat se débloque immédiatement après paiement.</li>
+                  <li className="flex items-center gap-2"><RefreshCcw size={16} className="text-blue-500"/> Annulation gratuite jusqu'à 1h avant le rendez-vous.</li>
+                  <li className="flex items-center gap-2"><Handshake size={16} className="text-amber-500"/> Paiement sécurisé vers le Partenaire (Club/Salle).</li>
+              </ul>
+          </div>
+          
+          <div className="bg-background/50 px-6 py-6">
+             <h4 className="text-lg font-semibold mb-4 text-center">Activités Boostées pour votre Date</h4>
+             <Carousel opts={{ align: "start" }} className="w-full">
+                <CarouselContent className="-ml-4">
+                    {boostedActivities.map((activity, index) => {
+                        const activityImage = activityImages.find(img => img.id === activity.imageId);
+                        return (
+                            <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
+                                <Card className="overflow-hidden bg-card border-border/20 shadow-md hover:shadow-accent/20 transition-shadow">
+                                     <div className="relative h-32 w-full">
+                                        {activityImage && (
+                                            <Image src={activityImage.imageUrl} alt={activity.title} fill className="object-cover"/>
+                                        )}
+                                        <Badge className="absolute top-2 right-2 bg-yellow-400 text-black font-bold border-yellow-400">BOOST</Badge>
+                                    </div>
+                                    <CardContent className="p-4">
+                                        <h5 className="font-bold truncate">{activity.title}</h5>
+                                        <p className="text-sm text-muted-foreground">{activity.location} • {activity.time}</p>
+                                        <div className="flex justify-between items-center mt-3">
+                                            <span className="font-bold text-lg text-accent">{activity.price}</span>
+                                            <Button onClick={bookActivity} size="sm" className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white text-xs">Réserver ce date</Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </CarouselItem>
+                        )
+                    })}
+                </CarouselContent>
+             </Carousel>
+          </div>
+
+          <Separator className="bg-border/20"/>
+          
+          <div className="p-6 flex flex-col gap-3">
+             <Button onClick={() => {}} variant="outline" className="w-full" disabled>
+                <Lock className="mr-2 h-4 w-4" />
+                Chat verrouillé
+            </Button>
+            <Button onClick={closeMatchModal} variant="ghost" className="w-full text-muted-foreground">Passer pour cette fois</Button>
+          </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
