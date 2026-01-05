@@ -3,12 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Eye, CalendarCheck, Wallet, BarChart } from 'lucide-react';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Bar, BarChart as RechartsBarChart, XAxis, YAxis } from "recharts"
 
 const kpis = [
     { title: 'Vues des offres', value: '1,240', icon: <Eye className="h-6 w-6 text-cyan-300" /> },
@@ -22,23 +16,6 @@ const recentBookings = [
     { user: 'David', offer: 'Cours Duo', date: '2024-07-27', revenue: '30 CHF' },
     { user: 'Frank', offer: 'Session Privée', date: '2024-07-26', revenue: '25 CHF' },
 ];
-
-const chartData = [
-  { month: "Jan", reservations: 186 },
-  { month: "Feb", reservations: 305 },
-  { month: "Mar", reservations: 237 },
-  { month: "Apr", reservations: 173 },
-  { month: "May", reservations: 209 },
-  { month: "Jun", reservations: 214 },
-]
-
-const chartConfig = {
-  reservations: {
-    label: "Réservations",
-    color: "hsl(180 80% 60%)",
-  },
-}
-
 
 export default function PartnerDashboardPage() {
     return (
@@ -65,8 +42,8 @@ export default function PartnerDashboardPage() {
                 ))}
             </section>
 
-            <section className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <Card className="lg:col-span-3 bg-[#0a111a] border-cyan-900/50">
+            <section>
+                <Card className="bg-[#0a111a] border-cyan-900/50">
                     <CardHeader>
                         <CardTitle className="text-xl text-gray-200">Dernières Réservations</CardTitle>
                     </CardHeader>
@@ -75,6 +52,7 @@ export default function PartnerDashboardPage() {
                             <TableHeader>
                                 <TableRow className="border-gray-800 hover:bg-gray-900/50">
                                     <TableHead className="text-gray-400">Utilisateur</TableHead>
+
                                     <TableHead className="text-gray-400">Offre</TableHead>
                                     <TableHead className="text-gray-400">Date</TableHead>
                                     <TableHead className="text-right text-gray-400">Revenu</TableHead>
@@ -91,31 +69,6 @@ export default function PartnerDashboardPage() {
                                 ))}
                             </TableBody>
                         </Table>
-                    </CardContent>
-                </Card>
-                 <Card className="lg:col-span-2 bg-[#0a111a] border-cyan-900/50 flex flex-col">
-                    <CardHeader>
-                        <CardTitle className="text-xl text-gray-200">Volume des Réservations</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex items-center">
-                         <ChartContainer config={chartConfig} className="w-full h-[250px]">
-                            <RechartsBarChart accessibilityLayer data={chartData}>
-                               <XAxis
-                                dataKey="month"
-                                tickLine={false}
-                                tickMargin={10}
-                                axisLine={false}
-                                stroke="hsl(var(--muted-foreground))"
-                                tickFormatter={(value) => value.slice(0, 3)}
-                               />
-                               <YAxis stroke="hsl(var(--muted-foreground))" />
-                              <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent indicator="dot" />}
-                              />
-                              <Bar dataKey="reservations" fill="var(--color-reservations)" radius={4} />
-                            </RechartsBarChart>
-                        </ChartContainer>
                     </CardContent>
                 </Card>
             </section>
