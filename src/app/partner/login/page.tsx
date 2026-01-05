@@ -8,18 +8,62 @@ import { Label } from "@/components/ui/label";
 import { Building, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function PartnerLoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setTimeout(() => {
+  type Partner = {
+      id: number;
+      name: string;
+      email: string;
+      status: 'pending' | 'active';
+      date: string;
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    setTimeout(() => {
+        const db: Partner[] = JSON.parse(localStorage.getItem('spordate_db') || '[]');
+        const partner = db.find(p => p.email.toLowerCase() === email.toLowerCase());
+
+        if (!partner) {
+            toast({
+                variant: "destructive",
+                title: "Accès refusé",
+                description: "Compte inexistant. Veuillez vérifier votre email ou faire une demande.",
+            });
+            setLoading(false);
+            return;
+        }
+
+        if (partner.status === 'pending') {
+            toast({
+                variant: "destructive",
+                title: "Compte en attente",
+                description: "⏳ Votre dossier est en cours de validation par l'administrateur. Veuillez patienter.",
+            });
+            setLoading(false);
+            return;
+        }
+
+        if (partner.status === 'active') {
+            toast({
+                title: "Connexion réussie !",
+                description: `Bienvenue, ${partner.name}.`,
+                className: "bg-green-600 text-white border-green-700",
+            });
             router.push('/partner/dashboard');
-        }, 1000);
-    };
+        }
+        
+    }, 1000);
+  };
 
 
   return (
@@ -40,7 +84,14 @@ export default function PartnerLoginPage() {
             <CardContent className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-300">Email Professionnel</Label>
-                <Input id="email" type="email" placeholder="club@exemple.ch" required className="bg-black/50 border-gray-700 text-white focus:border-cyan-500" />
+                <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="club@exemple.ch" 
+                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-black/50 border-gray-700 text-white focus:border-cyan-500" />
             </div>
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -49,10 +100,16 @@ export default function PartnerLoginPage() {
                     Mot de passe oublié ?
                 </Link>
                 </div>
-                <Input id="password" type="password" required className="bg-black/50 border-gray-700 text-white focus:border-cyan-500" />
+                <Input 
+                    id="password" 
+                    type="password" 
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-black/50 border-gray-700 text-white focus:border-cyan-500" />
             </div>
             <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-black font-bold" disabled={loading}>
-                <Lock className="mr-2 h-4 w-4" /> {loading ? 'Connexion...' : 'Se connecter'}
+                <Lock className="mr-2 h-4 w-4" /> {loading ? 'Vérification...' : 'Se connecter'}
             </Button>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 border-t border-gray-800 pt-6">
