@@ -1,19 +1,69 @@
+
 "use client";
 
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, ArrowLeft, Info } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { cn } from '@/lib/utils';
+
+type Message = {
+    id: number;
+    text: string;
+    sender: 'user' | 'marc';
+};
+
+const initialMessages: Message[] = [
+    { id: 1, text: "Salut ! J'ai vu que tu as réservé le Neon Fitness. Trop cool ! 🔥", sender: 'marc' },
+    { id: 2, text: "Oui, hâte d'y être !", sender: 'user' },
+    { id: 3, text: "On se retrouve à l'accueil à 18h ?", sender: 'marc' },
+];
 
 export default function ChatPage() {
     const router = useRouter();
+    const [messages, setMessages] = useState<Message[]>(initialMessages);
+    const [inputValue, setInputValue] = useState('');
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
     const marcProfileImage = PlaceHolderImages.find(p => p.id === 'discovery-2');
     const currentUserImage = PlaceHolderImages.find(p => p.id === 'profile-1');
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const handleSendMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (inputValue.trim() === '') return;
+
+        const newMessage: Message = {
+            id: Date.now(),
+            text: inputValue,
+            sender: 'user',
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+        setInputValue('');
+
+        // Simulate a reply from Marc
+        setTimeout(() => {
+            const replyMessage: Message = {
+                id: Date.now() + 1,
+                text: "Super, à tout à l'heure alors !",
+                sender: 'marc',
+            };
+            setMessages(prev => [...prev, replyMessage]);
+        }, 1500);
+    };
+
 
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] p-4 bg-background">
@@ -42,44 +92,47 @@ export default function ChatPage() {
                         </Button>
                     </CardHeader>
                     <CardContent className="flex-1 overflow-y-auto p-6 space-y-6">
-                         <div className="flex items-end gap-2 justify-start">
-                            <Avatar className="h-8 w-8">
-                                {marcProfileImage && <AvatarImage src={marcProfileImage.imageUrl} alt="Marc" />}
-                                <AvatarFallback>M</AvatarFallback>
-                            </Avatar>
-                            <div className="bg-muted rounded-lg p-3 max-w-xs">
-                                <p className="text-sm text-foreground/90">Salut ! J'ai vu que tu as réservé le Neon Fitness. Trop cool ! 🔥</p>
+                        {messages.map((message) => (
+                             <div key={message.id} className={cn("flex items-end gap-2", message.sender === 'user' ? 'justify-end' : 'justify-start')}>
+                                {message.sender === 'marc' && (
+                                     <Avatar className="h-8 w-8">
+                                        {marcProfileImage && <AvatarImage src={marcProfileImage.imageUrl} alt="Marc" />}
+                                        <AvatarFallback>M</AvatarFallback>
+                                    </Avatar>
+                                )}
+                                <div className={cn("rounded-lg p-3 max-w-xs", 
+                                    message.sender === 'user' 
+                                    ? "bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-primary-foreground" 
+                                    : "bg-muted text-foreground/90"
+                                )}>
+                                    <p className="text-sm">{message.text}</p>
+                                </div>
+                                {message.sender === 'user' && (
+                                     <Avatar className="h-8 w-8">
+                                        {currentUserImage && <AvatarImage src={currentUserImage.imageUrl} alt="You" />}
+                                        <AvatarFallback>Y</AvatarFallback>
+                                    </Avatar>
+                                )}
                             </div>
-                        </div>
-                         <div className="flex items-end gap-2 justify-end">
-                            <div className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-primary-foreground rounded-lg p-3 max-w-xs">
-                                <p className="text-sm">Oui, hâte d'y être !</p>
-                            </div>
-                             <Avatar className="h-8 w-8">
-                                {currentUserImage && <AvatarImage src={currentUserImage.imageUrl} alt="You" />}
-                                <AvatarFallback>Y</AvatarFallback>
-                            </Avatar>
-                        </div>
-                        <div className="flex items-end gap-2 justify-start">
-                            <Avatar className="h-8 w-8">
-                                {marcProfileImage && <AvatarImage src={marcProfileImage.imageUrl} alt="Marc" />}
-                                <AvatarFallback>M</AvatarFallback>
-                            </Avatar>
-                            <div className="bg-muted rounded-lg p-3 max-w-xs">
-                                <p className="text-sm text-foreground/90">On se retrouve à l'accueil à 18h ?</p>
-                            </div>
-                        </div>
+                        ))}
+                         <div ref={messagesEndRef} />
                     </CardContent>
-                    <div className="p-4 border-t border-border/20 bg-card/50 sticky bottom-0">
+                    <form onSubmit={handleSendMessage} className="p-4 border-t border-border/20 bg-card/50 sticky bottom-0">
                         <div className="relative">
-                            <Input placeholder="Écrivez un message..." className="pr-12 h-11" />
-                            <Button size="icon" className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white hover:opacity-90">
+                            <Input 
+                                placeholder="Écrivez un message..." 
+                                className="pr-12 h-11" 
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                            />
+                            <Button type="submit" size="icon" className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white hover:opacity-90">
                                 <Send className="h-4 w-4" />
                             </Button>
                         </div>
-                    </div>
+                    </form>
                 </Card>
             </div>
         </div>
     );
 }
+
