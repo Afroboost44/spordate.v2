@@ -6,6 +6,7 @@ import { Menu, Dumbbell } from 'lucide-react';
 export default function Header() {
   const navLinks = [
     { href: "/dashboard", label: "Find Match" },
+    { href: "/profile", label: "Mon Profil" },
     { href: "/#how-it-works", label: "How It Works" },
     { href: "/#why-us", label: "Why Us" },
   ];
@@ -43,7 +44,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="pr-0 pt-12 bg-background">
-              <SheetHeader>
+               <SheetHeader>
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col space-y-4 text-lg">
