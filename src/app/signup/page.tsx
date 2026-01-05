@@ -8,13 +8,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dumbbell } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      toast({
+        variant: "destructive",
+        title: "Conditions non acceptées",
+        description: "Vous devez accepter les conditions générales pour vous inscrire.",
+      });
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       router.push('/profile');
@@ -58,6 +70,21 @@ export default function SignupPage() {
                 <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
                 <Input id="confirm-password" type="password" required />
               </div>
+
+              <div className="flex items-center space-x-2 mt-2">
+                <Checkbox id="terms" onCheckedChange={(checked) => setTermsAccepted(!!checked)} />
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground/80"
+                >
+                  J'ai lu et j'accepte les{" "}
+                  <Link href="/terms" className="underline text-accent/80 hover:text-accent" target="_blank" rel="noopener noreferrer">
+                    Conditions Générales d'Utilisation
+                  </Link>
+                  .
+                </label>
+              </div>
+
               <Button type="submit" className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold" disabled={loading}>
                 {loading ? 'Création du compte...' : 'Je m\'inscris'}
               </Button>
@@ -74,3 +101,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+    

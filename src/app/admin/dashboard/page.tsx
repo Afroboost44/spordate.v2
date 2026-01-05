@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, MessageSquare, Users2, User, Wallet, Heart, Activity, UserPlus } from 'lucide-react';
+import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, MessageSquare, Users2, User, Wallet, Heart, Activity, UserPlus, FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +45,25 @@ const recentEvents = [
     { text: '"Alice" et "Bob" ont matché !', time: 'il y a 28m', icon: <Heart size={16} /> },
 ];
 
+const defaultTerms = `Bienvenue sur Spordate, une application de mise en relation sportive opérée et régie par le droit Suisse.
+Date de dernière mise à jour : 29 Juillet 2024
+
+Article 1 : Objet
+L'application Spordate a pour objet de faciliter la mise en relation entre des particuliers ("Utilisateurs") souhaitant pratiquer une activité sportive ensemble, et de permettre la réservation d'espaces ou de cours auprès d'établissements sportifs ("Partenaires"). Spordate agit en tant qu'intermédiaire technique.
+
+Article 2 : Paiements & Politique d'Annulation
+La réservation d'une activité via la plateforme est soumise à un paiement immédiat et sécurisé.
+Règle d'annulation : L'Utilisateur a la possibilité d'annuler sa participation sans frais jusqu'à une (1) heure avant le début prévu de l'activité. Passé ce délai, aucun remboursement, total ou partiel, ne sera possible. Le montant engagé sera intégralement conservé et reversé au Partenaire.
+
+Article 3 : Responsabilité
+Spordate agit en tant que simple intermédiaire. Notre responsabilité ne saurait être engagée en cas d'accident ou de blessure. La sécurité relève de la responsabilité du Partenaire et de l'assurance personnelle des Utilisateurs.
+
+Article 4 : Protection des Données
+Nous nous engageons à protéger vos données personnelles conformément à la nLPD en vigueur en Suisse.
+
+Article 5 : For Juridique et Droit Applicable
+Les présentes CGU sont soumises au droit Suisse. En cas de litige, le for juridique exclusif est établi à Neuchâtel, en Suisse.`;
+
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const [users, setUsers] = useState(initialUsers);
@@ -80,6 +99,13 @@ export default function AdminDashboardPage() {
         });
     };
 
+    const handleSaveTerms = () => {
+        toast({
+            title: "Conditions Générales sauvegardées !",
+            description: "Le document a été mis à jour sur l'ensemble du site.",
+        });
+    };
+
     const handleSendMessage = (target: string) => {
         toast({
             title: "Message envoyé avec succès !",
@@ -102,7 +128,6 @@ export default function AdminDashboardPage() {
                     <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 bg-[#111] h-auto sm:h-14 p-2">
                         <TabsTrigger value="overview" className="h-full text-sm sm:text-base gap-2"><BarChart /> Vue d'ensemble</TabsTrigger>
                         <TabsTrigger value="users" className="h-full text-sm sm:text-base gap-2"><Users /> Utilisateurs</TabsTrigger>
-
                         <TabsTrigger value="partners" className="h-full text-sm sm:text-base gap-2"><Building /> Partenaires</TabsTrigger>
                         <TabsTrigger value="business" className="h-full text-sm sm:text-base gap-2"><Briefcase /> Business</TabsTrigger>
                         <TabsTrigger value="communication" className="h-full text-sm sm:text-base gap-2"><MessageSquare /> Communication</TabsTrigger>
@@ -371,6 +396,20 @@ export default function AdminDashboardPage() {
                                 </div>
                             </CardContent>
                         </Card>
+                         <Card className="bg-[#111] border-gray-800">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-xl text-gray-200"><FileText /> Documents Légaux</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                 <div>
+                                    <Label htmlFor="cgu-editor">Conditions Générales d'Utilisation (CGU)</Label>
+                                    <Textarea id="cgu-editor" defaultValue={defaultTerms} className="bg-black border-gray-700 font-mono text-xs" rows={15}/>
+                                </div>
+                                <Button onClick={handleSaveTerms} className="bg-blue-600 hover:bg-blue-500 text-white font-bold">
+                                    Sauvegarder les CGU
+                                </Button>
+                            </CardContent>
+                        </Card>
                          <Card className="bg-[#111] border-red-900/50">
                             <CardHeader>
                                 <CardTitle className="text-xl text-red-400">Connectivité Bancaire (Stripe Connect)</CardTitle>
@@ -412,3 +451,5 @@ export default function AdminDashboardPage() {
         </div>
     );
 }
+
+    
