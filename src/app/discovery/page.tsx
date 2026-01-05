@@ -131,30 +131,29 @@ export default function DiscoveryPage() {
         <DialogContent className="max-w-2xl w-full bg-[#0f0f0f] border-violet-500/20 text-foreground p-0 overflow-hidden">
              
           <DialogHeader className="items-center p-6 pb-2 bg-gradient-to-b from-violet-900/10 to-transparent">
-            <DialogTitle className="text-5xl font-black tracking-tighter text-white flex items-center gap-3 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-                IT'S A MATCH <Zap className="text-yellow-400 fill-yellow-400 h-10 w-10" />
+            <DialogTitle className="text-3xl sm:text-5xl font-black tracking-tighter text-white flex items-center gap-3 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                IT'S A MATCH <Zap className="text-yellow-400 fill-yellow-400 h-8 w-8 sm:h-10 sm:w-10" />
             </DialogTitle>
-            <DialogDescription className="text-center text-lg text-gray-300 mt-2">
+            <DialogDescription className="text-center text-base sm:text-lg text-gray-300 mt-2">
               Pour discuter avec <span className="text-violet-400 font-bold">{currentProfile?.name.split(',')[0]}</span>, réservez une activité.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="px-8 py-2">
-              <ul className="flex flex-col sm:flex-row justify-between gap-4 text-xs text-gray-400 border-y border-white/5 py-4">
-                  <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Chat débloqué après paiement</li>
-                  <li className="flex items-center gap-2"><RefreshCcw size={14} className="text-blue-500"/> Annulation gratuite (-1h)</li>
-                  <li className="flex items-center gap-2"><Handshake size={14} className="text-amber-500"/> Paiement sécurisé</li>
+          <div className="px-6 sm:px-8 py-2">
+              <ul className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 text-xs text-gray-400 border-y border-white/5 py-4 text-center sm:text-left">
+                  <li className="flex items-center justify-center sm:justify-start gap-2"><CheckCircle size={14} className="text-green-500"/> Chat débloqué après paiement</li>
+                  <li className="flex items-center justify-center sm:justify-start gap-2"><RefreshCcw size={14} className="text-blue-500"/> Annulation gratuite (-1h)</li>
+                  <li className="flex items-center justify-center sm:justify-start gap-2"><Handshake size={14} className="text-amber-500"/> Paiement sécurisé</li>
               </ul>
           </div>
           
-          <div className="bg-white/5 px-8 py-6">
+          <div className="bg-white/5 px-6 sm:px-8 py-6">
              <div className="flex justify-between items-center mb-4">
                 <h4 className="text-lg font-bold text-white flex items-center gap-2">🔥 Activités recommandées</h4>
                 <Badge variant="outline" className="border-yellow-500/50 text-yellow-500">Boosted</Badge>
              </div>
              
-             {/* CAROUSEL FIXED */}
-             <div className="relative px-8">
+             <div className="relative px-0 sm:px-8">
                   <Carousel opts={{ align: "start", loop: true }} className="w-full">
                     <CarouselContent className="-ml-4">
                         {boostedActivities.map((activity, index) => {
@@ -180,8 +179,8 @@ export default function DiscoveryPage() {
                             )
                         })}
                     </CarouselContent>
-                    <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2" />
-                    <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2" />
+                    <CarouselPrevious className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2" />
+                    <CarouselNext className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2" />
                   </Carousel>
              </div>
           </div>
