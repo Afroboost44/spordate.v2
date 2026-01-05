@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Building, LayoutDashboard, Rocket, LogOut } from 'lucide-react';
+import { Building, LayoutDashboard, Rocket, LogOut, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +11,7 @@ export default function PartnerLayout({
   const navLinks = [
     { href: "/partner/dashboard", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/partner/offers", label: "Mes Offres", icon: <Building /> },
+    { href: "/partner/wallet", label: "Mon Portefeuille", icon: <Wallet /> },
     { href: "/partner/boost", label: "Boost", icon: <Rocket /> },
   ];
 
