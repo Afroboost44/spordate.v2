@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, Send, MessageSquare, Users2, User } from 'lucide-react';
+import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, Send, MessageSquare, Users2, User, Wallet, Heart, Activity, UserPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +31,19 @@ const activePartners = [
     { id: 'ap1', name: 'Neon Fitness Club', commission: '15%' },
     { id: 'ap2', name: 'City Tennis Court', commission: '15%' },
     { id: 'ap3', name: 'Zen Yoga Studio', commission: '20%' },
+];
+
+const overviewKpis = [
+    { title: 'Revenus Totaux', value: '1,250 CHF', icon: <Wallet className="h-6 w-6 text-green-400" />, color: 'text-green-400' },
+    { title: 'Utilisateurs Actifs', value: '42', icon: <Users className="h-6 w-6 text-blue-400" />, color: 'text-blue-400' },
+    { title: 'Matchs ce mois', value: '18', icon: <Heart className="h-6 w-6 text-rose-400" />, color: 'text-rose-400' },
+];
+
+const recentEvents = [
+    { text: 'Nouvelle inscription de "Laura" à Genève.', time: 'il y a 2m', icon: <UserPlus size={16} /> },
+    { text: 'Paiement de 25 CHF reçu de Marc pour "Neon Fitness".', time: 'il y a 5m', icon: <CheckCircle size={16} /> },
+    { text: 'Le partenaire "City Tennis" a ajouté une nouvelle offre.', time: 'il y a 12m', icon: <Building size={16} /> },
+    { text: '"Alice" et "Bob" ont matché !', time: 'il y a 28m', icon: <Heart size={16} /> },
 ];
 
 export default function AdminDashboardPage() {
@@ -64,14 +77,47 @@ export default function AdminDashboardPage() {
                     <p className="text-gray-500">Centre de commande de l'écosystème Spordate.</p>
                 </header>
 
-                <Tabs defaultValue="users" className="w-full">
-                    <TabsList className="grid w-full grid-cols-5 bg-[#111] h-14 p-2">
+                <Tabs defaultValue="overview" className="w-full">
+                    <TabsList className="grid w-full grid-cols-6 bg-[#111] h-14 p-2">
+                        <TabsTrigger value="overview" className="h-full text-base gap-2"><BarChart /> Vue d'ensemble</TabsTrigger>
                         <TabsTrigger value="users" className="h-full text-base gap-2"><Users /> Utilisateurs</TabsTrigger>
                         <TabsTrigger value="partners" className="h-full text-base gap-2"><Building /> Partenaires</TabsTrigger>
                         <TabsTrigger value="business" className="h-full text-base gap-2"><Briefcase /> Business</TabsTrigger>
                         <TabsTrigger value="communication" className="h-full text-base gap-2"><MessageSquare /> Communication</TabsTrigger>
                         <TabsTrigger value="config" className="h-full text-base gap-2"><Settings /> Configuration</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="overview" className="mt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            {overviewKpis.map((kpi, index) => (
+                                <Card key={index} className="bg-[#111] border-gray-800">
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                        <CardTitle className="text-sm font-medium text-gray-400">{kpi.title}</CardTitle>
+                                        {kpi.icon}
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                        <Card className="bg-[#111] border-gray-800">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-gray-200 flex items-center gap-2"><Activity/> Activité en temps réel</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ul className="space-y-4">
+                                    {recentEvents.map((event, index) => (
+                                        <li key={index} className="flex items-center gap-4 text-sm">
+                                            <div className="p-2 bg-gray-800 rounded-full">{event.icon}</div>
+                                            <span className="flex-grow text-gray-400">{event.text}</span>
+                                            <span className="text-xs text-gray-600">{event.time}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
                     <TabsContent value="users" className="mt-6">
                         <Card className="bg-[#111] border-gray-800">
