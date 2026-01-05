@@ -53,7 +53,7 @@ export default function PartnerLoginPage() {
                             {loading ? "Connexion..." : "Se connecter"}
                         </Button>
                         <div className="mt-4 text-center text-sm">
-                            <Link href="/signup" className="underline text-cyan-400/80 hover:text-cyan-400">
+                            <Link href="/partner/register" className="underline text-cyan-400/80 hover:text-cyan-400">
                                 Pas encore partenaire ? Faites une demande ici
                             </Link>
                         </div>
