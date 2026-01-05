@@ -8,7 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, Send } from 'lucide-react';
+import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, Send, MessageSquare, Users2, User } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+
 
 const users = [
     { id: 'u1', name: 'Alice', email: 'alice@spordate.com', status: 'Actif' },
@@ -29,6 +34,25 @@ const activePartners = [
 ];
 
 export default function AdminDashboardPage() {
+    const { toast } = useToast();
+
+    const handleConfirmAction = (action: string, userName: string) => {
+        if (window.confirm(`Êtes-vous sûr de vouloir ${action} l'utilisateur ${userName} ?`)) {
+             toast({
+                title: "Action exécutée",
+                description: `${userName} a été ${action}.`,
+            });
+        }
+    };
+    
+    const handleSaveStrategy = () => {
+        toast({
+            title: "Stratégie sauvegardée !",
+            description: "Les nouveaux paramètres de tarification et de parrainage ont été appliqués.",
+            className: "bg-green-600 text-white border-green-700",
+        });
+    }
+
     return (
         <div className="min-h-screen bg-black text-gray-300 p-8">
             <div className="container mx-auto">
@@ -41,10 +65,11 @@ export default function AdminDashboardPage() {
                 </header>
 
                 <Tabs defaultValue="users" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-[#111] h-14 p-2">
+                    <TabsList className="grid w-full grid-cols-5 bg-[#111] h-14 p-2">
                         <TabsTrigger value="users" className="h-full text-base gap-2"><Users /> Utilisateurs</TabsTrigger>
                         <TabsTrigger value="partners" className="h-full text-base gap-2"><Building /> Partenaires</TabsTrigger>
                         <TabsTrigger value="business" className="h-full text-base gap-2"><Briefcase /> Business</TabsTrigger>
+                        <TabsTrigger value="communication" className="h-full text-base gap-2"><MessageSquare /> Communication</TabsTrigger>
                         <TabsTrigger value="config" className="h-full text-base gap-2"><Settings /> Configuration</TabsTrigger>
                     </TabsList>
 
@@ -82,9 +107,9 @@ export default function AdminDashboardPage() {
                                                     }`}>{user.status}</span>
                                                 </TableCell>
                                                 <TableCell className="text-right space-x-1">
-                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400"><Ban size={16}/> Bloquer</Button>
+                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400" onClick={() => handleConfirmAction('bloquer', user.name)}><Ban size={16}/> Bloquer</Button>
                                                     <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-gray-700/50 hover:text-gray-300"><EyeOff size={16}/> Invisible</Button>
-                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-700/50 hover:text-gray-400"><Trash2 size={16}/> Supprimer</Button>
+                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-700/50 hover:text-gray-400" onClick={() => handleConfirmAction('supprimer', user.name)}><Trash2 size={16}/> Supprimer</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -163,13 +188,103 @@ export default function AdminDashboardPage() {
                                     <Label htmlFor="referral-access">Accès gratuit par parrainage</Label>
                                     <Switch id="referral-access" />
                                 </div>
-                                <Button className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold w-full">
+                                <Button onClick={handleSaveStrategy} className="bg-yellow-600 hover:bg-yellow-500 text-black font-bold w-full">
                                     Sauvegarder la Stratégie
                                 </Button>
                             </CardContent>
                         </Card>
                     </TabsContent>
 
+                     <TabsContent value="communication" className="mt-6">
+                        <Card className="bg-[#111] border-gray-800">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-gray-200">Centre de Communication</CardTitle>
+                                <CardDescription>Envoyez des messages ciblés ou des annonces générales.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid md:grid-cols-3 gap-6">
+                                <Dialog>
+                                    <Card className="bg-black/50 border-gray-800">
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2"><Users2/> Envoyer à TOUS</CardTitle>
+                                            <CardDescription>Broadcast général à tous les utilisateurs et partenaires.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <DialogTrigger asChild><Button className="w-full">Rédiger</Button></DialogTrigger>
+                                        </CardContent>
+                                    </Card>
+                                    <DialogContent className="bg-[#111] border-gray-800">
+                                        <DialogHeader>
+                                            <DialogTitle>Message pour tous</DialogTitle>
+                                            <DialogDescription>Ce message sera envoyé à tous les membres.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <Input placeholder="Sujet" className="bg-black border-gray-700" />
+                                            <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+                                <Dialog>
+                                    <Card className="bg-black/50 border-gray-800">
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2"><Users/> Envoyer à un GROUPE</CardTitle>
+                                            <CardDescription>Ciblez un segment spécifique de votre base.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <DialogTrigger asChild><Button className="w-full">Choisir le groupe</Button></DialogTrigger>
+                                        </CardContent>
+                                    </Card>
+                                    <DialogContent className="bg-[#111] border-gray-800">
+                                        <DialogHeader>
+                                            <DialogTitle>Message de groupe</DialogTitle>
+                                            <DialogDescription>Ce message sera envoyé au groupe sélectionné.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <Select>
+                                                <SelectTrigger className="bg-black border-gray-700"><SelectValue placeholder="Sélectionner un groupe..." /></SelectTrigger>
+                                                <SelectContent className="bg-[#111] border-gray-700"><SelectItem value="partners">Partenaires</SelectItem><SelectItem value="active">Utilisateurs Actifs</SelectItem><SelectItem value="new">Nouveaux Inscrits (-7j)</SelectItem></SelectContent>
+                                            </Select>
+                                            <Input placeholder="Sujet" className="bg-black border-gray-700" />
+                                            <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+                               <Dialog>
+                                    <Card className="bg-black/50 border-gray-800">
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2"><User/> Envoyer à un UTILISATEUR</CardTitle>
+                                            <CardDescription>Envoyez un message privé à une personne spécifique.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <DialogTrigger asChild><Button className="w-full">Trouver</Button></DialogTrigger>
+                                        </CardContent>
+                                    </Card>
+                                    <DialogContent className="bg-[#111] border-gray-800">
+                                        <DialogHeader>
+                                            <DialogTitle>Message privé</DialogTitle>
+                                            <DialogDescription>Recherchez un utilisateur par nom ou email.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <Input placeholder="Rechercher un utilisateur..." className="bg-black border-gray-700" />
+                                            <Input placeholder="Sujet" className="bg-black border-gray-700" />
+                                            <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    
                      <TabsContent value="config" className="mt-6 space-y-6">
                         <Card className="bg-[#111] border-gray-800">
                             <CardHeader>
@@ -205,14 +320,19 @@ export default function AdminDashboardPage() {
                                 </p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-[#111] border-gray-800">
-                             <CardHeader>
-                                <CardTitle className="text-xl text-gray-200">Communication</CardTitle>
+                        <Card className="bg-[#111] border-red-900/50">
+                            <CardHeader>
+                                <CardTitle className="text-xl text-red-400">Connectivité TWINT (Suisse)</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <Button>
-                                    <Send className="mr-2" /> Envoyer une newsletter à tous
-                                </Button>
+                            <CardContent className="space-y-4 max-w-lg">
+                                 <div>
+                                    <Label>TWINT UUID</Label>
+                                    <Input placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" className="bg-black border-gray-700 font-mono"/>
+                                </div>
+                                 <div>
+                                    <Label>Certificate Key (P12) Password</Label>
+                                    <Input type="password" placeholder="********" className="bg-black border-gray-700 font-mono"/>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
