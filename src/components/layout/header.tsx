@@ -7,7 +7,7 @@ import { Menu, Dumbbell, Bell } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Header() {
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   
   const navLinks = [
     { href: "/discovery", label: t('nav_discovery') || "Rencontres" },
@@ -16,14 +16,6 @@ export default function Header() {
     { href: "/activities", label: t('nav_activities') || "Activités" },
     { href: "/notifications", label: t('nav_notifications') || "Notifications" },
   ];
-
-  const LanguageSwitcher = () => (
-      <div className="flex items-center text-xs font-bold rounded-lg p-1 bg-transparent">
-        <button onClick={() => setLanguage('fr')} className={`px-2 py-1 rounded ${language === 'fr' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>FR</button>
-        <button onClick={() => setLanguage('de')} className={`px-2 py-1 rounded ${language === 'de' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>DE</button>
-        <button onClick={() => setLanguage('en')} className={`px-2 py-1 rounded ${language === 'en' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>EN</button>
-      </div>
-  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,7 +34,6 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden items-center space-x-2 md:flex">
-            <LanguageSwitcher />
             <Button variant="ghost" size="icon" asChild>
                 <Link href="/notifications">
                     <div className="relative">
@@ -63,7 +54,6 @@ export default function Header() {
           </Button>
         </div>
         <div className="md:hidden flex items-center">
-           <LanguageSwitcher />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">

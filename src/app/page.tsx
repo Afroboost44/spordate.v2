@@ -7,16 +7,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
 export default function Home() {
-  const { t, language, setLanguage } = useLanguage(); // Utilisation des textes dynamiques
-
-  // Sélecteur de langue séparé pour une meilleure lisibilité
-  const LanguageSwitcher = () => (
-      <div className="flex gap-1 text-xs font-bold bg-gray-900 rounded-lg p-1">
-        <button onClick={() => setLanguage('fr')} className={`px-2 py-1 rounded ${language === 'fr' ? 'bg-accent text-accent-foreground' : 'text-gray-400 hover:text-white'}`}>FR</button>
-        <button onClick={() => setLanguage('de')} className={`px-2 py-1 rounded ${language === 'de' ? 'bg-accent text-accent-foreground' : 'text-gray-400 hover:text-white'}`}>DE</button>
-        <button onClick={() => setLanguage('en')} className={`px-2 py-1 rounded ${language === 'en' ? 'bg-accent text-accent-foreground' : 'text-gray-400 hover:text-white'}`}>EN</button>
-      </div>
-  );
+  const { t } = useLanguage(); // Utilisation des textes dynamiques
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -40,9 +31,6 @@ export default function Home() {
                         {t('cta_button')} <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                 </Button>
-                 <div className="flex items-center space-x-2">
-                    <LanguageSwitcher />
-                </div>
             </div>
             </div>
         </section>
