@@ -59,6 +59,24 @@
       "description": "A woman dancing gracefully.",
       "imageUrl": "https://images.unsplash.com/photo-1511718863453-62a9a13801f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMGRhbmNpbmd8ZW58MHx8fHwxNzY4MjUyMjk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman dancing"
+    },
+    {
+      "id": "activity-gym",
+      "description": "A dark gym with neon lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1574680096145-f844349f8425?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxuZW9uJTIwZ3ltfGVufDB8fHx8MTc2ODMzMjE2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "neon gym"
+    },
+    {
+      "id": "activity-tennis",
+      "description": "A tennis court at night.",
+      "imageUrl": "https://images.unsplash.com/photo-1556244573-c368393aa6b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0ZW5uaXMlMjBjb3VydCUyMG5pZ2h0fGVufDB8fHx8MTc2ODMzMjE5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tennis court"
+    },
+    {
+      "id": "activity-yoga",
+      "description": "A calm yoga studio.",
+      "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b2dhJTIwc3R1ZGlvfGVufDB8fHx8MTc2ODMzMjIyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "yoga studio"
     }
   ]
 }

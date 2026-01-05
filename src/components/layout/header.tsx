@@ -8,6 +8,7 @@ export default function Header() {
     { href: "/discovery", label: "Rencontres" },
     { href: "/dashboard", label: "Find Match" },
     { href: "/profile", label: "Mon Profil" },
+    { href: "/activities", label: "Activités" },
     { href: "/#how-it-works", label: "How It Works" },
     { href: "/#why-us", label: "Why Us" },
   ];

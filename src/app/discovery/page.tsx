@@ -3,10 +3,19 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Heart, MapPin, Undo2 } from 'lucide-react';
+import { X, Heart, MapPin, Undo2, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { useRouter } from 'next/navigation';
 
 const initialProfiles = [
   { id: 1, name: 'Julie, 28', location: 'Paris', sports: ['Tennis', 'Yoga'], bio: 'Cherche un partenaire pour des matchs de tennis le week-end.', imageId: 'discovery-1' },
@@ -17,16 +26,32 @@ const initialProfiles = [
 export default function DiscoveryPage() {
   const [profiles, setProfiles] = useState(initialProfiles);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMatch, setIsMatch] = useState(false);
+  const router = useRouter();
 
   const discoveryImages = PlaceHolderImages.filter(p => p.id.startsWith('discovery-'));
 
   const handleNextProfile = () => {
     setCurrentIndex(prev => prev + 1);
   };
+
+  const handleLike = () => {
+    // Simulate a match
+    setIsMatch(true);
+  };
   
   const resetProfiles = () => {
     setCurrentIndex(0);
     setProfiles(initialProfiles);
+  }
+
+  const closeMatchModal = () => {
+    setIsMatch(false);
+    handleNextProfile();
+  }
+
+  const bookActivity = () => {
+    router.push('/activities');
   }
 
   const currentProfile = profiles[currentIndex];
@@ -74,7 +99,7 @@ export default function DiscoveryPage() {
             <Button onClick={handleNextProfile} variant="outline" size="icon" className="h-20 w-20 rounded-full border-4 border-red-500/50 text-red-500 hover:bg-red-500/10 hover:text-red-400">
               <X size={40} />
             </Button>
-            <Button onClick={handleNextProfile} size="icon" className="h-24 w-24 rounded-full bg-gradient-to-br from-[#E91E63] to-[#7B1FA2] text-white shadow-lg shadow-rose-500/30">
+            <Button onClick={handleLike} size="icon" className="h-24 w-24 rounded-full bg-gradient-to-br from-[#E91E63] to-[#7B1FA2] text-white shadow-lg shadow-rose-500/30">
               <Heart size={48} fill="currentColor" />
             </Button>
           </div>
@@ -89,6 +114,24 @@ export default function DiscoveryPage() {
           </Button>
         </div>
       )}
+
+      <Dialog open={isMatch} onOpenChange={setIsMatch}>
+        <DialogContent className="sm:max-w-md bg-card border-border/20 text-foreground">
+          <DialogHeader className="items-center">
+            <DialogTitle className="text-4xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-rose-400 flex items-center gap-2">
+                IT'S A MATCH ! <Zap className="text-yellow-400 fill-current" />
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2 text-foreground/70">
+              {currentProfile && `Vous et ${currentProfile.name.split(',')[0]} partagez la même passion pour le ${currentProfile.sports[0]}.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col sm:space-x-0">
+            <Button onClick={bookActivity} className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">Réserver une activité maintenant</Button>
+            <Button onClick={closeMatchModal} variant="ghost" className="w-full">Continuer à chercher</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
