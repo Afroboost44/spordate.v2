@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -17,22 +17,43 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from '@/components/ui/textarea';
+import { useToast } from "@/hooks/use-toast";
 
-const initialOffers = [
+type Offer = {
+    id: number;
+    name: string;
+    price: string;
+    location: string;
+    active: boolean;
+};
+
+const initialOffers: Offer[] = [
     { id: 1, name: 'Session Privée', price: '25 CHF', location: 'Neon Fitness Club', active: true },
     { id: 2, name: 'Match 1h', price: '40 CHF', location: 'City Tennis Court', active: true },
     { id: 3, name: 'Cours Duo', price: '30 CHF', location: 'Zen Yoga Studio', active: false },
 ];
 
 export default function PartnerOffersPage() {
-    const [offers, setOffers] = useState(initialOffers);
+    const [offers, setOffers] = useState<Offer[]>(initialOffers);
     const [open, setOpen] = useState(false);
+    const { toast } = useToast();
 
-    const handleCreateOffer = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleCreateOffer = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // In a real app, this would handle form submission
+        const formData = new FormData(e.currentTarget);
+        const newOffer: Offer = {
+            id: offers.length + 1,
+            name: formData.get('name') as string,
+            price: `${formData.get('price')} CHF`,
+            location: formData.get('location') as string,
+            active: true, // Default to active
+        };
+        setOffers(prevOffers => [...prevOffers, newOffer]);
         setOpen(false);
+        toast({
+            title: "Offre publiée avec succès !",
+            description: `Votre nouvelle activité "${newOffer.name}" est maintenant visible.`,
+        });
     }
 
     return (
@@ -51,40 +72,43 @@ export default function PartnerOffersPage() {
                     <DialogContent className="sm:max-w-[600px] bg-[#0a111a] border-cyan-900/50">
                         <form onSubmit={handleCreateOffer}>
                             <DialogHeader>
-                                <DialogTitle className="text-cyan-400 text-2xl">Nouvelle Offre</DialogTitle>
+                                <DialogTitle className="text-cyan-400 text-2xl">Nouvelle Activité Sportive</DialogTitle>
                                 <DialogDescription>
-                                Remplissez les détails de votre nouvelle activité.
+                                Remplissez les détails de votre nouvelle activité pour la publier.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-6 py-6">
+                            <div className="grid gap-4 py-6">
                                 <div className="grid gap-2">
                                     <Label htmlFor="name" className="text-gray-400">Nom de l'offre</Label>
-                                    <Input id="name" placeholder="Ex: Cours de Boxe" className="bg-black border-gray-700" />
+                                    <Input id="name" name="name" placeholder="Ex: Cours de Zumba" className="bg-black border-gray-700" required />
                                 </div>
-                                 <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
                                      <div className="grid gap-2">
                                         <Label htmlFor="price" className="text-gray-400">Prix (CHF)</Label>
-                                        <Input id="price" type="number" placeholder="35" className="bg-black border-gray-700" />
+                                        <Input id="price" name="price" type="number" placeholder="35" className="bg-black border-gray-700" required/>
                                     </div>
                                      <div className="grid gap-2">
                                         <Label htmlFor="location" className="text-gray-400">Lieu</Label>
-                                        <Input id="location" placeholder="Votre club" className="bg-black border-gray-700" />
+                                        <Input id="location" name="location" placeholder="Ex: Salle 3" className="bg-black border-gray-700" required/>
+                                    </div>
+                                </div>
+                                 <div className="grid grid-cols-2 gap-4">
+                                     <div className="grid gap-2">
+                                        <Label htmlFor="horaire" className="text-gray-400">Horaire</Label>
+                                        <Input id="horaire" name="horaire" placeholder="Lundi 18h00" className="bg-black border-gray-700" required />
                                     </div>
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="description" className="text-gray-400">Description courte</Label>
-                                    <Textarea id="description" placeholder="Une brève description de l'activité." className="bg-black border-gray-700" />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="image-url" className="text-gray-400">Lien de votre image</Label>
-                                    <Input id="image-url" placeholder="https://example.com/image.jpg" className="bg-black border-gray-700" />
+                                    <Label htmlFor="image-url" className="text-gray-400">Image de couverture</Label>
+                                    <Input id="image-url" name="imageUrl" placeholder="https://example.com/image.jpg" className="bg-black border-gray-700" />
+                                    <p className="text-xs text-gray-500">Collez le lien de votre image ici.</p>
                                 </div>
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary">Annuler</Button>
                                 </DialogClose>
-                                <Button type="submit" className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold">Créer l'offre</Button>
+                                <Button type="submit" className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold">Publier l'offre</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
