@@ -1,17 +1,23 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
-import { Activity, Wallet, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye } from 'lucide-react';
+import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+
+// Mock Data for Users
+const mockUsers = [
+    { name: 'Julie', email: 'julie@spordate.ch', joined: '2024-07-28', status: 'active' },
+    { name: 'Marc', email: 'marc@spordate.ch', joined: '2024-07-27', status: 'active' },
+    { name: 'Sophie', email: 'sophie@spordate.ch', joined: '2024-07-26', status: 'active' },
+];
 
 export default function AdminDashboard() {
   const { toast } = useToast();
@@ -28,12 +34,11 @@ export default function AdminDashboard() {
     toast({ title: "Modifications enregistrées 🌍", description: "Le site a été mis à jour instantanément." });
   };
   
-  // --- SKELETON COMPONENTS / PLACEHOLDERS ---
   const UsersList = () => (
       <Card className="bg-[#0f1115] border-gray-800">
           <CardHeader>
               <CardTitle>Liste des Utilisateurs</CardTitle>
-              <CardDescription>Total: {stats.activeUsers} utilisateurs actifs</CardDescription>
+              <CardDescription>Total: {mockUsers.length} utilisateurs actifs</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
               <Table>
@@ -43,12 +48,12 @@ export default function AdminDashboard() {
                       </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {[...Array(5)].map((_, i) => (
+                    {mockUsers.map((user, i) => (
                       <TableRow key={i}>
-                          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                          <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                          <TableCell className="font-bold">{user.name}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.joined}</TableCell>
+                          <TableCell><Badge className="bg-green-500/20 text-green-400 border-none">{user.status}</Badge></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -87,13 +92,13 @@ export default function AdminDashboard() {
   if (!translations) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><RefreshCw className="animate-spin mr-2"/> Chargement de l'éditeur...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8 pb-20">
+    <div className="min-h-screen bg-[#05090e] text-white p-4 md:p-8 pb-20 pt-24">
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50"><Activity className="text-cyan-400 h-8 w-8" /></div>
         <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système CMS & Multilingue • v10.0</p></div>
       </div>
 
-      <Tabs defaultValue="content" className="space-y-6">
+      <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-gray-800 p-1 flex-wrap h-auto w-full justify-start">
             <TabsTrigger value="overview"><BarChart className="mr-2"/>Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="content" className="data-[state=active]:bg-blue-900/40 data-[state=active]:text-blue-200"><Globe className="mr-2"/>Éditeur de Contenu</TabsTrigger>
@@ -153,11 +158,14 @@ export default function AdminDashboard() {
             <PartnersTable />
         </TabsContent>
         <TabsContent value="business">
-            <BusinessMetrics />
+            {/* Here we could have different metrics or charts */}
+            <Card className="bg-[#0f1115] border-gray-800">
+                <CardHeader><CardTitle>Advanced Business Analytics</CardTitle></CardHeader>
+                <CardContent><p className="text-gray-500">Advanced charts and metrics about business performance would go here.</p></CardContent>
+            </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
     
