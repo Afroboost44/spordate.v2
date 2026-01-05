@@ -5,6 +5,7 @@ import { Menu, Dumbbell } from 'lucide-react';
 
 export default function Header() {
   const navLinks = [
+    { href: "/discovery", label: "Rencontres" },
     { href: "/dashboard", label: "Find Match" },
     { href: "/profile", label: "Mon Profil" },
     { href: "/#how-it-works", label: "How It Works" },

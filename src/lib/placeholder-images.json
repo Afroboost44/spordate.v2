@@ -41,6 +41,24 @@
       "description": "A group of friends playing soccer.",
       "imageUrl": "https://images.unsplash.com/photo-1716392603104-44d74cb18903?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmcmllbmRzJTIwc29jY2VyfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "friends soccer"
+    },
+    {
+      "id": "discovery-1",
+      "description": "A woman playing tennis with a focused expression.",
+      "imageUrl": "https://images.unsplash.com/photo-1554011726-b1e8c211a753?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHRlbm5pc3xlbnwwfHx8fDE3NjgyNTIyMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman tennis"
+    },
+    {
+      "id": "discovery-2",
+      "description": "A man doing crossfit in a gym.",
+      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW4lMjBjcm9zc2ZpdHxlbnwwfHx8fDE3NjgyNTIyNjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man crossfit"
+    },
+    {
+      "id": "discovery-3",
+      "description": "A woman dancing gracefully.",
+      "imageUrl": "https://images.unsplash.com/photo-1511718863453-62a9a13801f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMGRhbmNpbmd8ZW58MHx8fHwxNzY4MjUyMjk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman dancing"
     }
   ]
 }
