@@ -47,12 +47,15 @@ const initialNotifications = [
   },
 ];
 
-
 export default function NotificationsPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [notifications, setNotifications] = useState(initialNotifications);
     const unreadCount = notifications.filter(n => !n.isRead).length;
+
+    // SIMULATION DU ROLE UTILISATEUR
+    const userRole = 'user'; // ou 'partner'
+    const partnerRoutes = ['/partner/wallet', '/partner/offers'];
 
     const handleMarkAllAsRead = () => {
         setNotifications(notifications.map(n => ({ ...n, isRead: true })));
@@ -64,7 +67,24 @@ export default function NotificationsPage() {
     
     const handleNotificationClick = (path: string, id: number) => {
         setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
-        router.push(path);
+        
+        // Logique de redirection sécurisée
+        if (partnerRoutes.includes(path)) {
+            if (userRole === 'partner') {
+                router.push(path);
+            } else {
+                toast({
+                    title: "Accès restreint",
+                    description: "Cette notification est pour un compte Partenaire.",
+                    variant: "destructive"
+                });
+                router.push('/profile'); // Redirection sécurisée
+            }
+        } else if (path) {
+            router.push(path);
+        } else {
+            router.push('/'); // Fallback
+        }
     };
 
   return (
