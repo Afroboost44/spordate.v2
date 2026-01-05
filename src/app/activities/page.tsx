@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import Link from "next/link";
 
 const activities = [
   {
@@ -60,7 +61,9 @@ export default function ActivitiesPage() {
                 <p className="text-foreground/70 mb-4">{activity.description}</p>
                 <div className="flex justify-between items-center">
                   <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-rose-400">{activity.price}</p>
-                  <Button className="font-semibold bg-primary hover:bg-primary/90">Réserver & Payer</Button>
+                  <Button asChild className="font-semibold bg-primary hover:bg-primary/90">
+                    <Link href="/payment">Réserver & Payer</Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
