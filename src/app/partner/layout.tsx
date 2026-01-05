@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Building, LayoutDashboard, Rocket, LogOut, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -8,6 +11,9 @@ export default function PartnerLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname.includes('/login') || pathname.includes('/register');
+
   const navLinks = [
     { href: "/partner/dashboard", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/partner/offers", label: "Mes Offres", icon: <Building /> },
@@ -15,9 +21,17 @@ export default function PartnerLayout({
     { href: "/partner/boost", label: "Boost", icon: <Rocket /> },
   ];
 
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-black">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#05090e] text-gray-200 flex">
-      <aside className="w-64 bg-[#0a111a] border-r border-cyan-900/40 p-6 flex flex-col">
+      <aside className="w-64 bg-[#0a111a] border-r border-cyan-900/40 p-6 flex-col hidden md:flex">
         <h1 className="text-2xl font-bold text-cyan-400 mb-10">
           Portail Partenaire
         </h1>
