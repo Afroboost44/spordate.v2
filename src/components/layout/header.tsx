@@ -11,16 +11,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useState } from 'react';
 
 export default function Header() {
   const { t, setLanguage } = useLanguage();
-  
+  // --- Simulation de l'état de connexion ---
+  // Dans une vraie application, ceci viendrait d'un Contexte d'Authentification (AuthContext)
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
   const navLinks = [
     { href: "/discovery", label: t('nav_discovery') || "Rencontres" },
     { href: "/dashboard", label: t('nav_find_match') || "Find Match" },
     { href: "/profile", label: t('nav_profile') || "Mon Profil" },
     { href: "/activities", label: t('nav_activities') || "Activités" },
-    { href: "/notifications", label: t('nav_notifications') || "Notifications" },
+  ];
+
+  const authenticatedLinks = [
+      { href: "/notifications", label: t('nav_notifications') || "Notifications" },
   ];
 
   return (
@@ -33,6 +40,12 @@ export default function Header() {
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">
+                {link.label}
+              </Link>
+            ))}
+             {/* --- Affichage conditionnel pour les utilisateurs connectés --- */}
+            {isLoggedIn && authenticatedLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">
                 {link.label}
               </Link>
@@ -59,24 +72,34 @@ export default function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" asChild>
-                <Link href="/notifications">
-                    <div className="relative">
-                        <Bell className="h-5 w-5"/>
-                        <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                        </span>
-                    </div>
-                    <span className="sr-only">Notifications</span>
-                </Link>
-            </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/login">{t('nav_login')}</Link>
-          </Button>
-          <Button asChild className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-            <Link href="/signup">{t('nav_signup')}</Link>
-          </Button>
+
+            {/* --- Logique d'affichage conditionnel --- */}
+            {isLoggedIn ? (
+                <>
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href="/notifications">
+                            <div className="relative">
+                                <Bell className="h-5 w-5"/>
+                                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                </span>
+                            </div>
+                            <span className="sr-only">Notifications</span>
+                        </Link>
+                    </Button>
+                    <Button variant="ghost" onClick={() => setIsLoggedIn(false)}>{t('nav_logout') || "Déconnexion"}</Button>
+                </>
+            ) : (
+                <>
+                    <Button variant="ghost" asChild>
+                        <Link href="/login">{t('nav_login')}</Link>
+                    </Button>
+                    <Button asChild className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
+                        <Link href="/signup">{t('nav_signup')}</Link>
+                    </Button>
+                </>
+            )}
         </div>
         <div className="md:hidden flex items-center">
           <Sheet>
@@ -91,19 +114,27 @@ export default function Header() {
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col space-y-4 text-lg">
-                {navLinks.map((link) => (
+                {[...navLinks, ...(isLoggedIn ? authenticatedLinks : [])].map((link) => (
                   <Link key={link.href} href={link.href} className="px-4 py-2 rounded-md hover:bg-accent/10">
                     {link.label}
                   </Link>
                 ))}
               </nav>
               <div className="absolute bottom-8 left-4 right-4 flex flex-col space-y-2">
-                 <Button variant="outline" asChild className="w-full">
-                    <Link href="/login">{t('nav_login')}</Link>
-                 </Button>
-                 <Button asChild className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-                   <Link href="/signup">{t('nav_signup')}</Link>
-                 </Button>
+                 {isLoggedIn ? (
+                     <Button variant="outline" onClick={() => setIsLoggedIn(false)} className="w-full">
+                        {t('nav_logout') || "Déconnexion"}
+                     </Button>
+                 ) : (
+                    <>
+                        <Button variant="outline" asChild className="w-full">
+                           <Link href="/login">{t('nav_login')}</Link>
+                        </Button>
+                        <Button asChild className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
+                          <Link href="/signup">{t('nav_signup')}</Link>
+                        </Button>
+                    </>
+                 )}
               </div>
             </SheetContent>
           </Sheet>

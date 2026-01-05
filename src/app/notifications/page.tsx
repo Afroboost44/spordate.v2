@@ -1,12 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Heart, CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { Bell, Heart, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+
+// --- SIMULATION AUTHENTIFICATION & MIDDLEWARE ---
+const useAuthGuard = () => {
+    const router = useRouter();
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
+    const isLoggedIn = true; // Remplacez par votre logique d'authentification réelle
+  
+    useEffect(() => {
+      // Si l'utilisateur n'est pas connecté, on le redirige.
+      if (!isLoggedIn) {
+        router.replace('/login');
+      } else {
+        setIsAuthLoading(false);
+      }
+    }, [isLoggedIn, router]);
+
+    return { isLoading: isAuthLoading, isLoggedIn };
+};
+
 
 const initialNotifications = [
   {
@@ -16,7 +36,8 @@ const initialNotifications = [
     text: "Vous avez reçu 25.00 CHF pour l'activité 'Session Privée'.",
     time: 'Il y a 2 min',
     isRead: false,
-    path: '/partner/wallet',
+    path: '/partner/wallet', // Route réservée aux partenaires
+    requiredRole: 'partner',
   },
   {
     id: 2,
@@ -26,6 +47,7 @@ const initialNotifications = [
     time: 'Il y a 15 min',
     isRead: false,
     path: '/discovery',
+    requiredRole: 'user',
   },
   {
     id: 3,
@@ -34,7 +56,8 @@ const initialNotifications = [
     text: "Votre activité 'Afroboost' a été approuvée par l'admin.",
     time: 'Il y a 1h',
     isRead: false,
-    path: '/partner/offers',
+    path: '/partner/offers', // Route réservée aux partenaires
+    requiredRole: 'partner',
   },
   {
     id: 4,
@@ -44,21 +67,28 @@ const initialNotifications = [
     time: 'Hier',
     isRead: false,
     path: '/profile',
+    requiredRole: 'user',
   },
 ];
 
 export default function NotificationsPage() {
+    const { isLoading, isLoggedIn } = useAuthGuard();
     const router = useRouter();
     const { toast } = useToast();
     const [notifications, setNotifications] = useState(initialNotifications);
-    const unreadCount = notifications.filter(n => !n.isRead).length;
 
-    // SIMULATION DU ROLE UTILISATEUR
-    const userRole = 'user'; // ou 'partner'
-    const partnerRoutes = ['/partner/wallet', '/partner/offers'];
+    // --- SIMULATION DU ROLE & ISOLATION DES DONNEES ---
+    // Dans une vraie app, le rôle viendrait du token JWT ou de la session.
+    const currentUserRole = 'user'; // ou 'partner'
+    
+    // Simule la récupération de données filtrées par l'API (WHERE user_id = ...)
+    // En ne montrant que les notifications qui correspondent au rôle de l'utilisateur.
+    const userNotifications = notifications.filter(n => n.requiredRole === currentUserRole);
+
+    const unreadCount = userNotifications.filter(n => !n.isRead).length;
 
     const handleMarkAllAsRead = () => {
-        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+        setNotifications(notifications.map(n => userNotifications.find(un => un.id === n.id) ? { ...n, isRead: true } : n));
         toast({
             title: "Notifications lues",
             description: "Toutes les notifications ont été marquées comme lues.",
@@ -67,25 +97,18 @@ export default function NotificationsPage() {
     
     const handleNotificationClick = (path: string, id: number) => {
         setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
-        
-        // Logique de redirection sécurisée
-        if (partnerRoutes.includes(path)) {
-            if (userRole === 'partner') {
-                router.push(path);
-            } else {
-                toast({
-                    title: "Accès restreint",
-                    description: "Cette notification est pour un compte Partenaire.",
-                    variant: "destructive"
-                });
-                router.push('/profile'); // Redirection sécurisée
-            }
-        } else if (path) {
-            router.push(path);
-        } else {
-            router.push('/'); // Fallback
-        }
+        router.push(path);
     };
+
+    if (isLoading) {
+      return (
+          <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+      );
+    }
+
+    if (!isLoggedIn) return null;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -107,7 +130,7 @@ export default function NotificationsPage() {
       </header>
 
       <div className="space-y-4">
-        {notifications.map((notification) => (
+        {userNotifications.map((notification) => (
           <Card 
             key={notification.id} 
             className={cn(
@@ -135,6 +158,14 @@ export default function NotificationsPage() {
           </Card>
         ))}
       </div>
+
+       {userNotifications.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground border-2 border-dashed border-border/20 rounded-lg">
+              <Bell className="mx-auto h-12 w-12 mb-4"/>
+              <h3 className="text-xl font-semibold">Aucune notification pour le moment.</h3>
+              <p>Les nouvelles activités apparaîtront ici.</p>
+          </div>
+       )}
     </div>
   );
 }
