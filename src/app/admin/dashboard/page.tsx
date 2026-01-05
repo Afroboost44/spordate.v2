@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from "@/components/ui/label";
-import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle } from 'lucide-react';
+import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle, UserPlus, Check, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,6 +25,11 @@ const mockUsersData = [
     { id: 'usr_04', name: 'Neon Fitness', email: 'contact@neon.ch', role: 'Partenaire', status: 'active', isVisible: false, avatar: 'https://i.pravatar.cc/150?u=neon' },
 ];
 
+const initialRequests = [
+    { id: 'req_01', name: 'Tennis Club de Lyon', city: 'Lyon', email: 'contact@tennislyon.fr', date: '2024-07-29' },
+    { id: 'req_02', name: 'Fitness Park Paris', city: 'Paris', email: 'paris@fitnesspark.com', date: '2024-07-28' },
+];
+
 export default function AdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
@@ -32,6 +37,7 @@ export default function AdminDashboard() {
   // Mock states for interactivity
   const [kpis] = useState({ revenue: 1250, registeredUsers: 157, activePartners: 12 });
   const [users, setUsers] = useState(mockUsersData);
+  const [partnershipRequests, setPartnershipRequests] = useState(initialRequests);
   const [paymentApis, setPaymentApis] = useState({ twint: true, stripe: true, bank: false });
   const [commission, setCommission] = useState([10]);
   const [siteName, setSiteName] = useState("Spordate");
@@ -52,6 +58,33 @@ export default function AdminDashboard() {
     toast({ title: "Utilisateur supprimé", variant: "destructive" });
   };
   
+  // --- PARTNERSHIP REQUEST LOGIC ---
+  const handleValidateRequest = (requestId: string) => {
+    const requestToValidate = partnershipRequests.find(req => req.id === requestId);
+    if (!requestToValidate) return;
+
+    const newPartner = {
+        id: `partner_${Date.now()}`,
+        name: requestToValidate.name,
+        email: requestToValidate.email,
+        role: 'Partenaire',
+        status: 'active',
+        isVisible: true,
+        avatar: `https://i.pravatar.cc/150?u=${requestToValidate.name.replace(/\s/g, '')}`
+    };
+
+    setUsers(prevUsers => [...prevUsers, newPartner]);
+    setPartnershipRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+
+    toast({ title: "Partenaire validé !", description: `${requestToValidate.name} est maintenant un partenaire actif.`, className: "bg-green-600 text-white" });
+  };
+
+  const handleRefuseRequest = (requestId: string) => {
+    setPartnershipRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+    toast({ title: "Candidature refusée", variant: "destructive" });
+  };
+
+  
   // --- COMPONENTS FOR TABS ---
   const OverviewTab = () => (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -64,7 +97,7 @@ export default function AdminDashboard() {
   const UserManagementTab = () => (
     <Card className="bg-[#0f1115] border-gray-800">
       <CardHeader>
-        <CardTitle>Gestion des Utilisateurs</CardTitle>
+        <CardTitle>Gestion des Utilisateurs & Partenaires</CardTitle>
         <CardDescription>Total: {users.length} comptes</CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto">
@@ -81,7 +114,7 @@ export default function AdminDashboard() {
                     <div><div className="font-bold">{user.name}</div><div className="text-xs text-gray-500">{user.email}</div></div>
                   </div>
                 </TableCell>
-                <TableCell><Badge variant="outline">{user.role}</Badge></TableCell>
+                <TableCell><Badge variant={user.role === 'Partenaire' ? "secondary" : "outline"}>{user.role}</Badge></TableCell>
                 <TableCell><Badge variant={user.status === 'active' ? 'default' : 'destructive'} className={user.status === 'active' ? "bg-green-500/20 text-green-400" : ""}>{user.status}</Badge></TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => toggleUserVisibility(user.id)}>{user.isVisible ? <Eye className="text-gray-400"/> : <EyeOff className="text-yellow-400"/>}</Button>
@@ -99,6 +132,37 @@ export default function AdminDashboard() {
       </CardContent>
     </Card>
   );
+  
+  const PartnershipRequestsTab = () => (
+    <Card className="bg-[#0f1115] border-gray-800">
+      <CardHeader>
+        <CardTitle>Demandes de Partenariat en Attente</CardTitle>
+        <CardDescription>{partnershipRequests.length} candidature(s) à traiter.</CardDescription>
+      </CardHeader>
+      <CardContent className="overflow-x-auto">
+        <Table>
+          <TableHeader><TableRow>
+            <TableHead>Nom du Club</TableHead><TableHead>Ville</TableHead><TableHead>Email</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead>
+          </TableRow></TableHeader>
+          <TableBody>
+            {partnershipRequests.map(req => (
+              <TableRow key={req.id}>
+                <TableCell className="font-bold">{req.name}</TableCell>
+                <TableCell>{req.city}</TableCell>
+                <TableCell className="text-gray-400">{req.email}</TableCell>
+                <TableCell className="text-gray-500">{req.date}</TableCell>
+                <TableCell className="text-right space-x-2">
+                    <Button size="sm" onClick={() => handleValidateRequest(req.id)} className="bg-green-600 hover:bg-green-500"><Check className="mr-1 h-4 w-4"/> Valider</Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleRefuseRequest(req.id)}><X className="mr-1 h-4 w-4"/> Refuser</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+
 
   const FinanceTab = () => (
     <div className="grid md:grid-cols-2 gap-8">
@@ -172,13 +236,24 @@ export default function AdminDashboard() {
         <TabsList className="bg-gray-900/50 border border-gray-800 p-1 flex-wrap h-auto w-full justify-start">
             <TabsTrigger value="overview"><BarChart className="mr-2"/>Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="users"><Users className="mr-2"/>Utilisateurs</TabsTrigger>
-            <TabsTrigger value="finance"><SlidersHorizontal className="mr-2"/>Finance & Partenaires</TabsTrigger>
+            <TabsTrigger value="requests">
+                <div className="relative">
+                  <UserPlus className="mr-2"/>Candidatures
+                  {partnershipRequests.length > 0 && 
+                    <span className="absolute -top-2 -right-3 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs">
+                        {partnershipRequests.length}
+                    </span>
+                  }
+                </div>
+            </TabsTrigger>
+            <TabsTrigger value="finance"><SlidersHorizontal className="mr-2"/>Finance</TabsTrigger>
             <TabsTrigger value="communication"><MessageSquare className="mr-2"/>Communication</TabsTrigger>
             <TabsTrigger value="cms"><Palette className="mr-2"/>CMS & Branding</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview"><OverviewTab /></TabsContent>
         <TabsContent value="users"><UserManagementTab /></TabsContent>
+        <TabsContent value="requests"><PartnershipRequestsTab /></TabsContent>
         <TabsContent value="finance"><FinanceTab /></TabsContent>
         <TabsContent value="communication"><CommunicationTab /></TabsContent>
         <TabsContent value="cms"><CmsTab /></TabsContent>
