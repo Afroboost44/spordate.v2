@@ -22,16 +22,14 @@ const initialUsers = [
     { id: 'u4', name: 'Diana', email: 'diana@spordate.com', status: 'Bloqué' },
 ];
 
-const initialPendingPartners = [
-    { id: 'p1', name: 'FitClub Lausanne', demand: '27/07/2024' },
-    { id: 'p2', name: 'Geneva Tennis Arena', demand: '26/07/2024' },
-];
-
-const activePartners = [
-    { id: 'ap1', name: 'Neon Fitness Club', commission: '15%' },
-    { id: 'ap2', name: 'City Tennis Court', commission: '15%' },
-    { id: 'ap3', name: 'Zen Yoga Studio', commission: '20%' },
-];
+type Partner = {
+    id: number;
+    name: string;
+    email: string;
+    status: 'pending' | 'active';
+    date: string;
+    commission?: string;
+};
 
 const overviewKpis = [
     { title: 'Revenus Totaux', value: '1,250 CHF', icon: <Wallet className="h-6 w-6 text-green-400" />, color: 'text-green-400' },
@@ -68,31 +66,52 @@ Les présentes CGU sont soumises au droit Suisse. En cas de litige, le for jurid
 export default function AdminDashboardPage() {
     const { toast } = useToast();
     const [users, setUsers] = useState(initialUsers);
-    const [pendingPartners, setPendingPartners] = useState(initialPendingPartners);
+    const [pendingPartners, setPendingPartners] = useState<Partner[]>([]);
+    const [activePartners, setActivePartners] = useState<Partner[]>([]);
 
     useEffect(() => {
+        loadPartnersFromStorage();
+    }, []);
+
+    const loadPartnersFromStorage = () => {
         if (typeof window !== 'undefined') {
-            const newRequestRaw = localStorage.getItem('pendingPartnerRequest');
-            if (newRequestRaw) {
-                const newRequest = JSON.parse(newRequestRaw);
-                const transformedRequest = {
-                    id: newRequest.id.toString(),
-                    name: newRequest.name,
-                    demand: newRequest.date,
-                    isNew: true,
-                };
-                
-                // Check if the request already exists to avoid duplicates
-                if (!pendingPartners.some(p => p.id === transformedRequest.id)) {
-                    setPendingPartners(prev => [transformedRequest, ...prev]);
-                }
-                
-                // We can remove it after reading to avoid re-adding on every load
-                // Or handle it with the check above. For this simulation, we'll clear it.
-                localStorage.removeItem('pendingPartnerRequest');
+            const dbRaw = localStorage.getItem('spordate_db');
+            if (dbRaw) {
+                const allPartners: Partner[] = JSON.parse(dbRaw);
+                setPendingPartners(allPartners.filter(p => p.status === 'pending'));
+                setActivePartners(allPartners.filter(p => p.status === 'active'));
             }
         }
-    }, []);
+    };
+
+    const updatePartnerStatus = (partnerId: number, newStatus: 'active' | 'rejected') => {
+        const dbRaw = localStorage.getItem('spordate_db');
+        if (dbRaw) {
+            let allPartners: Partner[] = JSON.parse(dbRaw);
+            let updatedPartners;
+            let partnerName = '';
+
+            if (newStatus === 'rejected') {
+                const partnerToRemove = allPartners.find(p => p.id === partnerId);
+                partnerName = partnerToRemove?.name || '';
+                updatedPartners = allPartners.filter(p => p.id !== partnerId);
+            } else {
+                 const partnerToUpdate = allPartners.find(p => p.id === partnerId);
+                 partnerName = partnerToUpdate?.name || '';
+                updatedPartners = allPartners.map(p => 
+                    p.id === partnerId ? { ...p, status: newStatus, commission: '15%' } : p
+                );
+            }
+
+            localStorage.setItem('spordate_db', JSON.stringify(updatedPartners));
+            loadPartnersFromStorage(); // Reload state from storage
+            
+            toast({
+                title: `Partenaire ${newStatus === 'active' ? 'Accepté' : 'Refusé'}`,
+                description: `Le statut de ${partnerName} a été mis à jour.`,
+            });
+        }
+    };
 
 
     const handleUserAction = (userId: string, newStatus: 'Actif' | 'Invisible' | 'Bloqué') => {
@@ -247,26 +266,23 @@ export default function AdminDashboardPage() {
                             <CardContent className="overflow-x-auto">
                                 <Table>
                                     <TableBody>
-                                        {pendingPartners.map((partner: any) => (
+                                        {pendingPartners.length > 0 ? pendingPartners.map((partner) => (
                                             <TableRow key={partner.id} className="border-gray-800">
-                                                <TableCell className="font-semibold flex items-center gap-2">
-                                                    {partner.name}
-                                                    {partner.isNew && <Badge variant="outline" className="border-yellow-400 text-yellow-400">NOUVEAU</Badge>}
-                                                </TableCell>
-                                                <TableCell>Demandé le: {partner.demand}</TableCell>
+                                                <TableCell className="font-semibold">{partner.name}</TableCell>
+                                                <TableCell>Demandé le: {partner.date}</TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" className="text-green-400 hover:bg-green-900/50 hover:text-green-300"><CheckCircle size={16}/> Accepter</Button>
-                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400"><XCircle size={16}/> Refuser</Button>
+                                                    <Button variant="ghost" size="sm" className="text-green-400 hover:bg-green-900/50 hover:text-green-300" onClick={() => updatePartnerStatus(partner.id, 'active')}><CheckCircle size={16}/> Accepter</Button>
+                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400" onClick={() => updatePartnerStatus(partner.id, 'rejected')}><XCircle size={16}/> Refuser</Button>
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        )) : <TableRow><TableCell colSpan={3} className="text-center text-gray-500">Aucune demande en attente.</TableCell></TableRow>}
                                     </TableBody>
                                 </Table>
                             </CardContent>
                         </Card>
                         <Card className="bg-[#111] border-gray-800">
                             <CardHeader>
-                                <CardTitle className="text-xl text-gray-200">Gestion Financière Partenaire</CardTitle>
+                                <CardTitle className="text-xl text-gray-200">Partenaires Actifs</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center space-x-4 max-w-sm">
@@ -277,7 +293,7 @@ export default function AdminDashboardPage() {
                                  <Table>
                                      <TableHeader><TableRow className="border-gray-800"><TableHead>Partenaire Actif</TableHead><TableHead>Commission</TableHead><TableHead className="text-right">Action</TableHead></TableRow></TableHeader>
                                      <TableBody>
-                                         {activePartners.map(p => (
+                                         {activePartners.length > 0 ? activePartners.map(p => (
                                              <TableRow key={p.id} className="border-gray-800">
                                                  <TableCell>{p.name}</TableCell>
                                                  <TableCell>{p.commission}</TableCell>
@@ -285,7 +301,7 @@ export default function AdminDashboardPage() {
                                                      <Button variant="destructive" size="sm">Suspendre</Button>
                                                  </TableCell>
                                              </TableRow>
-                                         ))}
+                                         )) : <TableRow><TableCell colSpan={3} className="text-center text-gray-500">Aucun partenaire actif.</TableCell></TableRow>}
                                      </TableBody>
                                  </Table>
                                 </div>
