@@ -60,7 +60,7 @@ export default function DiscoveryPage() {
   }
 
   const bookActivity = () => {
-    router.push('/payment');
+    router.push('/activities');
   }
 
   const currentProfile = profiles[currentIndex];
@@ -151,7 +151,7 @@ export default function DiscoveryPage() {
                     {boostedActivities.map((activity, index) => {
                         const activityImage = activityImages.find(img => img.id === activity.imageId);
                         return (
-                            <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/2">
+                            <CarouselItem key={index} className="basis-full sm:basis-1/2 pl-4">
                                 <Card className="overflow-hidden bg-card border-border/20 shadow-md hover:shadow-accent/20 transition-shadow">
                                      <div className="relative h-32 w-full">
                                         {activityImage && (
@@ -178,7 +178,7 @@ export default function DiscoveryPage() {
           <Separator className="bg-border/20"/>
           
           <div className="p-6 flex flex-col gap-3">
-             <Button onClick={() => {}} variant="outline" className="w-full" disabled>
+             <Button onClick={() => router.push('/chat')} variant="outline" className="w-full" disabled>
                 <Lock className="mr-2 h-4 w-4" />
                 Chat verrouillé
             </Button>
