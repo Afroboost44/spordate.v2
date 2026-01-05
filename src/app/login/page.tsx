@@ -14,9 +14,9 @@ export default function LoginPage() {
                 <Dumbbell className="h-8 w-8 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] rounded-md p-1 text-white" />
                 <span className="font-bold text-2xl">Spordate</span>
             </Link>
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Entrez votre email pour vous connecter à votre compte
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -32,24 +32,24 @@ export default function LoginPage() {
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mot de passe</Label>
                 <Link
                   href="#"
                   className="ml-auto inline-block text-sm underline text-foreground/60 hover:text-foreground"
                 >
-                  Forgot password?
+                  Mot de passe oublié ?
                 </Link>
               </div>
               <Input id="password" type="password" required />
             </div>
             <Button type="submit" className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-              Login
+              Se connecter
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
+            Pas de compte ?{" "}
             <Link href="/signup" className="underline text-accent/80 hover:text-accent">
-              Sign up
+              Créer un profil
             </Link>
           </div>
         </CardContent>

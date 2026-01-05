@@ -28,7 +28,7 @@ export default function Header() {
         </div>
         <div className="hidden items-center space-x-2 md:flex">
           <Button variant="ghost" asChild>
-            <Link href="/login">Login</Link>
+            <Link href="/login">Connexion</Link>
           </Button>
           <Button asChild className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
             <Link href="/signup">Sign Up</Link>
@@ -55,7 +55,7 @@ export default function Header() {
               </nav>
               <div className="absolute bottom-8 left-4 right-4 flex flex-col space-y-2">
                  <Button variant="outline" asChild className="w-full">
-                    <Link href="/login">Login</Link>
+                    <Link href="/login">Connexion</Link>
                  </Button>
                  <Button asChild className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
                    <Link href="/signup">Sign Up</Link>

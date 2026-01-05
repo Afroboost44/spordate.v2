@@ -14,16 +14,16 @@ export default function SignupPage() {
                 <Dumbbell className="h-8 w-8 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] rounded-md p-1 text-white" />
                 <span className="font-bold text-2xl">Spordate</span>
             </Link>
-          <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+          <CardTitle className="text-2xl font-bold">Inscription</CardTitle>
           <CardDescription>
-            Create your Spordate account to get started.
+            Créez votre compte pour commencer.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="full-name">Full Name</Label>
-                <Input id="full-name" placeholder="John Doe" required />
+                <Label htmlFor="first-name">Prénom</Label>
+                <Input id="first-name" placeholder="John" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -35,17 +35,21 @@ export default function SignupPage() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mot de passe</Label>
               <Input id="password" type="password" required />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+              <Input id="confirm-password" type="password" required />
+            </div>
             <Button type="submit" className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-              Create an account
+              Je m'inscris
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+            Déjà inscrit ?{" "}
             <Link href="/login" className="underline text-accent/80 hover:text-accent">
-              Login
+              Se connecter
             </Link>
           </div>
         </CardContent>
