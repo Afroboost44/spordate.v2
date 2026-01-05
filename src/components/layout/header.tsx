@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Dumbbell } from 'lucide-react';
+import { Menu, Dumbbell, Bell } from 'lucide-react';
 
 export default function Header() {
   const navLinks = [
@@ -9,8 +9,7 @@ export default function Header() {
     { href: "/dashboard", label: "Find Match" },
     { href: "/profile", label: "Mon Profil" },
     { href: "/activities", label: "Activités" },
-    { href: "/#how-it-works", label: "How It Works" },
-    { href: "/#why-us", label: "Why Us" },
+    { href: "/notifications", label: "Notifications" },
   ];
 
   return (
@@ -30,6 +29,18 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden items-center space-x-2 md:flex">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/notifications">
+                    <div className="relative">
+                        <Bell className="h-5 w-5"/>
+                        <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                        </span>
+                    </div>
+                    <span className="sr-only">Notifications</span>
+                </Link>
+            </Button>
           <Button variant="ghost" asChild>
             <Link href="/login">Connexion</Link>
           </Button>
