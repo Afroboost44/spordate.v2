@@ -65,6 +65,7 @@ export default function DiscoveryPage() {
 
   const currentProfile = profiles[currentIndex];
   const profileImage = discoveryImages.find(img => img.id === currentProfile?.imageId);
+  const matchedProfileImage = discoveryImages.find(img => img.id === profiles[currentIndex]?.imageId);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] p-4">
@@ -146,7 +147,7 @@ export default function DiscoveryPage() {
           <div className="bg-background/50 px-6 py-6">
              <h4 className="text-lg font-semibold mb-4 text-center">Activités Boostées pour votre Date</h4>
              <Carousel opts={{ align: "start" }} className="w-full">
-                <CarouselContent className="-ml-4">
+                <CarouselContent>
                     {boostedActivities.map((activity, index) => {
                         const activityImage = activityImages.find(img => img.id === activity.imageId);
                         return (
