@@ -8,14 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Activity, Users, CreditCard, MessageSquare, CheckCircle, XCircle, 
-  Lock, Eye, EyeOff, Trash2, Download, Send, Bell, RefreshCw, 
-  DollarSign, Heart, Save, Wallet, ExternalLink, Image as ImageIcon
+  Activity, CheckCircle, XCircle, Lock, Eye, EyeOff, Trash2, 
+  Send, Bell, RefreshCw, Save, Wallet, CreditCard
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 // --- RÈGLE 1 : DONNÉES DE SECOURS (ANTI-CRASH) ---
-// Si le système ne trouve rien, il utilise ceci au lieu de planter.
 const DEFAULT_DATA = {
     partners: [
         { id: 1, name: 'FitClub Lausanne', email: 'fit@test.ch', status: 'pending', date: '27/07/2026', commission: 15 },
@@ -33,7 +31,7 @@ const DEFAULT_DATA = {
 export default function AdminDashboard() {
   const { toast } = useToast();
   
-  // Initialisation avec des tableaux vides pour éviter les erreurs "undefined"
+  // États sécurisés (jamais undefined)
   const [partners, setPartners] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(DEFAULT_DATA.stats);
@@ -45,19 +43,17 @@ export default function AdminDashboard() {
   useEffect(() => {
     const loadData = () => {
         try {
-            // Tentative de lecture de la mémoire
             const storedPartners = localStorage.getItem('spordate_db_partners');
             const storedUsers = localStorage.getItem('spordate_db_users');
             const storedStats = localStorage.getItem('spordate_db_stats');
             
-            // Si données corrompues ou absentes -> Utiliser DEFAULT_DATA
             setPartners(storedPartners ? JSON.parse(storedPartners) : DEFAULT_DATA.partners);
             setUsers(storedUsers ? JSON.parse(storedUsers) : DEFAULT_DATA.users);
             setStats(storedStats ? JSON.parse(storedStats) : DEFAULT_DATA.stats);
 
         } catch (error) {
-            console.error("ERREUR SYSTÈME DÉTECTÉE (Récupération auto):", error);
-            // Filet de sécurité ultime
+            console.error("Auto-Repair Active:", error);
+            // Si erreur, on charge les défauts pour ne pas casser le site
             setPartners(DEFAULT_DATA.partners);
             setUsers(DEFAULT_DATA.users);
             setStats(DEFAULT_DATA.stats);
@@ -72,12 +68,11 @@ export default function AdminDashboard() {
       try {
           localStorage.setItem(key, JSON.stringify(data));
       } catch (e) {
-          console.error("Erreur de sauvegarde", e);
-          toast({ title: "Erreur sauvegarde", variant: "destructive" });
+          console.error("Erreur sauvegarde", e);
       }
   };
 
-  // --- LOGIQUE PARTENAIRES ---
+  // --- LOGIQUES MÉTIER ---
   const handlePartnerStatus = (id: number, newStatus: string) => {
     const updatedPartners = partners.map(p => p.id === id ? { ...p, status: newStatus } : p);
     setPartners(updatedPartners);
@@ -92,12 +87,10 @@ export default function AdminDashboard() {
       toast({ title: "Commission mise à jour 💰" });
   };
 
-  // --- LOGIQUE UTILISATEURS ---
   const handleUserAction = (id: number, action: string) => {
       let updatedUsers = [...users];
       const userIndex = updatedUsers.findIndex(u => u.id === id);
       if (userIndex === -1) return;
-      
       const user = updatedUsers[userIndex];
 
       if(action === 'block') {
@@ -106,39 +99,34 @@ export default function AdminDashboard() {
           user.status = user.status === 'invisible' ? 'active' : 'invisible';
           toast({ title: "Visibilité changée", description: `Statut : ${user.status}` });
       } else if (action === 'delete') {
-          if(window.confirm(`Supprimer définitivement ${user.name} ?`)) {
-              updatedUsers = updatedUsers.filter(u => u.id !== id);
-          }
+          if(window.confirm(`Supprimer ${user.name} ?`)) updatedUsers = updatedUsers.filter(u => u.id !== id);
       }
       setUsers(updatedUsers);
       saveToDb('spordate_db_users', updatedUsers);
   };
 
-  // --- LOGIQUE BUSINESS ---
   const handleWithdraw = () => {
       const amount = stats.walletBalance || 0;
       if (amount <= 0) {
-           toast({ title: "Solde insuffisant", description: "0.00 CHF disponible.", variant: "destructive" });
+           toast({ title: "Solde insuffisant", description: "0.00 CHF", variant: "destructive" });
            return;
       }
-      if(window.confirm(`Virer ${amount.toFixed(2)} CHF vers votre compte ?`)) {
+      if(window.confirm(`Virer ${amount.toFixed(2)} CHF ?`)) {
           const newStats = { ...stats, walletBalance: 0 };
           setStats(newStats);
           saveToDb('spordate_db_stats', newStats);
-          toast({ title: "Virement Effectué 🏦", description: "Fonds envoyés vers l'IBAN enregistré." });
+          toast({ title: "Virement Effectué 🏦", description: "Fonds envoyés." });
       }
   };
 
-  // --- LOGIQUE COMMUNICATION ---
   const handleBroadcast = () => {
-      const msg = window.prompt("Message système à tous les utilisateurs :");
+      const msg = window.prompt("Message système :");
       if(msg) toast({ title: "Diffusion réussie 🚀", description: `Envoyé à ${users.length} comptes.` });
   };
 
-  // Écran de chargement pour éviter le flash blanc
-  if (!isLoaded) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><RefreshCw className="animate-spin mr-2"/> Chargement du système...</div>;
+  if (!isLoaded) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><RefreshCw className="animate-spin mr-2"/> Chargement...</div>;
 
-  // Filtrage sécurisé (Règle 3: Safe Mapping)
+  // Safe Mapping (Règle 3)
   const pendingPartners = (partners || []).filter(p => p.status === 'pending');
   const activePartners = (partners || []).filter(p => p.status === 'active');
 
@@ -146,10 +134,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-black text-white p-4 md:p-8 pb-20">
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50"><Activity className="text-cyan-400 h-8 w-8" /></div>
-        <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système Sécurisé • v7.0 (Stable)</p></div>
+        <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système Sécurisé • v8.0 (Clean)</p></div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs defaultValue="partners" className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-gray-800 p-1 flex-wrap h-auto w-full justify-start">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="partners" className="relative">
@@ -192,7 +180,7 @@ export default function AdminDashboard() {
             </Card>
 
             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Partenaires Actifs & Commissions</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Partenaires Actifs</CardTitle></CardHeader>
                 <CardContent>
                     {activePartners.length === 0 ? <p className="text-gray-500 italic">Aucun partenaire actif.</p> : (
                         <div className="space-y-2">
@@ -203,8 +191,8 @@ export default function AdminDashboard() {
                                     <span className="text-xs text-green-500 border border-green-900/50 px-2 py-0.5 rounded-full">Actif</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <label className="text-xs text-gray-400">Commission (%):</label>
-                                    <Input type="number" defaultValue={p.commission || 15} className="w-20 bg-black border-gray-700 h-8 text-center" onBlur={(e) => handleCommissionChange(p.id, e.target.value)}/>
+                                    <label className="text-xs text-gray-400">Com. (%):</label>
+                                    <Input type="number" defaultValue={p.commission || 15} className="w-16 bg-black border-gray-700 h-8 text-center" onBlur={(e) => handleCommissionChange(p.id, e.target.value)}/>
                                     <Button size="sm" variant="ghost" className="h-8 w-8 p-0"><Save className="h-4 w-4 text-cyan-500"/></Button>
                                 </div>
                                 <Button size="sm" variant="destructive" onClick={() => handlePartnerStatus(p.id, 'rejected')}>Suspendre</Button>
@@ -219,7 +207,7 @@ export default function AdminDashboard() {
         {/* 3. UTILISATEURS */}
         <TabsContent value="users">
             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Gestion des Utilisateurs</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Gestion Utilisateurs</CardTitle></CardHeader>
                 <CardContent>
                     <div className="space-y-3">
                         {(users || []).map((u) => (
@@ -232,7 +220,6 @@ export default function AdminDashboard() {
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="ghost" onClick={() => handleUserAction(u.id, 'toggle_invisible')} className="text-gray-400 border border-gray-700">
                                         {u.status === 'invisible' ? <Eye className="h-4 w-4 mr-2"/> : <EyeOff className="h-4 w-4 mr-2"/>}
-                                        {u.status === 'invisible' ? 'Visible' : 'Invisible'}
                                     </Button>
                                     <Button size="sm" variant="ghost" onClick={() => handleUserAction(u.id, 'block')} className="text-red-400 hover:bg-red-900/20"><Lock className="h-4 w-4"/></Button>
                                     <Button size="icon" variant="ghost" onClick={() => handleUserAction(u.id, 'delete')} className="text-gray-600 hover:text-red-500"><Trash2 className="h-4 w-4"/></Button>
@@ -289,18 +276,31 @@ export default function AdminDashboard() {
             </div>
         </TabsContent>
 
-        {/* 6. CONFIGURATION */}
+        {/* 6. CONFIGURATION (CORRIGÉE : Pas d'image, Twint présent) */}
         <TabsContent value="config">
             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Configuration & Images</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Paramètres Système & Bancaire</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="bg-blue-900/20 p-4 rounded border border-blue-900/50">
-                        <h3 className="text-blue-400 font-bold flex items-center gap-2"><ImageIcon className="h-5 w-5"/> Convertisseur d'Image</h3>
-                        <Button variant="outline" className="w-full mt-2 border-blue-500 text-blue-400" onClick={() => window.open('https://imgbb.com/', '_blank')}><ExternalLink className="mr-2 h-4 w-4"/> Ouvrir ImgBB</Button>
-                    </div>
                     <div className="space-y-2">
-                        <label className="text-sm text-gray-400">Stripe Secret Key</label>
-                        <Input type="password" value="sk_live_xxxxxxxxxx" readOnly className="bg-black border-gray-700 text-green-500"/>
+                        <label className="text-sm text-gray-400">Nom du site</label>
+                        <Input defaultValue="Spordate" className="bg-black border-gray-700"/>
+                    </div>
+                    
+                    <div className="border-t border-gray-800 pt-4">
+                        <h3 className="text-cyan-400 font-bold mb-4 flex items-center gap-2"><CreditCard className="h-4 w-4"/> Connexions API</h3>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-xs text-gray-500">Stripe Secret Key</label>
+                                <Input type="password" value="sk_live_xxxxxxxxxx" readOnly className="bg-black border-gray-700 text-green-500"/>
+                            </div>
+                            
+                            {/* AJOUT DU CHAMP TWINT */}
+                            <div>
+                                <label className="text-xs text-gray-500">TWINT UUID (Suisse)</label>
+                                <Input type="text" placeholder="UUID-XXXX-XXXX-XXXX" className="bg-black border-gray-700 font-mono text-white"/>
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
