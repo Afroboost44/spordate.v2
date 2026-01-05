@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -58,18 +58,16 @@ export default function PartnerOffersPage() {
         };
 
         if (editingOffer) {
-            // Update existing offer
             setOffers(offers.map(o => o.id === editingOffer.id ? { ...editingOffer, ...offerData } : o));
             toast({
                 title: "Offre mise à jour !",
                 description: `L'activité "${offerData.name}" a été modifiée.`,
             });
         } else {
-            // Create new offer
             const newOffer: Offer = {
                 id: offers.length > 0 ? Math.max(...offers.map(o => o.id)) + 1 : 1,
                 ...offerData,
-                active: true, // Default to active
+                active: true,
             };
             setOffers(prevOffers => [...prevOffers, newOffer]);
             toast({
@@ -91,16 +89,15 @@ export default function PartnerOffersPage() {
             });
         }
     };
-    
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-10">
+        <div className="p-4 sm:p-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
                 <header>
-                    <h1 className="text-4xl font-bold text-gray-100">Gestion des Offres</h1>
+                    <h1 className="text-2xl sm:text-4xl font-bold text-gray-100">Gestion des Offres</h1>
                     <p className="text-gray-500">Ajoutez, modifiez ou supprimez vos activités.</p>
                 </header>
-                 <Button onClick={() => handleOpenDialog()} className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold text-base h-12 px-6">
+                 <Button onClick={() => handleOpenDialog()} className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold text-base h-12 px-6 w-full sm:w-auto">
                     <PlusCircle className="mr-2" /> Créer une offre
                 </Button>
             </div>
@@ -155,7 +152,7 @@ export default function PartnerOffersPage() {
             </Dialog>
 
             <Card className="bg-[#0a111a] border-cyan-900/50">
-                <CardContent className="p-0">
+                <CardContent className="p-0 overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow className="border-gray-800 hover:bg-gray-900/50">
@@ -198,3 +195,5 @@ export default function PartnerOffersPage() {
         </div>
     );
 }
+
+    

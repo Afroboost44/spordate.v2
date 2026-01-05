@@ -8,14 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, Send, MessageSquare, Users2, User, Wallet, Heart, Activity, UserPlus } from 'lucide-react';
+import { BarChart, Users, Building, Briefcase, Settings, Download, XCircle, CheckCircle, Ban, EyeOff, Trash2, MessageSquare, Users2, User, Wallet, Heart, Activity, UserPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
-
-const users = [
+const initialUsers = [
     { id: 'u1', name: 'Alice', email: 'alice@spordate.com', status: 'Actif' },
     { id: 'u2', name: 'Bob', email: 'bob@spordate.com', status: 'Actif' },
     { id: 'u3', name: 'Charlie', email: 'charlie@spordate.com', status: 'Invisible' },
@@ -48,12 +47,27 @@ const recentEvents = [
 
 export default function AdminDashboardPage() {
     const { toast } = useToast();
+    const [users, setUsers] = useState(initialUsers);
 
-    const handleConfirmAction = (action: string, userName: string) => {
-        if (window.confirm(`Êtes-vous sûr de vouloir ${action} l'utilisateur ${userName} ?`)) {
-             toast({
-                title: "Action exécutée",
-                description: `${userName} a été ${action}.`,
+    const handleUserAction = (userId: string, newStatus: 'Actif' | 'Invisible' | 'Bloqué') => {
+        setUsers(currentUsers =>
+            currentUsers.map(user =>
+                user.id === userId ? { ...user, status: newStatus } : user
+            )
+        );
+        toast({
+            title: "Statut utilisateur mis à jour",
+            description: `L'utilisateur a été marqué comme ${newStatus.toLowerCase()}.`,
+        });
+    };
+
+    const handleDeleteUser = (userId: string, userName: string) => {
+        if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${userName} ? Cette action est irréversible.`)) {
+            setUsers(currentUsers => currentUsers.filter(user => user.id !== userId));
+            toast({
+                variant: "destructive",
+                title: "Utilisateur supprimé",
+                description: `${userName} a été définitivement supprimé.`,
             });
         }
     };
@@ -64,27 +78,35 @@ export default function AdminDashboardPage() {
             description: "Les nouveaux paramètres de tarification et de parrainage ont été appliqués.",
             className: "bg-green-600 text-white border-green-700",
         });
-    }
+    };
+
+    const handleSendMessage = (target: string) => {
+        toast({
+            title: "Message envoyé avec succès !",
+            description: `Votre message a bien été envoyé à "${target}".`,
+        });
+    };
 
     return (
-        <div className="min-h-screen bg-black text-gray-300 p-8">
+        <div className="min-h-screen bg-black text-gray-300 p-4 sm:p-8">
             <div className="container mx-auto">
                 <header className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-100 flex items-center gap-3">
-                        <BarChart className="h-8 w-8 text-blue-500" />
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-100 flex items-center gap-3">
+                        <BarChart className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />
                         Super Admin Dashboard
                     </h1>
                     <p className="text-gray-500">Centre de commande de l'écosystème Spordate.</p>
                 </header>
 
                 <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="grid w-full grid-cols-6 bg-[#111] h-14 p-2">
-                        <TabsTrigger value="overview" className="h-full text-base gap-2"><BarChart /> Vue d'ensemble</TabsTrigger>
-                        <TabsTrigger value="users" className="h-full text-base gap-2"><Users /> Utilisateurs</TabsTrigger>
-                        <TabsTrigger value="partners" className="h-full text-base gap-2"><Building /> Partenaires</TabsTrigger>
-                        <TabsTrigger value="business" className="h-full text-base gap-2"><Briefcase /> Business</TabsTrigger>
-                        <TabsTrigger value="communication" className="h-full text-base gap-2"><MessageSquare /> Communication</TabsTrigger>
-                        <TabsTrigger value="config" className="h-full text-base gap-2"><Settings /> Configuration</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 bg-[#111] h-auto sm:h-14 p-2">
+                        <TabsTrigger value="overview" className="h-full text-sm sm:text-base gap-2"><BarChart /> Vue d'ensemble</TabsTrigger>
+                        <TabsTrigger value="users" className="h-full text-sm sm:text-base gap-2"><Users /> Utilisateurs</TabsTrigger>
+
+                        <TabsTrigger value="partners" className="h-full text-sm sm:text-base gap-2"><Building /> Partenaires</TabsTrigger>
+                        <TabsTrigger value="business" className="h-full text-sm sm:text-base gap-2"><Briefcase /> Business</TabsTrigger>
+                        <TabsTrigger value="communication" className="h-full text-sm sm:text-base gap-2"><MessageSquare /> Communication</TabsTrigger>
+                        <TabsTrigger value="config" className="h-full text-sm sm:text-base gap-2"><Settings /> Configuration</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview" className="mt-6">
@@ -121,16 +143,16 @@ export default function AdminDashboardPage() {
 
                     <TabsContent value="users" className="mt-6">
                         <Card className="bg-[#111] border-gray-800">
-                            <CardHeader className="flex flex-row justify-between items-center">
+                            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <CardTitle className="text-xl text-gray-200">Gestion des Utilisateurs</CardTitle>
                                     <CardDescription>Actions sur les comptes utilisateurs.</CardDescription>
                                 </div>
-                                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-900/50 hover:text-blue-300">
+                                <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-900/50 hover:text-blue-300 w-full sm:w-auto">
                                     <Download className="mr-2 h-4 w-4" /> Exporter (CSV)
                                 </Button>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="border-gray-800">
@@ -153,9 +175,9 @@ export default function AdminDashboardPage() {
                                                     }`}>{user.status}</span>
                                                 </TableCell>
                                                 <TableCell className="text-right space-x-1">
-                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400" onClick={() => handleConfirmAction('bloquer', user.name)}><Ban size={16}/> Bloquer</Button>
-                                                    <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-gray-700/50 hover:text-gray-300"><EyeOff size={16}/> Invisible</Button>
-                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-700/50 hover:text-gray-400" onClick={() => handleConfirmAction('supprimer', user.name)}><Trash2 size={16}/> Supprimer</Button>
+                                                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-900/50 hover:text-red-400" onClick={() => handleUserAction(user.id, 'Bloqué')}><Ban size={16}/> Bloquer</Button>
+                                                    <Button variant="ghost" size="sm" className="text-gray-400 hover:bg-gray-700/50 hover:text-gray-300" onClick={() => handleUserAction(user.id, 'Invisible')}><EyeOff size={16}/> Invisible</Button>
+                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-700/50 hover:text-gray-400" onClick={() => handleDeleteUser(user.id, user.name)}><Trash2 size={16}/> Supprimer</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -170,7 +192,7 @@ export default function AdminDashboardPage() {
                             <CardHeader>
                                 <CardTitle className="text-xl text-green-300">Demandes Partenaire en Attente</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="overflow-x-auto">
                                 <Table>
                                     <TableBody>
                                         {pendingPartners.map((partner) => (
@@ -196,6 +218,7 @@ export default function AdminDashboardPage() {
                                     <Label htmlFor="commission" className="whitespace-nowrap">Commission par défaut (%)</Label>
                                     <Input id="commission" type="number" defaultValue="15" className="bg-black border-gray-700 w-24" />
                                 </div>
+                                <div className="overflow-x-auto">
                                  <Table>
                                      <TableHeader><TableRow className="border-gray-800"><TableHead>Partenaire Actif</TableHead><TableHead>Commission</TableHead><TableHead className="text-right">Action</TableHead></TableRow></TableHeader>
                                      <TableBody>
@@ -210,6 +233,7 @@ export default function AdminDashboardPage() {
                                          ))}
                                      </TableBody>
                                  </Table>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -220,7 +244,7 @@ export default function AdminDashboardPage() {
                                 <CardTitle className="text-xl text-yellow-300">Stratégie Business & Tarification</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-6 max-w-2xl">
-                                <div className="grid grid-cols-2 gap-4 items-end">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                                     <div>
                                         <Label htmlFor="sub-price">Prix Abonnement Mensuel User (CHF)</Label>
                                         <Input id="sub-price" type="number" placeholder="29.90" className="bg-black border-gray-700"/>
@@ -261,14 +285,14 @@ export default function AdminDashboardPage() {
                                     <DialogContent className="bg-[#111] border-gray-800">
                                         <DialogHeader>
                                             <DialogTitle>Message pour tous</DialogTitle>
-                                            <DialogDescription>Ce message sera envoyé à tous les membres.</DialogDescription>
+                                            <DialogDescription>Ce message sera envoyé à tous les membres (42 utilisateurs).</DialogDescription>
                                         </DialogHeader>
                                         <div className="space-y-4 py-4">
                                             <Input placeholder="Sujet" className="bg-black border-gray-700" />
                                             <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                            <Button type="submit" variant="default" onClick={() => handleSendMessage("42 utilisateurs")}>Envoyer le message</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
@@ -297,7 +321,7 @@ export default function AdminDashboardPage() {
                                             <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                            <Button type="submit" variant="default" onClick={() => handleSendMessage("un groupe")}>Envoyer le message</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
@@ -318,12 +342,12 @@ export default function AdminDashboardPage() {
                                             <DialogDescription>Recherchez un utilisateur par nom ou email.</DialogDescription>
                                         </DialogHeader>
                                         <div className="space-y-4 py-4">
-                                            <Input placeholder="Rechercher un utilisateur..." className="bg-black border-gray-700" />
+                                            <Input placeholder="Rechercher 'Alice'..." className="bg-black border-gray-700" />
                                             <Input placeholder="Sujet" className="bg-black border-gray-700" />
                                             <Textarea placeholder="Votre message ici..." className="bg-black border-gray-700" rows={6}/>
                                         </div>
                                         <DialogFooter>
-                                            <Button type="submit" variant="default">Envoyer le message</Button>
+                                            <Button type="submit" variant="default" onClick={() => handleSendMessage("Alice")}>Envoyer le message</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
@@ -388,3 +412,5 @@ export default function AdminDashboardPage() {
         </div>
     );
 }
+
+    
