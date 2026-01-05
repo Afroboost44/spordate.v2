@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="dark">
-      <body>
+      <body className="font-body">
         <LanguageProvider>
           {children}
           <Toaster />
