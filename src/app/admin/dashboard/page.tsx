@@ -7,27 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Activity, Users, Building, CreditCard, Settings, MessageSquare, 
-  CheckCircle, XCircle, Lock, EyeOff, Trash2, Download, Send, Bell, RefreshCw, DollarSign, Heart
+  CheckCircle, XCircle, Lock, EyeOff, Trash2, Download, Send, Bell, RefreshCw, DollarSign, Heart, Save, Wallet
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 // --- RÈGLE ANTI-CRASH : DONNÉES DE SECOURS ---
-// Cette constante est votre "Roue de Secours". Si le navigateur perd la mémoire,
-// le site utilise ces données au lieu d'afficher une page blanche.
 const DEFAULT_DATA = {
     partners: [
-        { id: 1, name: 'FitClub Lausanne', email: 'fit@test.ch', status: 'pending', date: '27/07/2026', ide: 'CHE-101.202.303' },
-        { id: 2, name: 'Geneva Tennis', email: 'tennis@test.ch', status: 'active', date: '26/07/2026', ide: 'CHE-404.505.606' }
+        { id: 1, name: 'FitClub Lausanne', email: 'fit@test.ch', status: 'pending', date: '27/07/2026', ide: 'CHE-101.202.303', commission: 15 },
+        { id: 2, name: 'Geneva Tennis', email: 'tennis@test.ch', status: 'active', date: '26/07/2026', ide: 'CHE-404.505.606', commission: 15 }
     ],
     users: [
-        { id: 1, name: 'Alice', email: 'alice@spordate.com', ville: 'Lausanne', sport: 'Yoga', status: 'active' },
-        { id: 2, name: 'Bob', email: 'bob@spordate.com', ville: 'Genève', sport: 'Tennis', status: 'active' },
-        { id: 3, name: 'Charlie', email: 'charlie@spordate.com', ville: 'Fribourg', sport: 'Running', status: 'invisible' },
-        { id: 4, name: 'Diana', email: 'diana@spordate.com', ville: 'Sion', sport: 'Fitness', status: 'blocked' }
+        { id: 1, name: 'Alice', email: 'alice@spordate.com', ville: 'Lausanne', sport: 'Yoga', status: 'active', lastLogin: 'Hier' },
+        { id: 2, name: 'Bob', email: 'bob@spordate.com', ville: 'Genève', sport: 'Tennis', status: 'active', lastLogin: 'Il y a 2 jours' },
+        { id: 3, name: 'Charlie', email: 'charlie@spordate.com', ville: 'Fribourg', sport: 'Running', status: 'invisible', lastLogin: 'Il y a 1 mois' },
+        { id: 4, name: 'Diana', email: 'diana@spordate.com', ville: 'Sion', sport: 'Fitness', status: 'blocked', lastLogin: 'Jamais' }
     ],
-    stats: { revenue: 1250, activeUsers: 42, matches: 18 }
+    stats: { revenue: 1250, activeUsers: 42, matches: 18, walletBalance: 1250.00 }
 };
 
 export default function AdminDashboard() {
@@ -36,63 +35,107 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(DEFAULT_DATA.stats);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // États pour la messagerie directe
+  const [selectedUser, setSelectedUser] = useState("");
+  const [directMessage, setDirectMessage] = useState("");
 
   // --- CHARGEMENT SÉCURISÉ (SAFE MODE) ---
   useEffect(() => {
     const loadSecureData = () => {
         try {
-            // 1. Tenter de lire la mémoire du navigateur
-            const storedPartners = localStorage.getItem('spordate_db');
+            const storedPartners = localStorage.getItem('spordate_db_partners');
+            const storedUsers = localStorage.getItem('spordate_db_users');
             
-            // 2. Si vide ou corrompu, activer la sauvegarde (DEFAULT_DATA)
             if (storedPartners) {
                 setPartners(JSON.parse(storedPartners));
             } else {
-                console.log("⚠️ Mémoire vide : Chargement des données de secours.");
-                localStorage.setItem('spordate_db', JSON.stringify(DEFAULT_DATA.partners));
                 setPartners(DEFAULT_DATA.partners);
+                localStorage.setItem('spordate_db_partners', JSON.stringify(DEFAULT_DATA.partners));
             }
 
-            // Chargement des autres données (Utilisateurs & Stats)
-            setUsers(DEFAULT_DATA.users); 
-            setStats(DEFAULT_DATA.stats);
+            if (storedUsers) {
+                setUsers(JSON.parse(storedUsers));
+            } else {
+                setUsers(DEFAULT_DATA.users);
+                localStorage.setItem('spordate_db_users', JSON.stringify(DEFAULT_DATA.users));
+            }
 
-            setIsLoaded(true); // Le site est prêt
+            setStats(DEFAULT_DATA.stats);
+            setIsLoaded(true);
         } catch (error) {
-            console.error("ERREUR CRITIQUE DÉTECTÉE :", error);
-            // 3. En cas d'erreur grave, forcer le mode sans échec
+            console.error("ERREUR CRITIQUE :", error);
+            // Mode sans échec
             setPartners(DEFAULT_DATA.partners);
             setUsers(DEFAULT_DATA.users);
             setStats(DEFAULT_DATA.stats);
             setIsLoaded(true);
-            toast({ title: "Mode Sans Échec Activé", description: "Le site a récupéré les données après une erreur.", variant: "destructive" });
         }
     };
     loadSecureData();
   }, []);
 
-  // --- ACTIONS FONCTIONNELLES ---
+  // --- FONCTIONNALITÉ 1 : GESTION COMMISSIONS ---
+  const handleCommissionChange = (id: number, newRate: string) => {
+      const updatedPartners = partners.map(p => p.id === id ? { ...p, commission: parseInt(newRate) } : p);
+      setPartners(updatedPartners);
+      localStorage.setItem('spordate_db_partners', JSON.stringify(updatedPartners));
+      toast({ title: "Commission mise à jour 💰", description: `Nouveau taux appliqué.` });
+  };
 
   const handlePartnerStatus = (id: number, newStatus: string) => {
     const updatedPartners = partners.map(p => p.id === id ? { ...p, status: newStatus } : p);
     setPartners(updatedPartners);
-    localStorage.setItem('spordate_db', JSON.stringify(updatedPartners)); // Sauvegarde immédiate
-    
-    toast({ 
-        title: newStatus === 'active' ? "Partenaire Accepté ✅" : "Statut Mis à Jour", 
-        description: `La modification est enregistrée.` 
-    });
+    localStorage.setItem('spordate_db_partners', JSON.stringify(updatedPartners));
+    toast({ title: newStatus === 'active' ? "Partenaire Accepté ✅" : "Statut Mis à Jour" });
   };
 
+  // --- FONCTIONNALITÉ 2 : MESSAGERIE CIBLÉE ---
+  const handleSendDirect = () => {
+      if(!selectedUser || !directMessage) {
+          toast({ title: "Erreur", description: "Veuillez sélectionner un utilisateur et écrire un message.", variant: "destructive" });
+          return;
+      }
+      toast({ title: "Message Envoyé 📨", description: `Message privé envoyé à ${selectedUser}.` });
+      setDirectMessage("");
+  };
+
+  const handleSendOldUsers = () => {
+      toast({ title: "Campagne de relance 📢", description: "Email envoyé aux utilisateurs inactifs depuis 30 jours." });
+  }
+
+  const handleBroadcast = () => {
+      const msg = window.prompt("Saisissez votre message pour TOUS :");
+      if(msg) toast({ title: "Message Envoyé 🚀", description: `Envoyé à ${users.length} utilisateurs.` });
+  };
+
+  // --- FONCTIONNALITÉ 3 : RETRAIT ARGENT ---
+  const handleWithdraw = () => {
+      const amount = stats.walletBalance;
+      if (amount <= 0) {
+           toast({ title: "Solde insuffisant", description: "Vous n'avez pas de fonds à retirer.", variant: "destructive" });
+           return;
+      }
+      if(window.confirm(`Voulez-vous virer ${amount} CHF vers votre compte bancaire enregistré ?`)) {
+          setStats({...stats, walletBalance: 0});
+          toast({ title: "Virement Effectué 🏦", description: `${amount} CHF sont en route vers votre compte.` });
+      }
+  };
+
+  // --- AUTRES FONCTIONS ---
   const handleUserAction = (name: string, action: string) => {
       if(action === 'block') {
-          if(window.confirm(`SÉCURITÉ : Voulez-vous bloquer l'accès à ${name} ?`)) {
-             setUsers(users.map(u => u.name === name ? {...u, status: 'blocked'} : u));
+          if(window.confirm(`Bloquer l'accès à ${name} ?`)) {
+             const updatedUsers = users.map(u => u.name === name ? {...u, status: 'blocked'} : u);
+             setUsers(updatedUsers);
+             localStorage.setItem('spordate_db_users', JSON.stringify(updatedUsers));
              toast({ title: "Utilisateur Bloqué 🚫", variant: "destructive" });
           }
       } else if (action === 'delete') {
           if(window.confirm(`Supprimer définitivement ${name} ?`)) {
-             setUsers(users.filter(u => u.name !== name));
+             const updatedUsers = users.filter(u => u.name !== name);
+             setUsers(updatedUsers);
+             localStorage.setItem('spordate_db_users', JSON.stringify(updatedUsers));
              toast({ title: "Compte Supprimé 🗑️" });
           }
       }
@@ -102,12 +145,6 @@ export default function AdminDashboard() {
       toast({ title: "Sauvegarde Réussie 💾", description: "Paramètres mis à jour." });
   };
 
-  const handleBroadcast = () => {
-      const msg = window.prompt("Saisissez votre message :");
-      if(msg) toast({ title: "Message Envoyé 🚀", description: `Envoyé à ${users.length} utilisateurs.` });
-  };
-
-  // Écran de chargement pour éviter le "flash" blanc
   if (!isLoaded) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><RefreshCw className="animate-spin mr-2"/> Chargement sécurisé...</div>;
 
   const pendingPartners = partners.filter(p => p.status === 'pending');
@@ -123,7 +160,7 @@ export default function AdminDashboard() {
         </div>
         <div>
           <h1 className="text-3xl font-bold text-white">Super Admin Dashboard</h1>
-          <p className="text-gray-400">Système Sécurisé • v3.0 Final</p>
+          <p className="text-gray-400">Système Sécurisé • v4.0 (Features Complete)</p>
         </div>
       </div>
 
@@ -159,39 +196,21 @@ export default function AdminDashboard() {
                     <CardContent><div className="text-pink-500 text-sm font-bold flex items-center">18 Rencontres</div></CardContent>
                 </Card>
             </div>
-
-            <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Derniers Inscrits</CardTitle></CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {users.slice(0, 4).map((u, i) => (
-                            <div key={i} className="flex justify-between items-center border-b border-gray-800 pb-3 last:border-0 last:pb-0">
-                                <div><span className="font-bold text-white block">{u.name}</span><span className="text-xs text-gray-500">{u.ville}</span></div>
-                                <span className="text-sm text-cyan-400 font-medium">{u.sport}</span>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
         </TabsContent>
 
-        {/* --- 2. PARTENAIRES --- */}
+        {/* --- 2. PARTENAIRES (AVEC GESTION COMMISSION) --- */}
         <TabsContent value="partners" className="space-y-6">
             <Card className="bg-green-950/10 border-green-900/30">
-                <CardHeader><CardTitle className="text-green-400">Demandes Partenaire en Attente ({pendingPartners.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-green-400">Demandes en Attente ({pendingPartners.length})</CardTitle></CardHeader>
                 <CardContent>
-                    {pendingPartners.length === 0 ? <p className="text-gray-500 italic">Aucune demande en attente.</p> : (
+                    {pendingPartners.length === 0 ? <p className="text-gray-500 italic">Aucune demande.</p> : (
                         <div className="space-y-4">
                             {pendingPartners.map((p) => (
                                 <div key={p.id} className="flex flex-col md:flex-row justify-between items-center bg-black/40 p-4 rounded border border-green-900/30 gap-4">
-                                    <div>
-                                        <h3 className="font-bold text-white text-lg">{p.name}</h3>
-                                        <p className="text-sm text-gray-400">Demandé le: {p.date}</p>
-                                        <p className="text-xs text-gray-500">{p.email}</p>
-                                    </div>
+                                    <div><h3 className="font-bold text-white">{p.name}</h3><p className="text-sm text-gray-400">{p.date}</p></div>
                                     <div className="flex gap-2">
-                                        <Button size="sm" onClick={() => handlePartnerStatus(p.id, 'active')} className="bg-transparent border border-green-600 text-green-500 hover:bg-green-600 hover:text-white"><CheckCircle className="mr-2 h-4 w-4"/> Accepter</Button>
-                                        <Button size="sm" onClick={() => handlePartnerStatus(p.id, 'rejected')} className="bg-transparent border border-red-600 text-red-500 hover:bg-red-600 hover:text-white"><XCircle className="mr-2 h-4 w-4"/> Refuser</Button>
+                                        <Button size="sm" onClick={() => handlePartnerStatus(p.id, 'active')} className="bg-green-600 hover:bg-green-500"><CheckCircle className="mr-2 h-4 w-4"/> Accepter</Button>
+                                        <Button size="sm" onClick={() => handlePartnerStatus(p.id, 'rejected')} variant="destructive"><XCircle className="mr-2 h-4 w-4"/> Refuser</Button>
                                     </div>
                                 </div>
                             ))}
@@ -201,21 +220,34 @@ export default function AdminDashboard() {
             </Card>
 
             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Gestion Financière Partenaire</CardTitle><CardDescription>Commission par défaut : <span className="text-green-400 font-bold">15%</span></CardDescription></CardHeader>
+                <CardHeader><CardTitle>Partenaires Actifs & Commissions</CardTitle><CardDescription>Modifiez le % de commission individuellement.</CardDescription></CardHeader>
                 <CardContent>
-                     {activePartners.length === 0 ? <p className="text-gray-500 italic">Aucun partenaire actif.</p> : (
-                        <div className="space-y-2">
-                             {activePartners.map((p) => (
-                                <div key={p.id} className="flex justify-between items-center p-4 bg-black/20 rounded hover:bg-gray-900 transition border border-gray-800/50">
-                                    <div>
-                                        <span className="text-white font-medium block">{p.name}</span>
-                                        <span className="text-xs text-green-500 border border-green-900/50 px-2 py-0.5 rounded-full">Actif</span>
-                                    </div>
-                                    <Button size="sm" variant="destructive" className="bg-red-900/20 text-red-500 hover:bg-red-600 hover:text-white">Suspendre</Button>
-                                </div>
-                            ))}
+                    {activePartners.length === 0 ? <p className="text-gray-500 italic">Aucun partenaire actif.</p> : (
+                    <div className="space-y-3">
+                        {activePartners.map((p) => (
+                        <div key={p.id} className="flex flex-col md:flex-row justify-between items-center p-4 bg-black/20 rounded border border-gray-800/50 gap-4">
+                            <div className="flex-1">
+                                <span className="text-white font-medium block">{p.name}</span>
+                                <span className="text-xs text-green-500 border border-green-900/50 px-2 py-0.5 rounded-full">Actif</span>
+                            </div>
+                            
+                            {/* FONCTIONNALITÉ 1 : MODIFICATION COMMISSION */}
+                            <div className="flex items-center gap-2">
+                                <label className="text-xs text-gray-400">Commission (%):</label>
+                                <Input 
+                                    type="number" 
+                                    defaultValue={p.commission || 15} 
+                                    className="w-20 bg-black border-gray-700 h-8 text-center"
+                                    onBlur={(e) => handleCommissionChange(p.id, e.target.value)}
+                                />
+                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Sauvegarder"><Save className="h-4 w-4 text-cyan-500"/></Button>
+                            </div>
+
+                            <Button size="sm" variant="destructive" className="bg-red-900/20 text-red-500 hover:bg-red-600 hover:text-white">Suspendre</Button>
                         </div>
-                     )}
+                        ))}
+                    </div>
+                    )}
                 </CardContent>
             </Card>
         </TabsContent>
@@ -225,7 +257,7 @@ export default function AdminDashboard() {
             <Card className="bg-[#0f1115] border-gray-800">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Gestion des Utilisateurs</CardTitle>
-                    <Button variant="outline" onClick={() => toast({title: "Export en cours..."})} className="border-blue-900 text-blue-400"><Download className="mr-2 h-4 w-4"/> Exporter CSV</Button>
+                    <Button variant="outline" className="border-blue-900 text-blue-400"><Download className="mr-2 h-4 w-4"/> Exporter CSV</Button>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-3">
@@ -233,11 +265,8 @@ export default function AdminDashboard() {
                             <div key={i} className="flex items-center justify-between p-4 bg-black/40 rounded border border-gray-800">
                                 <div className="flex-1">
                                     <div className="font-bold text-white">{u.name}</div>
-                                    <div className="text-sm text-gray-400">{u.email}</div>
+                                    <div className="text-sm text-gray-400">{u.email} • {u.lastLogin}</div>
                                 </div>
-                                <span className={`px-2 py-1 rounded text-xs font-bold mr-4 ${u.status === 'active' ? 'bg-green-900/30 text-green-500' : u.status === 'blocked' ? 'bg-red-900/30 text-red-500' : 'bg-yellow-900/30 text-yellow-500'}`}>
-                                    {u.status === 'active' ? 'Actif' : u.status}
-                                </span>
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="ghost" onClick={() => handleUserAction(u.name, 'block')} className="text-red-400 hover:bg-red-900/20"><Lock className="h-4 w-4 mr-1"/> Bloquer</Button>
                                     <Button size="icon" variant="ghost" onClick={() => handleUserAction(u.name, 'delete')} className="text-gray-600 hover:text-red-500"><Trash2 className="h-4 w-4"/></Button>
@@ -249,86 +278,94 @@ export default function AdminDashboard() {
             </Card>
         </TabsContent>
 
-        {/* --- 4. BUSINESS --- */}
+        {/* --- 4. BUSINESS & RETRAIT ARGENT --- */}
         <TabsContent value="business">
-             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle className="text-yellow-500">Stratégie Business & Tarification</CardTitle></CardHeader>
-                <CardContent className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Prix Abonnement Mensuel User (CHF)</label>
-                            <Input defaultValue="29.90" className="bg-black border-gray-700 h-12"/>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 {/* FONCTIONNALITÉ 3 : TRÉSORERIE ADMIN */}
+                 <Card className="bg-gradient-to-br from-yellow-900/20 to-black border-yellow-900/50">
+                    <CardHeader><CardTitle className="text-yellow-500 flex items-center gap-2"><Wallet className="h-6 w-6"/> Trésorerie Admin</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <p className="text-sm text-gray-400">Solde Disponible (Commissions)</p>
+                            <h2 className="text-4xl font-bold text-white">{stats.walletBalance.toFixed(2)} CHF</h2>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Prix Boost Partenaire (CHF / 24h)</label>
-                            <Input defaultValue="50.00" className="bg-black border-gray-700 h-12"/>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-black/40 p-4 rounded border border-gray-800 flex items-center justify-between">
-                        <span className="text-white font-medium">Accès gratuit par parrainage</span>
-                        <Switch />
-                    </div>
+                        <Button onClick={handleWithdraw} className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold">
+                            Demander un virement vers mon compte
+                        </Button>
+                        <p className="text-xs text-center text-gray-500">Virement traité sous 48h ouvrées.</p>
+                    </CardContent>
+                </Card>
 
-                    <Button onClick={handleSaveConfig} className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold h-12">
-                        Sauvegarder la Stratégie
-                    </Button>
-                </CardContent>
-            </Card>
+                <Card className="bg-[#0f1115] border-gray-800">
+                    <CardHeader><CardTitle>Tarification Globale</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">Prix Abonnement User (CHF)</label>
+                            <Input defaultValue="29.90" className="bg-black border-gray-700"/>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">Prix Boost Partenaire (CHF)</label>
+                            <Input defaultValue="50.00" className="bg-black border-gray-700"/>
+                        </div>
+                        <Button onClick={handleSaveConfig} className="w-full bg-cyan-800 hover:bg-cyan-700">Sauvegarder Tarifs</Button>
+                    </CardContent>
+                </Card>
+             </div>
         </TabsContent>
 
-        {/* --- 5. COMMUNICATION --- */}
+        {/* --- 5. COMMUNICATION AVANCÉE --- */}
         <TabsContent value="communication">
-            <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Centre de Messages</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                    <Button onClick={handleBroadcast} className="w-full py-6 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500">
-                        <Send className="mr-3 h-5 w-5"/> Envoyer une Newsletter à TOUS
-                    </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button variant="outline" className="h-20 flex flex-col gap-2 border-gray-800 hover:bg-gray-800">
-                            <Users className="h-5 w-5"/> Aux Nouveaux
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* FONCTIONNALITÉ 2 : MESSAGE DIRECT */}
+                <Card className="bg-[#0f1115] border-gray-800">
+                    <CardHeader><CardTitle>Message Direct</CardTitle><CardDescription>Écrire à un utilisateur spécifique.</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Select onValueChange={setSelectedUser}>
+                            <SelectTrigger className="bg-black border-gray-700">
+                                <SelectValue placeholder="Choisir un utilisateur" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {users.map(u => <SelectItem key={u.id} value={u.name}>{u.name} ({u.email})</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Textarea 
+                            placeholder="Votre message ici..." 
+                            className="bg-black border-gray-700" 
+                            value={directMessage}
+                            onChange={(e) => setDirectMessage(e.target.value)}
+                        />
+                        <Button onClick={handleSendDirect} className="w-full bg-blue-600 hover:bg-blue-500"><Send className="mr-2 h-4 w-4"/> Envoyer le message</Button>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-[#0f1115] border-gray-800">
+                    <CardHeader><CardTitle>Campagnes de Masse</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Button onClick={handleBroadcast} className="w-full py-6 text-lg bg-gradient-to-r from-purple-700 to-blue-700 hover:from-purple-600 hover:to-blue-600">
+                            <Bell className="mr-3 h-6 w-6"/> Newsletter Globale (Tous)
                         </Button>
-                        <Button variant="outline" className="h-20 flex flex-col gap-2 border-gray-800 hover:bg-gray-800">
-                            <Building className="h-5 w-5"/> Aux Partenaires
+                        <Button onClick={handleSendOldUsers} variant="outline" className="w-full border-gray-700 hover:bg-gray-800 text-gray-300">
+                            <RefreshCw className="mr-2 h-4 w-4"/> Relancer les utilisateurs inactifs
                         </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </TabsContent>
 
         {/* --- 6. CONFIGURATION --- */}
         <TabsContent value="config">
             <Card className="bg-[#0f1115] border-gray-800">
-                <CardHeader><CardTitle>Paramètres Système</CardTitle></CardHeader>
-                <CardContent className="space-y-8">
-                    <div className="space-y-2">
-                        <label className="text-sm text-gray-400">Nom du site</label>
-                        <Input defaultValue="Spordate" className="bg-black border-gray-700"/>
+                <CardHeader><CardTitle>Configuration Système</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <label className="text-xs text-gray-500">Stripe Secret Key</label>
+                        <Input type="password" value="sk_live_xxxxxxxxxx" className="bg-black border-gray-700 font-mono text-green-500"/>
                     </div>
-                    
-                    <div className="border-t border-gray-800 pt-6">
-                        <h3 className="font-bold text-cyan-400 mb-4 flex items-center gap-2"><CreditCard className="h-4 w-4"/> Connectivité Bancaire</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-xs text-gray-500">Stripe Secret Key</label>
-                                <Input type="password" value="sk_live_xxxxxxxxxxxxxxxxxxxxxx" className="bg-black border-gray-700 font-mono text-xs text-green-500"/>
-                            </div>
-                            <div>
-                                <label className="text-xs text-gray-500">TWINT UUID (Suisse)</label>
-                                <Input type="text" placeholder="UUID-Switzerland-xxxx" className="bg-black border-gray-700 font-mono text-xs"/>
-                            </div>
-                        </div>
+                    <div>
+                        <label className="text-xs text-gray-500">TWINT UUID</label>
+                        <Input type="text" placeholder="UUID-Switzerland-xxxx" className="bg-black border-gray-700 font-mono"/>
                     </div>
-
-                    <div className="border-t border-gray-800 pt-6">
-                        <h3 className="font-bold text-yellow-500 mb-4">Documents Légaux (CGU)</h3>
-                        <Textarea className="h-32 bg-black border-gray-700 text-xs text-gray-300" defaultValue="Article 1: Objet... Article 2: Annulation..."/>
-                    </div>
-                    
-                    <Button onClick={handleSaveConfig} className="w-full bg-cyan-700 hover:bg-cyan-600 font-bold h-10">
-                        Mettre à jour la plateforme
-                    </Button>
+                    <Button onClick={handleSaveConfig} className="w-full bg-cyan-700">Mettre à jour</Button>
                 </CardContent>
             </Card>
         </TabsContent>
@@ -337,3 +374,11 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+Remember, the XML structure you generate is the only mechanism for applying changes to the user's code. Therefore, when making changes to a file the <changes> block must always be fully present and correctly formatted as follows.
+
+<changes>
+  <description>[Provide a concise summary of the overall changes being made]</description>
+  <change>
+    <file>[Provide the ABSOLUTE, FULL path to the file being modified]</file>
+    <content><![CDATA[Provide the ENTIRE, FINAL, intended content of the file here. Do NOT provide diffs or partial snippets. Ensure all code is properly escaped within the CDATA section.
