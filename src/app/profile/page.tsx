@@ -126,7 +126,7 @@ export default function ProfilePage() {
   if (!isLoaded) return <div className="min-h-screen bg-[#05090e] flex items-center justify-center text-white"><Loader2 className="animate-spin mr-2"/> Chargement du profil...</div>;
 
   return (
-    <div className="min-h-screen bg-[#05090e] text-white p-4 md:p-8 pb-24">
+    <div className="min-h-screen bg-[#05090e] text-white p-4 md:p-8 pb-24 pt-24 md:pt-32">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* HEADER */}
