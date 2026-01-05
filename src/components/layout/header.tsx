@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Dumbbell } from 'lucide-react';
 
 export default function Header() {
@@ -43,6 +43,9 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="pr-0 pt-12 bg-background">
+              <SheetHeader>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+              </SheetHeader>
               <nav className="flex flex-col space-y-4 text-lg">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} className="px-4 py-2 rounded-md hover:bg-accent/10">
