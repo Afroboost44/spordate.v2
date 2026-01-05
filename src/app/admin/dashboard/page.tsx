@@ -359,7 +359,7 @@ export default function AdminDashboard() {
                 <CardContent className="space-y-6">
                     <div>
                         <label className="text-xs text-gray-500">Stripe Secret Key</label>
-                        <Input type="password" value="sk_live_xxxxxxxxxx" className="bg-black border-gray-700 font-mono text-green-500"/>
+                        <Input type="password" defaultValue="sk_live_xxxxxxxxxx" className="bg-black border-gray-700 font-mono text-green-500"/>
                     </div>
                     <div>
                         <label className="text-xs text-gray-500">TWINT UUID</label>
