@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from "@/components/ui/label";
-import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle, UserPlus, Check, X } from 'lucide-react';
+import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle, UserPlus, Check, X, Server, Database, UserCheck, DollarSign } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 
 
 const mockUsersData = [
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const [kpis] = useState({ revenue: 1250, registeredUsers: 157, activePartners: 12 });
   const [users, setUsers] = useState(mockUsersData);
   const [partnershipRequests, setPartnershipRequests] = useState(initialRequests);
-  const [paymentApis, setPaymentApis] = useState({ twint: true, stripe: true, bank: false });
+  const [paymentApis, setPaymentApis = useState({ twint: true, stripe: true, bank: false });
   const [commission, setCommission] = useState([10]);
   const [siteName, setSiteName] = useState("Spordate");
   const [primaryColor, setPrimaryColor] = useState("#8B5CF6");
@@ -87,10 +88,30 @@ export default function AdminDashboard() {
   
   // --- COMPONENTS FOR TABS ---
   const OverviewTab = () => (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-[#0f1115] border-gray-800"><CardHeader><CardTitle className="text-sm text-gray-400">Revenu Total</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{kpis.revenue} CHF</p></CardContent></Card>
-          <Card className="bg-[#0f1115] border-gray-800"><CardHeader><CardTitle className="text-sm text-gray-400">Utilisateurs Inscrits</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{kpis.registeredUsers}</p></CardContent></Card>
-          <Card className="bg-[#0f1115] border-gray-800"><CardHeader><CardTitle className="text-sm text-gray-400">Partenaires Actifs</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{kpis.activePartners}</p></CardContent></Card>
+      <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-[#0f1115] border-gray-800"><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium text-gray-400">Revenu Total</CardTitle><DollarSign className="h-4 w-4 text-gray-500"/></CardHeader><CardContent><p className="text-2xl font-bold">{kpis.revenue} CHF</p></CardContent></Card>
+              <Card className="bg-[#0f1115] border-gray-800"><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium text-gray-400">Utilisateurs Inscrits</CardTitle><Users className="h-4 w-4 text-gray-500"/></CardHeader><CardContent><p className="text-2xl font-bold">{kpis.registeredUsers}</p></CardContent></Card>
+              <Card className="bg-[#0f1115] border-gray-800"><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium text-gray-400">Partenaires Actifs</CardTitle><Building className="h-4 w-4 text-gray-500"/></CardHeader><CardContent><p className="text-2xl font-bold">{kpis.activePartners}</p></CardContent></Card>
+              <Card className="bg-[#1a0505] border-red-900/50"><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium text-red-400">Candidatures</CardTitle><UserPlus className="h-4 w-4 text-red-500"/></CardHeader><CardContent><p className="text-2xl font-bold text-red-400">{partnershipRequests.length}</p></CardContent></Card>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <Card className="lg:col-span-2 bg-[#0f1115] border-gray-800">
+                  <CardHeader><CardTitle>Activité Récente</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                      <div className="flex items-center gap-4"><div className="p-2 bg-green-900/50 rounded-full"><UserCheck className="text-green-400"/></div><div><p>Nouvel utilisateur : <strong>Marc Dupont</strong></p><p className="text-xs text-gray-500">Il y a 5 minutes</p></div></div>
+                      <div className="flex items-center gap-4"><div className="p-2 bg-cyan-900/50 rounded-full"><DollarSign className="text-cyan-400"/></div><div><p>Paiement reçu : <strong>40 CHF</strong> de Julie</p><p className="text-xs text-gray-500">Il y a 28 minutes</p></div></div>
+                      <div className="flex items-center gap-4"><div className="p-2 bg-purple-900/50 rounded-full"><Building className="text-purple-400"/></div><div><p>Partenaire validé : <strong>Neon Fitness</strong></p><p className="text-xs text-gray-500">Il y a 1 heure</p></div></div>
+                  </CardContent>
+              </Card>
+              <Card className="bg-[#0f1115] border-gray-800">
+                  <CardHeader><CardTitle>État du système</CardTitle></CardHeader>
+                  <CardContent className="space-y-6">
+                      <div><div className="flex justify-between text-sm mb-1"><p>Charge Serveur</p><p className="text-gray-400">72%</p></div><Progress value={72} className="h-2"/></div>
+                      <div><div className="flex justify-between text-sm mb-1"><p>Utilisation DB</p><p className="text-gray-400">45%</p></div><Progress value={45} className="h-2"/></div>
+                  </CardContent>
+              </Card>
+          </div>
       </div>
   );
 
