@@ -3,79 +3,79 @@
     {
       "id": "hero-image",
       "description": "A dynamic shot of two people playing tennis.",
-      "imageUrl": "https://images.unsplash.com/photo-1517438984742-1262db08379e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzcG9ydHMlMjBmaXRuZXNzfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1552674605-db6ffd58590b?q=80&w=1920&h=1080&fit=crop",
       "imageHint": "sports fitness"
     },
     {
       "id": "profile-1",
       "description": "A smiling woman in sportswear.",
-      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njc1Nzk3NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&h=1000&fit=crop",
       "imageHint": "woman portrait"
     },
     {
       "id": "profile-2",
       "description": "A man posing with a basketball.",
-      "imageUrl": "https://images.unsplash.com/photo-1615920111476-c2b40ca7b33e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBiYXNrZXRiYWxsfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1615920111476-c2b40ca7b33e?q=80&w=800&h=1000&fit=crop",
       "imageHint": "man basketball"
     },
     {
       "id": "profile-3",
       "description": "A person running on a track.",
-      "imageUrl": "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBydW5uaW5nfGVufDB8fHx8MTc2NzU5OTE1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?q=80&w=800&h=1000&fit=crop",
       "imageHint": "person running"
     },
     {
       "id": "profile-4",
       "description": "A woman doing yoga outdoors.",
-      "imageUrl": "https://images.unsplash.com/photo-1562088287-bde35a1ea917?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHlvZ2F8ZW58MHx8fHwxNzY3NDk2NjkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1562088287-bde35a1ea917?q=80&w=800&h=1000&fit=crop",
       "imageHint": "woman yoga"
     },
     {
       "id": "profile-5",
       "description": "A man lifting weights in a gym.",
-      "imageUrl": "https://images.unsplash.com/photo-1581009137042-c552e485697a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtYW4lMjBneW18ZW58MHx8fHwxNzY3NTk5MDQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1581009137042-c552e485697a?q=80&w=800&h=1000&fit=crop",
       "imageHint": "man gym"
     },
     {
       "id": "profile-6",
       "description": "A group of friends playing soccer.",
-      "imageUrl": "https://images.unsplash.com/photo-1716392603104-44d74cb18903?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmcmllbmRzJTIwc29jY2VyfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1551958214-2d5b30d3c01a?q=80&w=800&h=1000&fit=crop",
       "imageHint": "friends soccer"
     },
     {
       "id": "discovery-1",
       "description": "A woman playing tennis with a focused expression.",
-      "imageUrl": "https://images.unsplash.com/photo-1554011726-b1e8c211a753?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHRlbm5pc3xlbnwwfHx8fDE3NjgyNTIyMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1554011726-b1e8c211a753?q=80&w=800&h=1000&fit=crop",
       "imageHint": "woman tennis"
     },
     {
       "id": "discovery-2",
       "description": "A man doing crossfit in a gym.",
-      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW4lMjBjcm9zc2ZpdHxlbnwwfHx8fDE3NjgyNTIyNjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&h=1000&fit=crop",
       "imageHint": "man crossfit"
     },
     {
       "id": "discovery-3",
       "description": "A woman dancing gracefully.",
-      "imageUrl": "https://images.unsplash.com/photo-1511718863453-62a9a13801f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMGRhbmNpbmd8ZW58MHx8fHwxNzY4MjUyMjk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1511718863453-62a9a13801f6?q=80&w=800&h=1000&fit=crop",
       "imageHint": "woman dancing"
     },
     {
       "id": "activity-gym",
       "description": "A dark gym with neon lights.",
-      "imageUrl": "https://images.unsplash.com/photo-1574680096145-f844349f8425?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxuZW9uJTIwZ3ltfGVufDB8fHx8MTc2ODMzMjE2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1574680096145-f844349f8425?q=80&w=800&h=600&fit=crop",
       "imageHint": "neon gym"
     },
     {
       "id": "activity-tennis",
       "description": "A tennis court at night.",
-      "imageUrl": "https://images.unsplash.com/photo-1556244573-c368393aa6b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0ZW5uaXMlMjBjb3VydCUyMG5pZ2h0fGVufDB8fHx8MTc2ODMzMjE5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1556244573-c368393aa6b3?q=80&w=800&h=600&fit=crop",
       "imageHint": "tennis court"
     },
     {
       "id": "activity-yoga",
       "description": "A calm yoga studio.",
-      "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b2dhJTIwc3R1ZGlvfGVufDB8fHx8MTc2ODMzMjIyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&h=600&fit=crop",
       "imageHint": "yoga studio"
     }
   ]
