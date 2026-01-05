@@ -12,10 +12,16 @@ export default function AdminLoginPage() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [resetSent, setResetSent] = useState(false);
+    const [credentials, setCredentials] = useState({ id: '', password: '' });
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         router.push('/admin/dashboard');
+    };
+    
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCredentials(prev => ({ ...prev, [name]: value }));
     };
 
     const handleForgotPassword = (e: React.FormEvent) => {
@@ -74,8 +80,8 @@ export default function AdminLoginPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleLogin} className="space-y-4">
-                        <Input type="text" placeholder="ID Admin" className="bg-black/50 border-red-900/30 text-white" />
-                        <Input type="password" placeholder="Code de sécurité" className="bg-black/50 border-red-900/30 text-white" />
+                        <Input name="id" type="text" placeholder="ID Admin" value={credentials.id} onChange={handleInputChange} className="bg-black/50 border-red-900/30 text-white" />
+                        <Input name="password" type="password" placeholder="Code de sécurité" value={credentials.password} onChange={handleInputChange} className="bg-black/50 border-red-900/30 text-white" />
                         <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-12">
                             Entrer
                         </Button>
