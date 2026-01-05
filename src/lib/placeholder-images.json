@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "A dynamic shot of two people playing tennis.",
+      "imageUrl": "https://images.unsplash.com/photo-1517438984742-1262db08379e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzcG9ydHMlMjBmaXRuZXNzfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sports fitness"
+    },
+    {
+      "id": "profile-1",
+      "description": "A smiling woman in sportswear.",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njc1Nzk3NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "profile-2",
+      "description": "A man posing with a basketball.",
+      "imageUrl": "https://images.unsplash.com/photo-1615920111476-c2b40ca7b33e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBiYXNrZXRiYWxsfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man basketball"
+    },
+    {
+      "id": "profile-3",
+      "description": "A person running on a track.",
+      "imageUrl": "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBydW5uaW5nfGVufDB8fHx8MTc2NzU5OTE1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person running"
+    },
+    {
+      "id": "profile-4",
+      "description": "A woman doing yoga outdoors.",
+      "imageUrl": "https://images.unsplash.com/photo-1562088287-bde35a1ea917?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHlvZ2F8ZW58MHx8fHwxNzY3NDk2NjkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman yoga"
+    },
+    {
+      "id": "profile-5",
+      "description": "A man lifting weights in a gym.",
+      "imageUrl": "https://images.unsplash.com/photo-1581009137042-c552e485697a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtYW4lMjBneW18ZW58MHx8fHwxNzY3NTk5MDQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man gym"
+    },
+    {
+      "id": "profile-6",
+      "description": "A group of friends playing soccer.",
+      "imageUrl": "https://images.unsplash.com/photo-1716392603104-44d74cb18903?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmcmllbmRzJTIwc29jY2VyfGVufDB8fHx8MTc2NzYwMjM3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "friends soccer"
+    }
+  ]
 }
