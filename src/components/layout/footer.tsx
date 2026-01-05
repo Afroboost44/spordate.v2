@@ -1,11 +1,11 @@
-import { Dumbbell, Twitter, Github, Linkedin } from "lucide-react";
+import { Dumbbell, Twitter, Github, Linkedin, Lock } from "lucide-react";
 import Link from 'next/link';
 
 export default function Footer() {
   return (
     <footer className="border-t border-border/40 bg-background relative">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
           <div className="flex items-center space-x-2">
             <Dumbbell className="h-6 w-6 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] rounded-md p-1 text-white" />
             <span className="font-bold text-lg">Spordate</span>
@@ -28,10 +28,13 @@ export default function Footer() {
             </Link>
           </div>
         </div>
+        <div className="mt-6 pt-6 border-t border-border/20 flex justify-center">
+            <Link href="/admin/login" className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition-colors">
+                <Lock size={16} />
+                Admin Access
+            </Link>
+        </div>
       </div>
-       <Link href="/admin/login" className="absolute bottom-2 right-2 text-background hover:text-foreground/20 text-xs">
-        .
-      </Link>
     </footer>
   );
 }
