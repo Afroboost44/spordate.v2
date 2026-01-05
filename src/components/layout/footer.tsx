@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-background">
+    <footer className="border-t border-border/40 bg-background relative">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2">
@@ -29,6 +29,9 @@ export default function Footer() {
           </div>
         </div>
       </div>
+       <Link href="/admin/login" className="absolute bottom-2 right-2 text-background hover:text-foreground/20 text-xs">
+        .
+      </Link>
     </footer>
   );
 }
