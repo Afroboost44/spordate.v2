@@ -65,7 +65,7 @@ const defaultTranslations: any = {
 const LanguageContext = createContext<any>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language] = useState("fr"); // Default to 'fr', no setter needed for now.
+  const [language, setLanguage] = useState("fr"); 
   const [translations, setTranslations] = useState(defaultTranslations);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -98,7 +98,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   if (!isLoaded) return <div className="bg-black h-screen"></div>;
 
   return (
-    <LanguageContext.Provider value={{ language, t, translations, updateTranslations }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, translations, updateTranslations }}>
       {children}
     </LanguageContext.Provider>
   );

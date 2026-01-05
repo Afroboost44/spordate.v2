@@ -3,11 +3,17 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Dumbbell, Bell } from 'lucide-react';
+import { Menu, Dumbbell, Bell, Languages } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Header() {
-  const { t } = useLanguage();
+  const { t, setLanguage } = useLanguage();
   
   const navLinks = [
     { href: "/discovery", label: t('nav_discovery') || "Rencontres" },
@@ -34,6 +40,25 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden items-center space-x-2 md:flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Languages className="h-5 w-5" />
+                  <span className="sr-only">Changer de langue</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLanguage('fr')}>
+                  Français
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('en')}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('de')}>
+                  Deutsch
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="ghost" size="icon" asChild>
                 <Link href="/notifications">
                     <div className="relative">
