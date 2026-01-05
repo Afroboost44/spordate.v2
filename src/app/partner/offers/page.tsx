@@ -144,7 +144,7 @@ export default function PartnerOffersPage() {
                                 <Button type="button" variant="secondary">Annuler</Button>
                             </DialogClose>
                             <Button type="submit" className="bg-cyan-600 hover:bg-cyan-500 text-black font-bold">
-                                {editingOffer ? "Sauvegarder" : "Publier l'offre"}
+                                {editingOffer ? "Mettre à jour l'offre" : "Publier l'offre"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -195,5 +195,3 @@ export default function PartnerOffersPage() {
         </div>
     );
 }
-
-    
