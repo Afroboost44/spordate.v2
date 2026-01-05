@@ -9,9 +9,11 @@ export default function NotificationsLayout({
 }) {
   return (
     <AuthGuard>
-      <Header />
-      <main>{children}</main>
-      <Footer />
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
     </AuthGuard>
   );
 }
