@@ -2,15 +2,26 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Dumbbell, Bell } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Header() {
+  const { t, language, setLanguage } = useLanguage();
+  
   const navLinks = [
-    { href: "/discovery", label: "Rencontres" },
-    { href: "/dashboard", label: "Find Match" },
-    { href: "/profile", label: "Mon Profil" },
-    { href: "/activities", label: "Activités" },
-    { href: "/notifications", label: "Notifications" },
+    { href: "/discovery", label: t('nav_discovery') || "Rencontres" },
+    { href: "/dashboard", label: t('nav_find_match') || "Find Match" },
+    { href: "/profile", label: t('nav_profile') || "Mon Profil" },
+    { href: "/activities", label: t('nav_activities') || "Activités" },
+    { href: "/notifications", label: t('nav_notifications') || "Notifications" },
   ];
+
+  const LanguageSwitcher = () => (
+      <div className="flex gap-1 text-xs font-bold rounded-lg p-1 bg-transparent">
+        <button onClick={() => setLanguage('fr')} className={`px-2 py-1 rounded ${language === 'fr' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>FR</button>
+        <button onClick={() => setLanguage('de')} className={`px-2 py-1 rounded ${language === 'de' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>DE</button>
+        <button onClick={() => setLanguage('en')} className={`px-2 py-1 rounded ${language === 'en' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>EN</button>
+      </div>
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -29,6 +40,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden items-center space-x-2 md:flex">
+            <LanguageSwitcher />
             <Button variant="ghost" size="icon" asChild>
                 <Link href="/notifications">
                     <div className="relative">
@@ -42,13 +54,14 @@ export default function Header() {
                 </Link>
             </Button>
           <Button variant="ghost" asChild>
-            <Link href="/login">Connexion</Link>
+            <Link href="/login">{t('nav_login')}</Link>
           </Button>
           <Button asChild className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-            <Link href="/signup">Sign Up</Link>
+            <Link href="/signup">{t('nav_signup')}</Link>
           </Button>
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center">
+           <LanguageSwitcher />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -69,10 +82,10 @@ export default function Header() {
               </nav>
               <div className="absolute bottom-8 left-4 right-4 flex flex-col space-y-2">
                  <Button variant="outline" asChild className="w-full">
-                    <Link href="/login">Connexion</Link>
+                    <Link href="/login">{t('nav_login')}</Link>
                  </Button>
                  <Button asChild className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-                   <Link href="/signup">Sign Up</Link>
+                   <Link href="/signup">{t('nav_signup')}</Link>
                  </Button>
               </div>
             </SheetContent>

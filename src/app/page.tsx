@@ -21,28 +21,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       
-      {/* Intégration du Header et Footer pour la cohérence */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-            <div className="flex items-center md:flex-1">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-                <Dumbbell className="h-6 w-6 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] rounded-md p-1 text-white" />
-                <span className="font-bold">Spordate</span>
-            </Link>
-            </div>
-            <div className="flex items-center space-x-2">
-                <LanguageSwitcher />
-                <div className="hidden sm:flex items-center space-x-2">
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">{t('nav_login')}</Link>
-                    </Button>
-                    <Button asChild className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
-                        <Link href="/signup">{t('nav_signup')}</Link>
-                    </Button>
-                </div>
-            </div>
-        </div>
-      </header>
+      <Header />
       
       <main className="flex-1">
         {/* HERO SECTION DYNAMIQUE */}
@@ -56,11 +35,14 @@ export default function Home() {
                 {t('hero_subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/signup">
-                    <Button size="lg" className="h-14 px-8 text-lg bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20">
-                    {t('cta_button')} <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                </Link>
+                <Button asChild size="lg" className="h-14 px-8 text-lg bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-lg shadow-primary/20">
+                    <Link href="/signup">
+                        {t('cta_button')} <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                </Button>
+                 <div className="flex items-center space-x-2">
+                    <LanguageSwitcher />
+                </div>
             </div>
             </div>
         </section>

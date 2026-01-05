@@ -15,7 +15,12 @@ const defaultTranslations: any = {
     feature_map_desc: "Trouve les meilleures salles et terrains autour de toi.",
     feature_chat_title: "Chat Sécurisé",
     feature_chat_desc: "Organise tes rencontres en toute simplicité.",
-    footer_rights: "Tous droits réservés."
+    footer_rights: "Tous droits réservés.",
+    nav_discovery: "Rencontres",
+    nav_find_match: "Trouver un Match",
+    nav_profile: "Mon Profil",
+    nav_activities: "Activités",
+    nav_notifications: "Notifications",
   },
   en: {
     hero_title: "Find Your Perfect Sports Partner",
@@ -29,7 +34,12 @@ const defaultTranslations: any = {
     feature_map_desc: "Find the best gyms and courts around you.",
     feature_chat_title: "Secure Chat",
     feature_chat_desc: "Organize your meetings with ease.",
-    footer_rights: "All rights reserved."
+    footer_rights: "All rights reserved.",
+    nav_discovery: "Discovery",
+    nav_find_match: "Find a Match",
+    nav_profile: "My Profile",
+    nav_activities: "Activities",
+    nav_notifications: "Notifications",
   },
   de: {
     hero_title: "Finde deinen idealen Sportpartner",
@@ -43,7 +53,12 @@ const defaultTranslations: any = {
     feature_map_desc: "Finde die besten Fitnessstudios und Plätze in deiner Umgebung.",
     feature_chat_title: "Sicherer Chat",
     feature_chat_desc: "Organisiere deine Treffen ganz einfach.",
-    footer_rights: "Alle Rechte vorbehalten."
+    footer_rights: "Alle Rechte vorbehalten.",
+    nav_discovery: "Entdecken",
+    nav_find_match: "Match finden",
+    nav_profile: "Mein Profil",
+    nav_activities: "Aktivitäten",
+    nav_notifications: "Benachrichtigungen",
   }
 };
 
