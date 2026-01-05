@@ -18,7 +18,7 @@ export default function Header() {
   ];
 
   const LanguageSwitcher = () => (
-      <div className="flex gap-1 text-xs font-bold rounded-lg p-1 bg-transparent">
+      <div className="flex items-center text-xs font-bold rounded-lg p-1 bg-transparent">
         <button onClick={() => setLanguage('fr')} className={`px-2 py-1 rounded ${language === 'fr' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>FR</button>
         <button onClick={() => setLanguage('de')} className={`px-2 py-1 rounded ${language === 'de' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>DE</button>
         <button onClick={() => setLanguage('en')} className={`px-2 py-1 rounded ${language === 'en' ? 'text-white font-extrabold' : 'text-gray-400 hover:text-white'}`}>EN</button>
