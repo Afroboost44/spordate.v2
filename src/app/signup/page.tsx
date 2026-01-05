@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dumbbell } from 'lucide-react';
+import { Dumbbell, Building } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -95,11 +96,16 @@ export default function SignupPage() {
                 Se connecter
               </Link>
             </div>
+             <Separator className="my-6 bg-border/20"/>
+             <div className="text-center text-sm">
+                 <Link href="/partner/login" className="text-foreground/60 hover:text-foreground transition-colors flex items-center justify-center gap-2">
+                    <Building size={16} />
+                    Vous êtes un Club ? Accédez à votre espace ici.
+                 </Link>
+            </div>
           </CardContent>
         </form>
       </Card>
     </div>
   );
 }
-
-    

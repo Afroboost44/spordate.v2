@@ -11,7 +11,10 @@ export default function Footer() {
             <span className="font-bold text-lg">Spordate</span>
           </div>
           <div className="text-center text-sm text-foreground/60">
-            © {new Date().getFullYear()} Spordate. All rights reserved.
+            <Link href="/admin/login" className="hover:text-foreground transition-colors" title="Admin Access">
+                © {new Date().getFullYear()} Spordate.
+            </Link>
+             {' '}All rights reserved.
           </div>
           <div className="flex space-x-4">
             <Link href="#" className="text-foreground/60 hover:text-foreground transition-colors">
@@ -29,13 +32,6 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-6 pt-6 border-t border-border/20 flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
-            <Link href="/terms" className="text-sm text-foreground/60 hover:text-foreground transition-colors">
-                Conditions d'utilisation
-            </Link>
-            <Link href="/admin/login" className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition-colors">
-                <Lock size={16} />
-                Admin Access
-            </Link>
              <Link href="/partner/login" className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition-colors">
                 <Building size={16} />
                 Accès Partenaire
