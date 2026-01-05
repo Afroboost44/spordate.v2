@@ -31,7 +31,7 @@ const DEFAULT_DATA = {
 export default function AdminDashboard() {
   const { toast } = useToast();
   
-  // États sécurisés (jamais undefined)
+  // États sécurisés
   const [partners, setPartners] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(DEFAULT_DATA.stats);
@@ -53,7 +53,6 @@ export default function AdminDashboard() {
 
         } catch (error) {
             console.error("Auto-Repair Active:", error);
-            // Si erreur, on charge les défauts pour ne pas casser le site
             setPartners(DEFAULT_DATA.partners);
             setUsers(DEFAULT_DATA.users);
             setStats(DEFAULT_DATA.stats);
@@ -72,7 +71,38 @@ export default function AdminDashboard() {
       }
   };
 
-  // --- LOGIQUES MÉTIER ---
+  // --- LOGIQUE VIREMENT (CORRIGÉE) ---
+  const handleWithdraw = () => {
+      // Sécurité : on s'assure que c'est un nombre
+      const currentBalance = Number(stats.walletBalance) || 0;
+      
+      if (currentBalance <= 0) {
+           toast({ 
+               title: "Solde insuffisant 🚫", 
+               description: "Vous n'avez aucun fonds à retirer pour le moment.", 
+               variant: "destructive" 
+           });
+           return;
+      }
+
+      if(window.confirm(`Confirmer le virement de ${currentBalance.toFixed(2)} CHF vers votre compte bancaire ?`)) {
+          // 1. Mise à jour locale
+          const newStats = { ...stats, walletBalance: 0 };
+          setStats(newStats);
+          
+          // 2. Sauvegarde persistante
+          saveToDb('spordate_db_stats', newStats);
+          
+          // 3. Feedback utilisateur
+          toast({ 
+              title: "Virement Effectué 🏦", 
+              description: `${currentBalance.toFixed(2)} CHF envoyés vers IBAN CH76...`,
+              className: "bg-green-600 text-white border-none"
+          });
+      }
+  };
+
+  // --- AUTRES LOGIQUES ---
   const handlePartnerStatus = (id: number, newStatus: string) => {
     const updatedPartners = partners.map(p => p.id === id ? { ...p, status: newStatus } : p);
     setPartners(updatedPartners);
@@ -105,20 +135,6 @@ export default function AdminDashboard() {
       saveToDb('spordate_db_users', updatedUsers);
   };
 
-  const handleWithdraw = () => {
-      const amount = stats.walletBalance || 0;
-      if (amount <= 0) {
-           toast({ title: "Solde insuffisant", description: "0.00 CHF", variant: "destructive" });
-           return;
-      }
-      if(window.confirm(`Virer ${amount.toFixed(2)} CHF ?`)) {
-          const newStats = { ...stats, walletBalance: 0 };
-          setStats(newStats);
-          saveToDb('spordate_db_stats', newStats);
-          toast({ title: "Virement Effectué 🏦", description: "Fonds envoyés." });
-      }
-  };
-
   const handleBroadcast = () => {
       const msg = window.prompt("Message système :");
       if(msg) toast({ title: "Diffusion réussie 🚀", description: `Envoyé à ${users.length} comptes.` });
@@ -126,7 +142,6 @@ export default function AdminDashboard() {
 
   if (!isLoaded) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><RefreshCw className="animate-spin mr-2"/> Chargement...</div>;
 
-  // Safe Mapping (Règle 3)
   const pendingPartners = (partners || []).filter(p => p.status === 'pending');
   const activePartners = (partners || []).filter(p => p.status === 'active');
 
@@ -134,10 +149,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-black text-white p-4 md:p-8 pb-20">
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50"><Activity className="text-cyan-400 h-8 w-8" /></div>
-        <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système Sécurisé • v8.0 (Clean)</p></div>
+        <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système Sécurisé • v9.0 (Fix Business)</p></div>
       </div>
 
-      <Tabs defaultValue="partners" className="space-y-6">
+      <Tabs defaultValue="business" className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-gray-800 p-1 flex-wrap h-auto w-full justify-start">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="partners" className="relative">
@@ -149,7 +164,6 @@ export default function AdminDashboard() {
             <TabsTrigger value="config">Configuration</TabsTrigger>
         </TabsList>
 
-        {/* 1. VUE D'ENSEMBLE */}
         <TabsContent value="overview">
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="bg-[#0f1115] border-gray-800"><CardHeader><CardTitle className="text-4xl font-bold">{stats.revenue} CHF</CardTitle><CardDescription>Revenus Totaux</CardDescription></CardHeader></Card>
@@ -158,7 +172,6 @@ export default function AdminDashboard() {
             </div>
         </TabsContent>
 
-        {/* 2. PARTENAIRES */}
         <TabsContent value="partners" className="space-y-6">
             <Card className="bg-green-950/10 border-green-900/30">
                 <CardHeader><CardTitle className="text-green-400">Demandes en Attente ({pendingPartners.length})</CardTitle></CardHeader>
@@ -178,7 +191,6 @@ export default function AdminDashboard() {
                     )}
                 </CardContent>
             </Card>
-
             <Card className="bg-[#0f1115] border-gray-800">
                 <CardHeader><CardTitle>Partenaires Actifs</CardTitle></CardHeader>
                 <CardContent>
@@ -204,7 +216,6 @@ export default function AdminDashboard() {
             </Card>
         </TabsContent>
 
-        {/* 3. UTILISATEURS */}
         <TabsContent value="users">
             <Card className="bg-[#0f1115] border-gray-800">
                 <CardHeader><CardTitle>Gestion Utilisateurs</CardTitle></CardHeader>
@@ -231,14 +242,19 @@ export default function AdminDashboard() {
             </Card>
         </TabsContent>
 
-        {/* 4. BUSINESS */}
         <TabsContent value="business">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 {/* CARTE TRÉSORERIE CORRIGÉE */}
                  <Card className="bg-gradient-to-br from-yellow-900/20 to-black border-yellow-900/50">
                     <CardHeader><CardTitle className="text-yellow-500 flex items-center gap-2"><Wallet className="h-6 w-6"/> Trésorerie Admin</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div><p className="text-sm text-gray-400">Solde Disponible</p><h2 className="text-4xl font-bold text-white">{stats.walletBalance.toFixed(2)} CHF</h2></div>
-                        <Button onClick={handleWithdraw} className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold h-12">Effectuer un virement</Button>
+                        <div>
+                            <p className="text-sm text-gray-400">Solde Disponible</p>
+                            <h2 className="text-4xl font-bold text-white">{Number(stats.walletBalance).toFixed(2)} CHF</h2>
+                        </div>
+                        <Button onClick={handleWithdraw} className="w-full bg-yellow-600 hover:bg-yellow-500 text-black font-bold h-12">
+                            Effectuer un virement
+                        </Button>
                         <p className="text-xs text-center text-gray-500">Vers IBAN CH76 0000 .... ....</p>
                     </CardContent>
                 </Card>
@@ -253,7 +269,6 @@ export default function AdminDashboard() {
              </div>
         </TabsContent>
 
-        {/* 5. COMMUNICATION */}
         <TabsContent value="communication">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="bg-[#0f1115] border-gray-800">
@@ -276,7 +291,6 @@ export default function AdminDashboard() {
             </div>
         </TabsContent>
 
-        {/* 6. CONFIGURATION (CORRIGÉE : Pas d'image, Twint présent) */}
         <TabsContent value="config">
             <Card className="bg-[#0f1115] border-gray-800">
                 <CardHeader><CardTitle>Paramètres Système & Bancaire</CardTitle></CardHeader>
@@ -285,21 +299,11 @@ export default function AdminDashboard() {
                         <label className="text-sm text-gray-400">Nom du site</label>
                         <Input defaultValue="Spordate" className="bg-black border-gray-700"/>
                     </div>
-                    
                     <div className="border-t border-gray-800 pt-4">
                         <h3 className="text-cyan-400 font-bold mb-4 flex items-center gap-2"><CreditCard className="h-4 w-4"/> Connexions API</h3>
-                        
                         <div className="space-y-4">
-                            <div>
-                                <label className="text-xs text-gray-500">Stripe Secret Key</label>
-                                <Input type="password" value="sk_live_xxxxxxxxxx" readOnly className="bg-black border-gray-700 text-green-500"/>
-                            </div>
-                            
-                            {/* AJOUT DU CHAMP TWINT */}
-                            <div>
-                                <label className="text-xs text-gray-500">TWINT UUID (Suisse)</label>
-                                <Input type="text" placeholder="UUID-XXXX-XXXX-XXXX" className="bg-black border-gray-700 font-mono text-white"/>
-                            </div>
+                            <div><label className="text-xs text-gray-500">Stripe Secret Key</label><Input type="password" value="sk_live_xxxxxxxxxx" readOnly className="bg-black border-gray-700 text-green-500"/></div>
+                            <div><label className="text-xs text-gray-500">TWINT UUID (Suisse)</label><Input type="text" placeholder="UUID-XXXX-XXXX-XXXX" className="bg-black border-gray-700 font-mono text-white"/></div>
                         </div>
                     </div>
                 </CardContent>
