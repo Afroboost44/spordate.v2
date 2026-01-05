@@ -11,13 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   const { t, setLanguage } = useLanguage();
-  // --- Simulation de l'état de connexion ---
-  // Dans une vraie application, ceci viendrait d'un Contexte d'Authentification (AuthContext)
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { isLoggedIn, logout } = useAuth();
 
   const navLinks = [
     { href: "/discovery", label: t('nav_discovery') || "Rencontres" },
@@ -39,7 +37,7 @@ export default function Header() {
             <span className="font-bold">Spordate</span>
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
-            {navLinks.map((link) => (
+            {isLoggedIn && navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">
                 {link.label}
               </Link>
@@ -88,7 +86,7 @@ export default function Header() {
                             <span className="sr-only">Notifications</span>
                         </Link>
                     </Button>
-                    <Button variant="ghost" onClick={() => setIsLoggedIn(false)}>{t('nav_logout') || "Déconnexion"}</Button>
+                    <Button variant="ghost" onClick={logout}>{t('nav_logout') || "Déconnexion"}</Button>
                 </>
             ) : (
                 <>
@@ -114,7 +112,7 @@ export default function Header() {
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col space-y-4 text-lg">
-                {[...navLinks, ...(isLoggedIn ? authenticatedLinks : [])].map((link) => (
+                {isLoggedIn && [...navLinks, ...authenticatedLinks].map((link) => (
                   <Link key={link.href} href={link.href} className="px-4 py-2 rounded-md hover:bg-accent/10">
                     {link.label}
                   </Link>
@@ -122,7 +120,7 @@ export default function Header() {
               </nav>
               <div className="absolute bottom-8 left-4 right-4 flex flex-col space-y-2">
                  {isLoggedIn ? (
-                     <Button variant="outline" onClick={() => setIsLoggedIn(false)} className="w-full">
+                     <Button variant="outline" onClick={logout} className="w-full">
                         {t('nav_logout') || "Déconnexion"}
                      </Button>
                  ) : (

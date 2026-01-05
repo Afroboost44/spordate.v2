@@ -1,24 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dumbbell } from 'lucide-react';
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      router.push('/profile');
-    }, 1000);
+    login();
   };
 
   return (
@@ -44,6 +40,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  defaultValue="demo@spordate.com"
                 />
               </div>
               <div className="grid gap-2">
@@ -56,10 +53,10 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required defaultValue="password" />
               </div>
-              <Button type="submit" className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold" disabled={loading}>
-                {loading ? 'Connexion...' : 'Se connecter'}
+              <Button type="submit" className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold">
+                Se connecter
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">

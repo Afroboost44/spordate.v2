@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { LanguageProvider } from "@/context/LanguageContext"; // Import du provider
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Spordate",
@@ -16,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="fr" className="dark">
       <body className="font-body">
-        <LanguageProvider>
-          {children}
-          <Toaster />
-        </LanguageProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
+        </AuthProvider>
       </body>
     </html>
   );

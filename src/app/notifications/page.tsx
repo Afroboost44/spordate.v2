@@ -1,32 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Heart, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
+import { Bell, Heart, CheckCircle, Clock, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-
-
-// --- SIMULATION AUTHENTIFICATION & MIDDLEWARE ---
-const useAuthGuard = () => {
-    const router = useRouter();
-    const [isAuthLoading, setIsAuthLoading] = useState(true);
-    const isLoggedIn = true; // Remplacez par votre logique d'authentification réelle
-  
-    useEffect(() => {
-      // Si l'utilisateur n'est pas connecté, on le redirige.
-      if (!isLoggedIn) {
-        router.replace('/login');
-      } else {
-        setIsAuthLoading(false);
-      }
-    }, [isLoggedIn, router]);
-
-    return { isLoading: isAuthLoading, isLoggedIn };
-};
-
 
 const initialNotifications = [
   {
@@ -72,7 +52,6 @@ const initialNotifications = [
 ];
 
 export default function NotificationsPage() {
-    const { isLoading, isLoggedIn } = useAuthGuard();
     const router = useRouter();
     const { toast } = useToast();
     const [notifications, setNotifications] = useState(initialNotifications);
@@ -99,16 +78,6 @@ export default function NotificationsPage() {
         setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
         router.push(path);
     };
-
-    if (isLoading) {
-      return (
-          <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-      );
-    }
-
-    if (!isLoggedIn) return null;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">

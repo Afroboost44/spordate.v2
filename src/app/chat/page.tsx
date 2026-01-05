@@ -10,6 +10,7 @@ import { Send, ArrowLeft, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from '@/lib/utils';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 type Message = {
     id: number;
@@ -23,7 +24,7 @@ const initialMessages: Message[] = [
     { id: 3, text: "On se retrouve à l'accueil à 18h ?", sender: 'marc' },
 ];
 
-export default function ChatPage() {
+function ChatPageContent() {
     const router = useRouter();
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [inputValue, setInputValue] = useState('');
@@ -124,4 +125,12 @@ export default function ChatPage() {
             </div>
         </div>
     );
+}
+
+export default function ChatPage() {
+    return (
+        <AuthGuard>
+            <ChatPageContent />
+        </AuthGuard>
+    )
 }
