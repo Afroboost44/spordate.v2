@@ -282,6 +282,44 @@ export default function DiscoveryPage() {
               <Heart size={48} fill="currentColor" />
             </Button>
           </div>
+
+          {/* Où pratiquer ? - Partner Section */}
+          <div className="mt-8 w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-bold">Où pratiquer ?</h3>
+              <Badge variant="outline" className="ml-auto border-violet-500/50 text-violet-400 text-xs">
+                Partenaires
+              </Badge>
+            </div>
+            <div className="space-y-3">
+              {partners.slice(0, 3).map((partner) => (
+                <Card 
+                  key={partner.id} 
+                  className="bg-card/50 border-border/20 hover:border-primary/50 transition-all cursor-pointer group"
+                  onClick={() => toast({ title: partner.name, description: `${partner.address}, ${partner.city}` })}
+                >
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center text-white font-bold text-lg">
+                      {partner.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                        {partner.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {partner.city}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                      {partner.type}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="text-center">
