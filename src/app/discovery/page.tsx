@@ -85,6 +85,16 @@ export default function DiscoveryPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
+  // Load partners function (extracted for reuse)
+  const loadPartnersData = async () => {
+    try {
+      const loadedPartners = await getPartners();
+      setPartners(loadedPartners.filter(p => p.active));
+    } catch (e) {
+      setPartners(DEFAULT_PARTNERS);
+    }
+  };
+
   // Load confirmed tickets and partners
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -94,15 +104,7 @@ export default function DiscoveryPage() {
     setConfirmedTickets(tickets);
     
     // Load partners
-    const loadPartners = async () => {
-      try {
-        const loadedPartners = await getPartners();
-        setPartners(loadedPartners.filter(p => p.active));
-      } catch (e) {
-        setPartners(DEFAULT_PARTNERS);
-      }
-    };
-    loadPartners();
+    loadPartnersData();
     
     // Check for referral in URL
     const ref = searchParams.get('ref');
@@ -114,6 +116,31 @@ export default function DiscoveryPage() {
       });
     }
   }, [searchParams, toast]);
+
+  // Real-time sync: refresh partners when tab becomes visible
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadPartnersData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also refresh every 30 seconds when page is active
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadPartnersData();
+      }
+    }, 30000);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const discoveryImages = PlaceHolderImages.filter(p => p.id.startsWith('discovery-'));
   const activityImages = PlaceHolderImages.filter(p => p.id.startsWith('activity-'));
