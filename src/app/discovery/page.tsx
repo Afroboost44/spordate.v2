@@ -269,13 +269,22 @@ export default function DiscoveryPage() {
     }
   };
 
-  // Share ticket on WhatsApp
+  // Share ticket on WhatsApp - dynamic message for Solo/Duo
   const shareTicketOnWhatsApp = () => {
     if (!lastBooking) return;
     
-    const message = encodeURIComponent(
-      `Je vais m'entraîner à ${lastBooking.partner}, rejoins-moi ! 💪🔥\n\nRDV avec ${lastBooking.profile} sur Spordateur\nhttps://spordateur.com/discovery`
-    );
+    let message: string;
+    if (lastBooking.isDuo) {
+      // Duo ticket message - inviting partner
+      message = encodeURIComponent(
+        `🎁 Je t'offre une séance Afroboost avec ${lastBooking.profile} !\n\n📍 RDV à ${lastBooking.partner}\n💪 C'est gratuit pour toi, je t'ai déjà payé ta place !\n\nDétails sur Spordateur\nhttps://spordateur.com/discovery`
+      );
+    } else {
+      // Solo ticket message
+      message = encodeURIComponent(
+        `Je vais m'entraîner à ${lastBooking.partner}, rejoins-moi ! 💪🔥\n\nRDV avec ${lastBooking.profile} sur Spordateur\nhttps://spordateur.com/discovery`
+      );
+    }
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
