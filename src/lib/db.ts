@@ -1,5 +1,5 @@
 import { db, isFirebaseConfigured } from './firebase';
-import { doc, setDoc, getDoc, query, collection, where, getDocs, addDoc, updateDoc, increment } from 'firebase/firestore';
+import { doc, setDoc, getDoc, query, collection, where, getDocs, addDoc, updateDoc, increment, deleteDoc } from 'firebase/firestore';
 
 // Types
 export interface UserProfile {
@@ -9,6 +9,7 @@ export interface UserProfile {
   level: string;
   referralCode: string;
   referredBy?: string;
+  partnerMember?: string; // Partner name if referred by partner
   createdAt: Date;
 }
 
@@ -29,10 +30,57 @@ export interface GlobalStats {
   lastUpdated: Date;
 }
 
+export interface Partner {
+  id?: string;
+  name: string;
+  address: string;
+  city: string;
+  type: 'Salle' | 'Studio' | 'Club' | 'Association';
+  referralId: string;
+  logo?: string;
+  active: boolean;
+  createdAt: Date;
+}
+
 // localStorage keys for demo mode
 const REVENUE_STORAGE_KEY = 'spordate_revenue';
 const BOOKINGS_STORAGE_KEY = 'spordate_bookings';
 const TICKETS_STORAGE_KEY = 'spordate_tickets';
+const PARTNERS_STORAGE_KEY = 'spordate_partners';
+
+// Default partners for demo
+export const DEFAULT_PARTNERS: Partner[] = [
+  {
+    id: 'partner-1',
+    name: 'ArtBoost Studio Paris',
+    address: '42 Rue de la Danse',
+    city: 'Paris',
+    type: 'Studio',
+    referralId: 'ARTBOOST-PARIS',
+    active: true,
+    createdAt: new Date(),
+  },
+  {
+    id: 'partner-2',
+    name: 'Afro Fitness Lyon',
+    address: '15 Avenue des Sports',
+    city: 'Lyon',
+    type: 'Salle',
+    referralId: 'AFRO-LYON',
+    active: true,
+    createdAt: new Date(),
+  },
+  {
+    id: 'partner-3',
+    name: 'Dance Club Marseille',
+    address: '8 Boulevard du Rythme',
+    city: 'Marseille',
+    type: 'Club',
+    referralId: 'DANCE-MARSEILLE',
+    active: true,
+    createdAt: new Date(),
+  },
+];
 
 /**
  * Generate a unique referral code in format SPORT-XXXX
