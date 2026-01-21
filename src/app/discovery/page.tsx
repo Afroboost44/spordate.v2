@@ -134,30 +134,49 @@ export default function DiscoveryPage() {
 
   // Process payment
   const handlePayment = async () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !currentProfile) return;
     
     setIsProcessing(true);
     
     // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Update revenue in localStorage for admin sync (+25€)
-    const currentRevenue = parseInt(localStorage.getItem(REVENUE_STORAGE_KEY) || '1250');
-    const newRevenue = currentRevenue + 25;
-    localStorage.setItem(REVENUE_STORAGE_KEY, newRevenue.toString());
-    
-    // Save confirmed ticket
-    const newTickets = [...confirmedTickets, currentProfile?.id || 0];
-    setConfirmedTickets(newTickets);
-    localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(newTickets));
-    
-    setIsProcessing(false);
-    setShowPaymentModal(false);
-    
-    toast({
-      title: "Paiement confirmé ! ✅",
-      description: `Votre séance Afroboost avec ${currentProfile?.name.split(',')[0]} est réservée.`,
-    });
+    try {
+      // Register booking in Firestore/localStorage
+      const userId = localStorage.getItem('spordate_user_id') || `user-${Date.now()}`;
+      const result = await registerBooking(
+        userId,
+        currentProfile.id,
+        currentProfile.name,
+        currentProfile.price || 25
+      );
+      
+      // Update local state
+      const newTickets = [...confirmedTickets, currentProfile.id];
+      setConfirmedTickets(newTickets);
+      
+      // Also save to localStorage for immediate UI update
+      localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(newTickets));
+      
+      setIsProcessing(false);
+      setShowPaymentModal(false);
+      
+      // Show success with storage info
+      toast({
+        title: "Paiement confirmé ! ✅",
+        description: result.useFirestore 
+          ? `Transaction enregistrée en base de données. Total: ${result.totalRevenue}€`
+          : `Séance réservée avec ${currentProfile.name.split(',')[0]}. (Mode démo)`,
+      });
+    } catch (error) {
+      console.error('Payment error:', error);
+      setIsProcessing(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors du paiement.",
+      });
+    }
   };
 
   const currentProfile = profiles[currentIndex];
