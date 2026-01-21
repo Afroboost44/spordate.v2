@@ -411,6 +411,206 @@ export default function AdminDashboard() {
     </div>
   );
 
+  // Partners Tab with QR Code generation
+  const PartnersTab = () => (
+    <div className="space-y-8">
+      {/* Add Partner Form */}
+      <Card className="bg-[#0f1115] border-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5 text-cyan-400" />
+            Ajouter un Partenaire
+          </CardTitle>
+          <CardDescription>Créez un nouveau partenaire et générez son QR Code de parrainage</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Nom de la salle / studio</Label>
+              <Input 
+                value={newPartner.name}
+                onChange={(e) => setNewPartner({...newPartner, name: e.target.value})}
+                placeholder="ArtBoost Studio"
+                className="bg-black border-gray-700"
+              />
+            </div>
+            <div>
+              <Label>Ville</Label>
+              <Input 
+                value={newPartner.city}
+                onChange={(e) => setNewPartner({...newPartner, city: e.target.value})}
+                placeholder="Paris"
+                className="bg-black border-gray-700"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Adresse</Label>
+              <Input 
+                value={newPartner.address}
+                onChange={(e) => setNewPartner({...newPartner, address: e.target.value})}
+                placeholder="42 Rue de la Danse"
+                className="bg-black border-gray-700"
+              />
+            </div>
+            <div>
+              <Label>Type</Label>
+              <Select value={newPartner.type} onValueChange={(v) => setNewPartner({...newPartner, type: v as any})}>
+                <SelectTrigger className="bg-black border-gray-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Studio">Studio</SelectItem>
+                  <SelectItem value="Salle">Salle</SelectItem>
+                  <SelectItem value="Club">Club</SelectItem>
+                  <SelectItem value="Association">Association</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Button onClick={handleAddPartner} className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600">
+            <Plus className="mr-2 h-4 w-4" /> Ajouter le Partenaire
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Partners List */}
+      <Card className="bg-[#0f1115] border-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-cyan-400" />
+            Partenaires ({partners.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-gray-800">
+                <TableHead>Nom</TableHead>
+                <TableHead>Ville</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Code Parrainage</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {partners.map((partner) => (
+                <TableRow key={partner.id} className="border-gray-800">
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center text-white font-bold">
+                        {partner.name.charAt(0)}
+                      </div>
+                      {partner.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1 text-gray-400">
+                      <MapPin className="h-3 w-3" />
+                      {partner.city}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="border-violet-500/50 text-violet-400">
+                      {partner.type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <code className="bg-black/50 px-2 py-1 rounded text-xs text-cyan-400">
+                      {partner.referralId}
+                    </code>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => { setSelectedPartner(partner); setShowQrModal(true); }}
+                        className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                      >
+                        <QrCode className="h-4 w-4 mr-1" />
+                        QR Code
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDeletePartner(partner.id!)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* QR Code Modal */}
+      {showQrModal && selectedPartner && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md bg-[#0f1115] border-violet-500/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5 text-violet-400" />
+                  QR Code Parrainage
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setShowQrModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <CardDescription>{selectedPartner.name}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div ref={qrRef} className="bg-white p-6 rounded-xl flex items-center justify-center">
+                <QRCodeSVG 
+                  value={getPartnerReferralUrl(selectedPartner.referralId)}
+                  size={256}
+                  level="H"
+                  includeMargin={true}
+                  fgColor="#7B1FA2"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-xs text-gray-400">URL de parrainage</Label>
+                <div className="bg-black/50 p-3 rounded-lg">
+                  <code className="text-xs text-cyan-400 break-all">
+                    {getPartnerReferralUrl(selectedPartner.referralId)}
+                  </code>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  onClick={downloadQrCode}
+                  className="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Télécharger PNG
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(getPartnerReferralUrl(selectedPartner.referralId));
+                    toast({ title: "Lien copié ! 📋" });
+                  }}
+                  className="border-gray-700"
+                >
+                  Copier le lien
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#05090e] pt-28 pb-20 px-4 md:px-8 text-white overflow-x-hidden">
       {/* Loading */}
