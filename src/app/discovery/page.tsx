@@ -197,7 +197,7 @@ export default function DiscoveryPage() {
 
   // Open payment modal
   const handleBookSession = () => {
-    setSelectedMeetingPlace('');
+    // Don't reset selectedMeetingPlace if already set from partner selection
     setIsDuoTicket(false);
     setShowPaymentModal(true);
   };
