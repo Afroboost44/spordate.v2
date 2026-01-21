@@ -285,10 +285,59 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#05090e] pt-28 pb-20 px-4 md:px-8 text-white overflow-x-hidden">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50"><Activity className="text-cyan-400 h-8 w-8" /></div>
-        <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système de gestion complet • v11.0</p></div>
-      </div>
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Activity className="h-8 w-8 animate-spin text-cyan-400" />
+        </div>
+      )}
+
+      {/* Login Form */}
+      {!isLoading && !isAuthenticated && (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md bg-[#0f1115] border-gray-800">
+            <CardHeader className="text-center">
+              <div className="mx-auto p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50 w-fit mb-4">
+                <Shield className="text-cyan-400 h-8 w-8" />
+              </div>
+              <CardTitle>Admin Dashboard</CardTitle>
+              <CardDescription>Accès réservé aux administrateurs autorisés</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Email administrateur</Label>
+                <Input 
+                  type="email"
+                  placeholder="votre@email.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAdminLogin()}
+                  className="bg-black border-gray-700"
+                />
+              </div>
+              <Button onClick={handleAdminLogin} className="w-full bg-cyan-600 hover:bg-cyan-500">
+                <Lock className="mr-2 h-4 w-4" /> Accéder au Dashboard
+              </Button>
+              <p className="text-xs text-center text-gray-500">
+                Seul l'email autorisé peut accéder à cette interface.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Dashboard Content */}
+      {!isLoading && isAuthenticated && (
+        <>
+          <div className="flex items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-cyan-900/20 rounded-xl border border-cyan-800/50"><Activity className="text-cyan-400 h-8 w-8" /></div>
+              <div><h1 className="text-3xl font-bold">Super Admin Dashboard</h1><p className="text-gray-400">Système de gestion complet • v11.0</p></div>
+            </div>
+            <Button variant="outline" onClick={handleLogout} className="border-gray-700">
+              <LogOut className="mr-2 h-4 w-4" /> Déconnexion
+            </Button>
+          </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-gray-800 p-1 flex-wrap h-auto w-full justify-start">
