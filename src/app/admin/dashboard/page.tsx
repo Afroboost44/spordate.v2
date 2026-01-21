@@ -47,6 +47,8 @@ export default function AdminDashboard() {
 
   // Check auth on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const savedAuth = localStorage.getItem(ADMIN_AUTH_KEY);
     if (savedAuth === AUTHORIZED_EMAIL) {
       setIsAuthenticated(true);
@@ -56,6 +58,8 @@ export default function AdminDashboard() {
 
   // Handle admin login
   const handleAdminLogin = () => {
+    if (typeof window === 'undefined') return;
+    
     if (loginEmail.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
       localStorage.setItem(ADMIN_AUTH_KEY, AUTHORIZED_EMAIL);
       setIsAuthenticated(true);
@@ -67,6 +71,8 @@ export default function AdminDashboard() {
 
   // Handle logout
   const handleLogout = () => {
+    if (typeof window === 'undefined') return;
+    
     localStorage.removeItem(ADMIN_AUTH_KEY);
     setIsAuthenticated(false);
     toast({ title: "Déconnexion", description: "À bientôt !" });
