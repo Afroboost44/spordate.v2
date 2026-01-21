@@ -25,9 +25,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 const initialProfiles = [
-  { id: 1, name: 'Julie, 28', location: 'Paris', sports: ['Tennis', 'Yoga'], bio: 'Cherche un partenaire pour des matchs de tennis le week-end.', imageId: 'discovery-1' },
-  { id: 2, name: 'Marc, 32', location: 'Lyon', sports: ['Crossfit', 'Running'], bio: 'Passionné de Crossfit, je m\'entraîne 4 fois par semaine.', imageId: 'discovery-2' },
-  { id: 3, name: 'Sophie, 25', location: 'Marseille', sports: ['Danse', 'Fitness'], bio: 'Danseuse professionnelle cherche à partager sa passion.', imageId: 'discovery-3' },
+  { id: 1, name: 'Julie, 28', location: 'Paris', sports: ['Afroboost', 'Danse'], bio: 'Passionnée d\'Afroboost, je cherche un partenaire pour danser !', imageId: 'discovery-1' },
+  { id: 2, name: 'Marc, 32', location: 'Lyon', sports: ['Danse', 'Fitness'], bio: 'Danseur confirmé, fan de rythmes africains.', imageId: 'discovery-2' },
+  { id: 3, name: 'Sophie, 25', location: 'Marseille', sports: ['Afroboost', 'Fitness'], bio: 'Coach Afroboost, je partage ma passion avec énergie !', imageId: 'discovery-3' },
 ];
 
 const boostedActivities = [
