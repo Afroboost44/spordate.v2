@@ -13,15 +13,18 @@ export interface Sport {
 // LocalStorage key for sports
 const SPORTS_STORAGE_KEY = 'spordate_sports';
 
-// Default sports list with Danse and Afroboost
+// Default sports list - Afroboost et Danse en priorité
 export const DEFAULT_SPORTS: Sport[] = [
-  { id: 'tennis', label: 'Tennis', icon: 'Tennis', active: true },
-  { id: 'padel', label: 'Padel', icon: 'Paddle', active: true },
-  { id: 'running', label: 'Running', icon: 'Footprints', active: true },
-  { id: 'fitness', label: 'Fitness', icon: 'Dumbbell', active: true },
-  { id: 'danse', label: 'Danse', icon: 'Music', active: true },
-  { id: 'afroboost', label: 'Afroboost', icon: 'Zap', active: true },
+  { id: 'afroboost', label: 'Afroboost', icon: 'Zap', active: true, priority: 1 },
+  { id: 'danse', label: 'Danse', icon: 'Music', active: true, priority: 2 },
+  { id: 'tennis', label: 'Tennis', icon: 'Tennis', active: true, priority: 3 },
+  { id: 'padel', label: 'Padel', icon: 'Paddle', active: true, priority: 4 },
+  { id: 'running', label: 'Running', icon: 'Footprints', active: true, priority: 5 },
+  { id: 'fitness', label: 'Fitness', icon: 'Dumbbell', active: true, priority: 6 },
 ];
+
+// Admin authorized email
+export const ADMIN_EMAIL = 'contact.artboost@gmail.com';
 
 /**
  * Get all sports from Firestore or localStorage
