@@ -72,8 +72,29 @@ export default function AdminDashboard() {
     toast({ title: "Déconnexion", description: "À bientôt !" });
   };
 
+  // Revenue from localStorage (synced with discovery payments)
+  const [revenue, setRevenue] = useState(1250);
+  
+  // Load revenue from localStorage
+  useEffect(() => {
+    const savedRevenue = localStorage.getItem('spordate_revenue');
+    if (savedRevenue) {
+      setRevenue(parseInt(savedRevenue));
+    }
+    
+    // Set up interval to check for updates
+    const interval = setInterval(() => {
+      const currentRevenue = localStorage.getItem('spordate_revenue');
+      if (currentRevenue) {
+        setRevenue(parseInt(currentRevenue));
+      }
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Mock states for interactivity
-  const [kpis] = useState({ revenue: 1250, registeredUsers: 157, activePartners: 12 });
+  const [kpis] = useState({ registeredUsers: 157, activePartners: 12 });
   const [users, setUsers] = useState(mockUsersData);
   const [partnershipRequests, setPartnershipRequests] = useState(initialRequests);
   const [paymentApis, setPaymentApis] = useState({ twint: true, stripe: true, bank: false });
