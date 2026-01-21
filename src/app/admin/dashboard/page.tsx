@@ -18,6 +18,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { ADMIN_EMAIL } from '@/lib/sports';
+import { getGlobalStats, type GlobalStats } from '@/lib/db';
 
 // Admin storage key
 const ADMIN_AUTH_KEY = 'spordate_admin_auth';
