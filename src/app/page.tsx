@@ -126,13 +126,21 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-      // Créer le compte Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      let uid: string;
+      
+      // Si Firebase est configuré, créer le compte auth
+      if (isFirebaseConfigured && auth) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        uid = userCredential.user.uid;
+      } else {
+        // Mode démo - générer un UID fictif
+        uid = `demo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        console.warn('Firebase not configured - running in demo mode');
+      }
 
-      // Créer le profil Firestore
+      // Créer le profil (local ou Firestore selon config)
       const profile = await createUserProfile(
-        user.uid,
+        uid,
         email,
         selectedSports,
         selectedLevel,
@@ -144,7 +152,9 @@ export default function OnboardingPage() {
 
       toast({
         title: "Compte créé !",
-        description: "Bienvenue dans la communauté Spordate.",
+        description: isFirebaseConfigured 
+          ? "Bienvenue dans la communauté Spordate."
+          : "Mode démo - Firebase non configuré.",
       });
     } catch (error: any) {
       console.error("Erreur inscription:", error);
