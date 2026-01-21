@@ -19,7 +19,36 @@ export const isFirebaseConfigured = Boolean(
   !firebaseConfig.apiKey.includes('your_')
 );
 
-// Initialize Firebase only if configured - NEVER crash the app
+// Check if Stripe is configured
+export const isStripeConfigured = Boolean(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.length > 10
+);
+
+// Check if app is in production mode (requires all services)
+export const isProductionMode = isFirebaseConfigured && isStripeConfigured;
+
+// Get missing configuration for error display
+export function getMissingConfig(): string[] {
+  const missing: string[] = [];
+  
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10) {
+    missing.push('NEXT_PUBLIC_FIREBASE_API_KEY');
+  }
+  if (!firebaseConfig.projectId) {
+    missing.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
+  }
+  if (!firebaseConfig.authDomain) {
+    missing.push('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN');
+  }
+  if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+    missing.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
+  }
+  
+  return missing;
+}
+
+// Initialize Firebase only if configured
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
@@ -31,10 +60,10 @@ try {
     db = getFirestore(app);
     console.log('[Firebase] Successfully initialized');
   } else {
-    console.log('[Firebase] Running in DEMO mode - no config provided');
+    console.warn('[Firebase] Configuration manquante - veuillez configurer les variables d\'environnement');
   }
 } catch (error) {
-  console.warn('[Firebase] Initialization failed, running in demo mode:', error);
+  console.error('[Firebase] Initialization failed:', error);
   app = null;
   auth = null;
   db = null;
