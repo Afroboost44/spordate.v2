@@ -445,6 +445,29 @@ export default function DiscoveryPage() {
               </div>
             </div>
 
+            {/* Meeting Place Selection */}
+            <div className="space-y-3">
+              <Label className="text-sm text-gray-400 flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Lieu de rendez-vous (optionnel)
+              </Label>
+              <Select value={selectedMeetingPlace} onValueChange={setSelectedMeetingPlace}>
+                <SelectTrigger className="bg-black border-gray-700">
+                  <SelectValue placeholder="Choisir un lieu partenaire..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {partners.map((partner) => (
+                    <SelectItem key={partner.id} value={partner.id!}>
+                      <div className="flex items-center gap-2">
+                        <span>{partner.name}</span>
+                        <span className="text-xs text-muted-foreground">• {partner.city}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Card Form */}
             {paymentMethod === 'card' && (
               <div className="space-y-4">
