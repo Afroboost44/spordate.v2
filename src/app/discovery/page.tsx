@@ -348,11 +348,14 @@ export default function DiscoveryPage() {
               {partners.slice(0, 3).map((partner) => (
                 <Card 
                   key={partner.id} 
-                  className="bg-card/50 border-border/20 hover:border-primary/50 transition-all cursor-pointer group"
-                  onClick={() => handlePartnerClick(partner)}
+                  className={`bg-card/50 border-border/20 transition-all duration-300 cursor-pointer group
+                    hover:border-violet-500/60 hover:shadow-lg hover:shadow-violet-500/20 hover:scale-[1.02]
+                    ${selectedMeetingPlace === partner.id ? 'border-violet-500 shadow-lg shadow-violet-500/30 bg-violet-500/10' : ''}
+                  `}
+                  onClick={() => handlePartnerSelect(partner)}
                 >
                   <CardContent className="p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center text-white font-bold text-lg">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center text-white font-bold text-lg transition-transform group-hover:scale-110 ${selectedMeetingPlace === partner.id ? 'scale-110' : ''}`}>
                       {partner.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -364,7 +367,11 @@ export default function DiscoveryPage() {
                         {partner.city}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    {selectedMeetingPlace === partner.id ? (
+                      <Badge className="bg-violet-500 text-white text-xs">Sélectionné</Badge>
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    )}
                   </CardContent>
                 </Card>
               ))}
