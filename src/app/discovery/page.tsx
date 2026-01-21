@@ -139,6 +139,8 @@ export default function DiscoveryPage() {
 
   // Process payment
   const handlePayment = async () => {
+    if (typeof window === 'undefined') return;
+    
     setIsProcessing(true);
     
     // Simulate payment processing
