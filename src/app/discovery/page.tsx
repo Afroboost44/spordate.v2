@@ -773,69 +773,43 @@ END:VCALENDAR`;
               </Select>
             </div>
 
-            {/* Card Form */}
-            {paymentMethod === 'card' && (
-              <div className="space-y-4">
+            {/* Stripe Checkout Notice */}
+            <div className="bg-gradient-to-r from-violet-900/20 to-pink-900/20 rounded-xl p-4 border border-violet-500/20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                  <CreditCard className="h-5 w-5 text-violet-600" />
+                </div>
                 <div>
-                  <Label className="text-xs text-gray-400">Numéro de carte</Label>
-                  <Input 
-                    placeholder="4242 4242 4242 4242"
-                    className="bg-black border-gray-700 mt-1"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-gray-400">Expiration</Label>
-                    <Input 
-                      placeholder="MM/AA"
-                      className="bg-black border-gray-700 mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-400">CVC</Label>
-                    <Input 
-                      placeholder="123"
-                      className="bg-black border-gray-700 mt-1"
-                    />
-                  </div>
+                  <p className="text-sm font-medium text-white">Paiement sécurisé Stripe</p>
+                  <p className="text-xs text-gray-400">Carte bancaire • Apple Pay • Google Pay</p>
                 </div>
               </div>
-            )}
-
-            {/* Twint */}
-            {paymentMethod === 'twint' && (
-              <div className="text-center py-4 bg-white/5 rounded-xl border border-white/10">
-                <div className="w-16 h-16 mx-auto mb-3 bg-white rounded-xl flex items-center justify-center">
-                  <span className="text-2xl font-black text-black">T</span>
-                </div>
-                <p className="text-sm text-gray-400">
-                  Vous serez redirigé vers l'app Twint
-                </p>
-              </div>
-            )}
+            </div>
 
             {/* Security Notice */}
             <div className="flex items-center gap-2 text-xs text-gray-500 bg-white/5 rounded-lg p-3">
               <Lock className="h-4 w-4" />
-              <span>Paiement sécurisé par Stripe. Vos données sont chiffrées.</span>
+              <span>Vos données sont chiffrées. Vous serez redirigé vers Stripe Checkout.</span>
             </div>
 
-            {/* Pay Button */}
+            {/* Pay Button - with loader and disabled state */}
             <Button 
+              data-testid="pay-button"
               onClick={handlePayment}
               disabled={isProcessing}
-              className="w-full h-12 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold text-lg"
+              className="w-full h-14 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white font-semibold text-lg disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Traitement...
-                </>
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Redirection vers Stripe...</span>
+                </div>
               ) : (
-                <>
-                  <CheckCircle className="mr-2 h-5 w-5" />
-                  Payer {getCurrentPrice()}€ {isDuoTicket && '(Duo)'}
-                </>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  <span>Payer {getCurrentPrice()}€</span>
+                  {isDuoTicket && <Badge className="bg-white/20 text-white text-xs ml-1">Duo</Badge>}
+                </div>
               )}
             </Button>
           </div>
