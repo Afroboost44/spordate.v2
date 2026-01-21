@@ -201,7 +201,7 @@ export default function DiscoveryPage() {
 
   // Open payment modal
   const handleBookSession = () => {
-    // Don't reset selectedMeetingPlace if already set from partner selection
+      // Don't reset selectedMeetingPlace if already set from partner selection
     setIsDuoTicket(false);
     setShowPaymentModal(true);
   };
@@ -212,64 +212,182 @@ export default function DiscoveryPage() {
     return isDuoTicket ? 50 : currentProfile.price;
   };
 
-  // Process payment
+  // Poll payment status from Stripe
+  const pollPaymentStatus = async (sessionId: string, attempts = 0): Promise<boolean> => {
+    const maxAttempts = 10;
+    const pollInterval = 2000;
+
+    if (attempts >= maxAttempts) {
+      toast({
+        variant: "destructive",
+        title: "Timeout",
+        description: "Vérification du paiement expirée. Vérifiez votre email.",
+      });
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/api/checkout/status/${sessionId}`);
+      if (!response.ok) throw new Error('Failed to check status');
+
+      const data = await response.json();
+
+      if (data.paymentStatus === 'paid') {
+        return true;
+      } else if (data.status === 'expired') {
+        toast({
+          variant: "destructive",
+          title: "Session expirée",
+          description: "La session de paiement a expiré. Veuillez réessayer.",
+        });
+        return false;
+      }
+
+      // Continue polling
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      return pollPaymentStatus(sessionId, attempts + 1);
+    } catch (error) {
+      console.error('Error polling status:', error);
+      return false;
+    }
+  };
+
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const paymentStatus = searchParams.get('payment');
+    const sessionId = searchParams.get('session_id');
+
+    if (paymentStatus === 'success' && sessionId) {
+      // Poll for payment confirmation
+      setIsProcessing(true);
+      
+      pollPaymentStatus(sessionId).then(async (success) => {
+        if (success) {
+          // Payment confirmed - finalize booking
+          const pendingBooking = localStorage.getItem('pending_booking');
+          if (pendingBooking) {
+            const booking = JSON.parse(pendingBooking);
+            
+            // Register booking
+            const userId = localStorage.getItem('spordate_user_id') || `user-${Date.now()}`;
+            await registerBooking(userId, booking.profileId, booking.profileName, booking.amount);
+            
+            // Update local state
+            const newTickets = [...confirmedTickets, booking.profileId];
+            setConfirmedTickets(newTickets);
+            localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(newTickets));
+            
+            // Set last booking for success modal
+            setLastBooking({
+              profile: booking.profileName,
+              partner: booking.partnerName || 'Non défini',
+              partnerAddress: booking.partnerAddress,
+              isDuo: booking.isDuo,
+              amount: booking.amount,
+            });
+            localStorage.setItem(LAST_BOOKING_KEY, JSON.stringify({
+              profile: booking.profileName,
+              partner: booking.partnerName || 'Non défini',
+              partnerAddress: booking.partnerAddress,
+              isDuo: booking.isDuo,
+              amount: booking.amount,
+            }));
+
+            // Send notification to partner
+            if (booking.partnerId) {
+              await sendPartnerNotification({
+                partnerName: booking.partnerName || 'Partenaire',
+                customerName: booking.profileName,
+                ticketType: booking.isDuo ? 'Duo' : 'Solo',
+                amount: booking.amount,
+                bookingId: sessionId,
+              });
+            }
+
+            // Clean up
+            localStorage.removeItem('pending_booking');
+            
+            // Show success modal
+            setShowTicketSuccess(true);
+            
+            toast({
+              title: "Paiement confirmé ! ✅",
+              description: `Séance ${booking.isDuo ? 'Duo' : 'Solo'} réservée avec succès`,
+            });
+          }
+        }
+        setIsProcessing(false);
+        
+        // Clean URL
+        router.replace('/discovery');
+      });
+    } else if (paymentStatus === 'cancelled') {
+      toast({
+        title: "Paiement annulé",
+        description: "Le paiement a été annulé. Vous pouvez réessayer.",
+      });
+      router.replace('/discovery');
+    }
+  }, [searchParams]);
+
+  // Process payment with Stripe
   const handlePayment = async () => {
     if (typeof window === 'undefined' || !currentProfile) return;
     
     setIsProcessing(true);
     
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     const finalPrice = getCurrentPrice();
+    const meetingPartner = partners.find(p => p.id === selectedMeetingPlace);
     
     try {
-      // Register booking in Firestore/localStorage
-      const userId = localStorage.getItem('spordate_user_id') || `user-${Date.now()}`;
-      const result = await registerBooking(
-        userId,
-        currentProfile.id,
-        currentProfile.name,
-        finalPrice
-      );
-      
-      // Update local state
-      const newTickets = [...confirmedTickets, currentProfile.id];
-      setConfirmedTickets(newTickets);
-      
-      // Also save to localStorage for immediate UI update
-      localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(newTickets));
-      
-      // Save last booking for share feature
-      const meetingPartner = partners.find(p => p.id === selectedMeetingPlace);
-      const bookingInfo = {
-        profile: currentProfile.name.split(',')[0],
-        partner: meetingPartner?.name || 'Non défini',
-        partnerAddress: meetingPartner ? `${meetingPartner.address}, ${meetingPartner.city}` : undefined,
+      // Save pending booking info for after Stripe redirect
+      const pendingBooking = {
+        profileId: currentProfile.id,
+        profileName: currentProfile.name.split(',')[0],
+        partnerId: selectedMeetingPlace || null,
+        partnerName: meetingPartner?.name || null,
+        partnerAddress: meetingPartner ? `${meetingPartner.address}, ${meetingPartner.city}` : null,
         isDuo: isDuoTicket,
         amount: finalPrice,
       };
-      setLastBooking(bookingInfo);
-      localStorage.setItem(LAST_BOOKING_KEY, JSON.stringify(bookingInfo));
-      
-      setIsProcessing(false);
-      setShowPaymentModal(false);
-      setShowTicketSuccess(true);
-      
-      // Show success with storage info
-      toast({
-        title: "Paiement confirmé ! ✅",
-        description: meetingPartner 
-          ? `RDV ${isDuoTicket ? 'Duo' : 'Solo'} avec ${currentProfile.name.split(',')[0]} à ${meetingPartner.name}`
-          : `Séance ${isDuoTicket ? 'Duo' : 'Solo'} réservée avec ${currentProfile.name.split(',')[0]}`,
+      localStorage.setItem('pending_booking', JSON.stringify(pendingBooking));
+
+      // Call Stripe checkout API
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageType: isDuoTicket ? 'duo' : 'solo',
+          originUrl: window.location.origin,
+          metadata: {
+            profileId: currentProfile.id,
+            profileName: currentProfile.name.split(',')[0],
+            partnerId: selectedMeetingPlace || '',
+            ticketType: isDuoTicket ? 'duo' : 'solo',
+          },
+        }),
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erreur lors de la création du paiement');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = url;
+      
     } catch (error) {
       console.error('Payment error:', error);
       setIsProcessing(false);
+      localStorage.removeItem('pending_booking');
       toast({
         variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors du paiement.",
+        title: "Erreur de paiement",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors du paiement.",
       });
     }
   };
