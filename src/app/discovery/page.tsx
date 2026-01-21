@@ -607,6 +607,160 @@ export default function DiscoveryPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Partner Detail Modal */}
+      <Dialog open={showPartnerModal} onOpenChange={setShowPartnerModal}>
+        <DialogContent className="max-w-md w-full bg-[#0a0a0a] border-violet-500/30 text-white p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0 bg-gradient-to-b from-violet-900/20 to-transparent">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center text-white font-bold text-2xl">
+                {selectedPartner?.name.charAt(0)}
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold">{selectedPartner?.name}</DialogTitle>
+                <DialogDescription className="text-gray-400 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {selectedPartner?.city}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          
+          <div className="p-6 space-y-6">
+            {/* Address */}
+            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+              <div className="flex items-start gap-3">
+                <Navigation className="h-5 w-5 text-violet-400 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Adresse complète</p>
+                  <p className="text-xs text-gray-400">{selectedPartner?.address}</p>
+                  <p className="text-xs text-gray-400">{selectedPartner?.city}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Upcoming Sessions */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-violet-400" />
+                Prochaines sessions
+              </h4>
+              <div className="space-y-2">
+                {mockSessions.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                    <div>
+                      <p className="text-sm font-medium">{session.title}</p>
+                      <p className="text-xs text-gray-400">{session.day} • {session.time}</p>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                      {session.spots} places
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Who's Participating */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Users className="h-4 w-4 text-violet-400" />
+                Qui participe ?
+              </h4>
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
+                  {mockParticipants.map((p) => (
+                    <Avatar key={p.id} className="border-2 border-[#0a0a0a] w-10 h-10">
+                      <AvatarFallback className="bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] text-white text-sm">
+                        {p.avatar}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                </div>
+                <div className="text-sm">
+                  <p className="text-white">{mockParticipants.map(p => p.name).join(', ')}</p>
+                  <p className="text-xs text-gray-400">ont réservé récemment</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setShowPartnerModal(false)}
+                className="flex-1 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63]"
+              >
+                <Ticket className="mr-2 h-4 w-4" />
+                Réserver ici
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-gray-700"
+                onClick={() => {
+                  const msg = encodeURIComponent(`Découvre ${selectedPartner?.name} sur Spordateur ! 💪\nhttps://spordateur.com/discovery`);
+                  window.open(`https://wa.me/?text=${msg}`, '_blank');
+                }}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ticket Success Modal */}
+      <Dialog open={showTicketSuccess} onOpenChange={setShowTicketSuccess}>
+        <DialogContent className="max-w-sm w-full bg-[#0a0a0a] border-green-500/30 text-white text-center">
+          <div className="py-6 space-y-6">
+            {/* Success Icon */}
+            <div className="w-20 h-20 mx-auto rounded-full bg-green-500/20 flex items-center justify-center">
+              <CheckCircle className="h-10 w-10 text-green-400" />
+            </div>
+
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Réservation confirmée ! 🎉</h3>
+              <p className="text-gray-400 text-sm">
+                Votre séance avec {lastBooking?.profile} est réservée
+                {lastBooking?.partner !== 'Non défini' && ` à ${lastBooking?.partner}`}
+              </p>
+            </div>
+
+            {/* Ticket Summary */}
+            <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-left">
+              <div className="flex items-center gap-3 mb-3">
+                <Ticket className="h-5 w-5 text-violet-400" />
+                <span className="font-semibold">Votre ticket</span>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Partenaire</span>
+                  <span>{lastBooking?.profile}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Lieu</span>
+                  <span>{lastBooking?.partner}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Share on WhatsApp */}
+            <Button 
+              onClick={shareTicketOnWhatsApp}
+              className="w-full bg-green-600 hover:bg-green-500"
+            >
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Envoyer le ticket à un ami
+            </Button>
+
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowTicketSuccess(false)}
+              className="w-full text-gray-400"
+            >
+              Fermer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
