@@ -124,3 +124,160 @@ export async function findUserByReferralCode(code: string): Promise<UserProfile 
   }
   return null;
 }
+
+
+/**
+ * Register a new booking and update global stats
+ * Works with Firestore if configured, otherwise uses localStorage
+ */
+export async function registerBooking(
+  oderId: string,
+  profileId: number,
+  profileName: string,
+  amount: number = 25
+): Promise<{ booking: Booking; totalRevenue: number; useFirestore: boolean }> {
+  const booking: Booking = {
+    oderId,
+    profileId,
+    profileName,
+    amount,
+    currency: 'EUR',
+    status: 'confirmed',
+    createdAt: new Date(),
+  };
+
+  let totalRevenue = 0;
+  let useFirestore = false;
+
+  // Try Firestore first
+  if (isFirebaseConfigured && db) {
+    try {
+      // Add booking document
+      const bookingRef = await addDoc(collection(db, 'bookings'), {
+        ...booking,
+        createdAt: booking.createdAt.toISOString(),
+      });
+      booking.id = bookingRef.id;
+
+      // Update global stats (create if doesn't exist)
+      const statsRef = doc(db, 'stats', 'global');
+      const statsSnap = await getDoc(statsRef);
+      
+      if (statsSnap.exists()) {
+        await updateDoc(statsRef, {
+          totalRevenue: increment(amount),
+          totalBookings: increment(1),
+          lastUpdated: new Date().toISOString(),
+        });
+        totalRevenue = statsSnap.data().totalRevenue + amount;
+      } else {
+        totalRevenue = 1250 + amount; // Initial value + new booking
+        await setDoc(statsRef, {
+          totalRevenue,
+          totalBookings: 1,
+          lastUpdated: new Date().toISOString(),
+        });
+      }
+
+      useFirestore = true;
+      console.log('[Firestore] Booking registered:', booking.id);
+    } catch (error) {
+      console.error('[Firestore] Error registering booking:', error);
+      // Fall back to localStorage
+    }
+  }
+
+  // Fallback to localStorage (demo mode)
+  if (!useFirestore && typeof window !== 'undefined') {
+    try {
+      // Save booking
+      const existingBookings = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
+      booking.id = `local-${Date.now()}`;
+      existingBookings.push({
+        ...booking,
+        createdAt: booking.createdAt.toISOString(),
+      });
+      localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(existingBookings));
+
+      // Update revenue
+      const currentRevenue = parseInt(localStorage.getItem(REVENUE_STORAGE_KEY) || '1250');
+      totalRevenue = currentRevenue + amount;
+      localStorage.setItem(REVENUE_STORAGE_KEY, totalRevenue.toString());
+
+      // Save ticket
+      const tickets = JSON.parse(localStorage.getItem(TICKETS_STORAGE_KEY) || '[]');
+      if (!tickets.includes(profileId)) {
+        tickets.push(profileId);
+        localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(tickets));
+      }
+
+      console.log('[localStorage] Booking registered (demo mode)');
+    } catch (e) {
+      console.error('[localStorage] Error:', e);
+    }
+  }
+
+  return { booking, totalRevenue, useFirestore };
+}
+
+/**
+ * Get global stats (revenue, bookings count)
+ */
+export async function getGlobalStats(): Promise<GlobalStats> {
+  const defaultStats: GlobalStats = {
+    totalRevenue: 1250,
+    totalBookings: 0,
+    lastUpdated: new Date(),
+  };
+
+  // Try Firestore first
+  if (isFirebaseConfigured && db) {
+    try {
+      const statsRef = doc(db, 'stats', 'global');
+      const statsSnap = await getDoc(statsRef);
+      
+      if (statsSnap.exists()) {
+        const data = statsSnap.data();
+        return {
+          totalRevenue: data.totalRevenue || 1250,
+          totalBookings: data.totalBookings || 0,
+          lastUpdated: new Date(data.lastUpdated),
+        };
+      }
+    } catch (error) {
+      console.error('[Firestore] Error getting stats:', error);
+    }
+  }
+
+  // Fallback to localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const revenue = localStorage.getItem(REVENUE_STORAGE_KEY);
+      const bookings = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
+      
+      return {
+        totalRevenue: revenue ? parseInt(revenue) : 1250,
+        totalBookings: bookings.length,
+        lastUpdated: new Date(),
+      };
+    } catch (e) {
+      console.error('[localStorage] Error getting stats:', e);
+    }
+  }
+
+  return defaultStats;
+}
+
+/**
+ * Get confirmed tickets for current session
+ */
+export function getConfirmedTickets(): number[] {
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    const tickets = localStorage.getItem(TICKETS_STORAGE_KEY);
+    return tickets ? JSON.parse(tickets) : [];
+  } catch (e) {
+    return [];
+  }
+}
