@@ -365,6 +365,8 @@ export default function AdminDashboard() {
         <TabsContent value="communication"><CommunicationTab /></TabsContent>
         <TabsContent value="cms"><CmsTab /></TabsContent>
       </Tabs>
+        </>
+      )}
     </div>
   );
 }
