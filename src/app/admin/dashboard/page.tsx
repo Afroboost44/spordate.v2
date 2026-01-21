@@ -482,6 +482,7 @@ export default function AdminDashboard() {
                 </div>
             </TabsTrigger>
             <TabsTrigger value="finance"><SlidersHorizontal className="mr-2"/>Finance</TabsTrigger>
+            <TabsTrigger value="partners"><Building2 className="mr-2"/>Partenaires</TabsTrigger>
             <TabsTrigger value="communication"><MessageSquare className="mr-2"/>Communication</TabsTrigger>
             <TabsTrigger value="cms"><Palette className="mr-2"/>CMS & Branding</TabsTrigger>
         </TabsList>
@@ -490,6 +491,7 @@ export default function AdminDashboard() {
         <TabsContent value="users"><UserManagementTab /></TabsContent>
         <TabsContent value="requests"><PartnershipRequestsTab /></TabsContent>
         <TabsContent value="finance"><FinanceTab /></TabsContent>
+        <TabsContent value="partners"><PartnersTab /></TabsContent>
         <TabsContent value="communication"><CommunicationTab /></TabsContent>
         <TabsContent value="cms"><CmsTab /></TabsContent>
       </Tabs>
