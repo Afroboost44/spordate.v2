@@ -70,6 +70,14 @@ export default function DiscoveryPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedTickets, setConfirmedTickets] = useState<number[]>([]);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
+  
+  // New states for social features
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [selectedMeetingPlace, setSelectedMeetingPlace] = useState<string>('');
+  const [showTicketSuccess, setShowTicketSuccess] = useState(false);
+  const [lastBooking, setLastBooking] = useState<{profile: string, partner: string} | null>(null);
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
