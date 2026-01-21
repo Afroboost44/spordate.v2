@@ -166,6 +166,7 @@ export default function DiscoveryPage() {
 
   // Open payment modal
   const handleBookSession = () => {
+    setSelectedMeetingPlace('');
     setShowPaymentModal(true);
   };
 
@@ -195,15 +196,25 @@ export default function DiscoveryPage() {
       // Also save to localStorage for immediate UI update
       localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(newTickets));
       
+      // Save last booking for share feature
+      const meetingPartner = partners.find(p => p.id === selectedMeetingPlace);
+      const bookingInfo = {
+        profile: currentProfile.name.split(',')[0],
+        partner: meetingPartner?.name || 'Non défini',
+      };
+      setLastBooking(bookingInfo);
+      localStorage.setItem(LAST_BOOKING_KEY, JSON.stringify(bookingInfo));
+      
       setIsProcessing(false);
       setShowPaymentModal(false);
+      setShowTicketSuccess(true);
       
       // Show success with storage info
       toast({
         title: "Paiement confirmé ! ✅",
-        description: result.useFirestore 
-          ? `Transaction enregistrée en base de données. Total: ${result.totalRevenue}€`
-          : `Séance réservée avec ${currentProfile.name.split(',')[0]}. (Mode démo)`,
+        description: meetingPartner 
+          ? `RDV avec ${currentProfile.name.split(',')[0]} à ${meetingPartner.name}`
+          : `Séance réservée avec ${currentProfile.name.split(',')[0]}`,
       });
     } catch (error) {
       console.error('Payment error:', error);
