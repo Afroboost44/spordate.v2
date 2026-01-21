@@ -76,7 +76,10 @@ export default function DiscoveryPage() {
   const [showPartnerModal, setShowPartnerModal] = useState(false);
   const [selectedMeetingPlace, setSelectedMeetingPlace] = useState<string>('');
   const [showTicketSuccess, setShowTicketSuccess] = useState(false);
-  const [lastBooking, setLastBooking] = useState<{profile: string, partner: string} | null>(null);
+  const [lastBooking, setLastBooking] = useState<{profile: string, partner: string, partnerAddress?: string, isDuo: boolean, amount: number} | null>(null);
+  
+  // Duo option state
+  const [isDuoTicket, setIsDuoTicket] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
