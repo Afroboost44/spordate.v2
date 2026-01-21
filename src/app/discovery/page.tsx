@@ -531,7 +531,7 @@ END:VCALENDAR`;
 
       {/* Payment Modal */}
       <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
-        <DialogContent className="max-w-md w-full bg-[#0a0a0a] border-violet-500/30 text-white p-0 overflow-hidden">
+        <DialogContent className="max-w-md w-full bg-[#0a0a0a] border-violet-500/30 text-white p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
           <DialogHeader className="p-6 pb-0 bg-gradient-to-b from-violet-900/20 to-transparent">
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
               <Zap className="h-6 w-6 text-yellow-400" />
