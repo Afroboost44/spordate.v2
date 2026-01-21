@@ -16,15 +16,23 @@ Spordateur est une plateforme web de communauté sportive permettant aux utilisa
 - Section "Où pratiquer ?" avec partenaires
 
 ### 3. Payment & Booking System ✅
-- **Intégration Stripe Checkout** (remplace la simulation)
-  - API Route: `/api/checkout` - Crée une session de paiement
-  - API Route: `/api/checkout/status/[sessionId]` - Vérifie le statut
+- **Intégration Stripe Checkout** complète
+  - `POST /api/checkout` - Crée une session de paiement
+  - `GET /api/checkout/status/[sessionId]` - Vérifie le statut
+  - `POST /api/webhooks/stripe` - Webhook pour confirmation serveur
 - **Option Duo** (J'invite mon partenaire) - 50€ pour 2 places
 - **Pré-sélection du lieu** depuis la section partenaires
 - Prix fixes côté serveur (Solo: 25€, Duo: 50€) - sécurisé
-- Polling du statut de paiement après retour Stripe
+- **Loader anti-double clic** sur le bouton Payer
 
-### 4. Success Modal Features ✅
+### 4. Email Notifications ✅
+- **Service Resend** (`/lib/email.ts`) avec templates HTML professionnels
+- **Email confirmation client** : "Ton ticket pour [LIEU] est prêt !" 
+- **Email notification partenaire** : "Nouveau RDV sportif confirmé !"
+- Templates responsive avec design violet/rose cohérent
+- Fallback console.log si Resend non configuré
+
+### 5. Success Modal Features ✅
 - Confirmation visuelle avec badge Solo/Duo
 - **Ajouter à mon calendrier:**
   - Google Calendar (lien direct)
@@ -33,11 +41,6 @@ Spordateur est une plateforme web de communauté sportive permettant aux utilisa
   - Solo: invitation à rejoindre
   - Duo: message cadeau avec place offerte
 - Adresse du partenaire incluse
-
-### 5. Notifications ✅
-- Service de notifications (`/lib/notifications.ts`)
-- Log console pour les réservations (à remplacer par email en prod)
-- Notification partenaire avec détails de réservation
 
 ### 6. Partner Section ✅
 - Effet hover glow sur les cartes
@@ -51,7 +54,8 @@ Spordateur est une plateforme web de communauté sportive permettant aux utilisa
 ## Technical Stack
 - **Frontend:** Next.js 15 (App Router), React, TypeScript, Tailwind CSS, ShadCN UI
 - **Database:** Firebase (Firestore) - Configuration requise
-- **Payments:** Stripe Checkout API
+- **Payments:** Stripe Checkout API avec Webhook
+- **Emails:** Resend API
 - **QR Codes:** qrcode.react v4.2.0
 
 ## Environment Variables Required
@@ -70,43 +74,52 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123
 ```
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... ou pk_live_...
 STRIPE_SECRET_KEY=sk_test_... ou sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
-## Data Schema
-- **users/{userId}**: email, sports[], level, referralCode, referredBy?
-- **bookings/{bookingId}**: userId, profileId, amount, date, meetingPlaceId?, isDuo
-- **stats/global**: totalRevenue, totalBookings, lastUpdated
-- **partners/{partnerId}**: name, address, city, type, referralID, active
-
-## Latest Changes (Jan 21, 2026)
-- ✅ Transition Mode Démo → Production
-- ✅ Écran "Configuration Requise" si clés manquantes
-- ✅ Intégration Stripe Checkout (API routes)
-- ✅ Service de notifications partenaires
-- ✅ Retrait du bandeau "Mode Démo" et bouton démo
-- ✅ Validation des clés Firebase et Stripe
+### Email - Resend (Optional)
+```
+RESEND_API_KEY=re_...
+SENDER_EMAIL=Spordateur <noreply@votredomaine.com>
+```
 
 ## API Routes
 - `POST /api/checkout` - Crée une session Stripe Checkout
 - `GET /api/checkout/status/[sessionId]` - Vérifie le statut du paiement
+- `POST /api/webhooks/stripe` - Reçoit les événements Stripe (checkout.session.completed)
+
+## Webhook Events Handled
+- `checkout.session.completed` - Confirme le paiement, envoie emails
+- `checkout.session.expired` - Log l'expiration de session
+- `payment_intent.payment_failed` - Log les échecs de paiement
 
 ## Security
 - Montants de paiement définis côté serveur uniquement (anti-fraude)
+- Vérification de signature webhook Stripe
 - Clés Stripe secrètes dans variables d'environnement serveur
 - Validation stricte des clés Firebase (format AIzaSy...)
+- Bouton Payer désactivé pendant le traitement (anti-double clic)
+
+## Latest Changes (Jan 21, 2026)
+- ✅ Webhook Stripe `/api/webhooks/stripe` avec gestion checkout.session.completed
+- ✅ Service email Resend avec templates HTML professionnels
+- ✅ Loader et état disabled sur bouton Payer
+- ✅ UI simplifiée (retrait sélecteur Carte/Twint - Stripe gère tout)
+- ✅ Metadata complètes envoyées à Stripe (partenaire, adresse)
 
 ## Files of Reference
 - `/app/src/app/discovery/page.tsx` - Page Discovery avec Stripe
 - `/app/src/app/api/checkout/route.ts` - API Stripe Checkout
-- `/app/src/lib/firebase.ts` - Configuration Firebase avec validation
-- `/app/src/lib/notifications.ts` - Service de notifications
-- `/app/src/components/ConfigErrorScreen.tsx` - Écran d'erreur config
+- `/app/src/app/api/webhooks/stripe/route.ts` - Webhook Stripe
+- `/app/src/lib/email.ts` - Service email Resend avec templates
+- `/app/src/lib/firebase.ts` - Configuration Firebase
+- `/app/src/components/ConfigErrorScreen.tsx` - Écran erreur config
 
 ## Next Steps (P1)
-- [ ] Ajouter clés Firebase réelles
-- [ ] Ajouter clés Stripe de production
-- [ ] Remplacer notifications console par email (SendGrid/Resend)
-- [ ] Webhook Stripe pour confirmation serveur
+- [ ] Configurer clés Firebase réelles
+- [ ] Configurer clés Stripe de production
+- [ ] Configurer Resend avec domaine vérifié
+- [ ] Déployer webhook URL dans Stripe Dashboard
 
 ## Credentials (Dev)
 - **Admin Sports:** Code `AFRO2026`
