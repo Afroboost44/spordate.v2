@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Règles pour la collection users
+    match /users/{userId} {
+      // Lecture : uniquement l'utilisateur authentifié peut lire son propre document
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Création : l'utilisateur authentifié peut créer son propre document
+      allow create: if request.auth != null 
+                    && request.auth.uid == userId
+                    && request.resource.data.keys().hasAll(['email', 'sports', 'level', 'referralCode', 'createdAt'])
+                    && request.resource.data.email is string
+                    && request.resource.data.sports is list
+                    && request.resource.data.level is string
+                    && request.resource.data.referralCode is string
+                    && request.resource.data.referralCode.matches('^SPORT-[A-Z0-9]{4}$');
+      
+      // Mise à jour : l'utilisateur peut modifier son propre document
+      // mais ne peut pas changer son referralCode une fois créé
+      allow update: if request.auth != null 
+                    && request.auth.uid == userId
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['referralCode', 'uid', 'createdAt']));
+      
+      // Suppression : non autorisée
+      allow delete: if false;
+    }
+    
+    // Règle pour rechercher un utilisateur par code de parrainage (lecture seule du code)
+    match /users/{userId} {
+      allow read: if request.auth != null 
+                  && resource.data.referralCode != null;
+    }
+    
+    // Bloquer tout autre accès par défaut
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
