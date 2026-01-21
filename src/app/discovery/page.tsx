@@ -107,6 +107,8 @@ export default function DiscoveryPage() {
 
   // Share profile with referral code
   const handleShareProfile = async () => {
+    if (typeof window === 'undefined') return;
+    
     const userCode = localStorage.getItem('spordate_user_code') || 'SPORT-USER';
     const shareUrl = `https://spordateur.com/discovery?ref=${userCode}&profile=${currentProfile?.id}`;
     const shareText = `Regarde ce profil sur Spordateur, on va faire une séance ensemble ? 💪🔥`;
