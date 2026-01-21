@@ -71,7 +71,6 @@ export default function DiscoveryPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatch, setIsMatch] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'twint'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedTickets, setConfirmedTickets] = useState<number[]>([]);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
