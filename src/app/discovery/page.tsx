@@ -712,7 +712,7 @@ END:VCALENDAR`;
               ) : (
                 <>
                   <CheckCircle className="mr-2 h-5 w-5" />
-                  Payer {currentProfile?.price}€
+                  Payer {getCurrentPrice()}€ {isDuoTicket && '(Duo)'}
                 </>
               )}
             </Button>
