@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dumbbell, Check } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
+import { auth, isFirebaseConfigured, getMissingConfig } from "@/lib/firebase";
 import { createUserProfile, type UserProfile } from "@/lib/db";
 import { getSports, DEFAULT_SPORTS, type Sport } from "@/lib/sports";
 import { useToast } from "@/hooks/use-toast";
+import { ConfigErrorScreen } from "@/components/ConfigErrorScreen";
 import { 
   Step1, 
   Step2, 
@@ -25,12 +26,6 @@ const initialData: OnboardingData = {
   selectedSports: [],
   selectedLevel: "",
   referredBy: null,
-};
-
-// Identifiants démo
-const DEMO_CREDENTIALS = {
-  email: "demo@spordate.com",
-  password: "demo123456",
 };
 
 export default function OnboardingPage() {
@@ -134,38 +129,20 @@ export default function OnboardingPage() {
     setStep(prev => prev - 1);
   }, []);
 
-  // DEMO LOGIN: Auto-fill and go to Step 2
-  const handleDemoLogin = useCallback(() => {
-    setData(prev => ({
-      ...prev,
-      email: DEMO_CREDENTIALS.email,
-      password: DEMO_CREDENTIALS.password,
-      confirmPassword: DEMO_CREDENTIALS.password,
-    }));
-    setStep(2);
-    toast({
-      title: "Mode Démo activé ⚡",
-      description: "Identifiants pré-remplis. Sélectionnez vos sports !",
-    });
-  }, [toast]);
-
   const handleSubmit = useCallback(async () => {
     setLoading(true);
 
     try {
-      let uid: string;
-      
-      if (isFirebaseConfigured && auth) {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth, 
-          data.email, 
-          data.password
-        );
-        uid = userCredential.user.uid;
-      } else {
-        // Demo mode - generate fake UID
-        uid = `demo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      if (!isFirebaseConfigured || !auth) {
+        throw new Error('Firebase non configuré');
       }
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        data.email, 
+        data.password
+      );
+      const uid = userCredential.user.uid;
 
       const profile = await createUserProfile(
         uid,
@@ -181,9 +158,7 @@ export default function OnboardingPage() {
 
       toast({
         title: "Compte créé ! 🎉",
-        description: isFirebaseConfigured 
-          ? "Bienvenue dans la communauté Spordate."
-          : "Mode démo activé.",
+        description: "Bienvenue dans la communauté Spordate.",
       });
     } catch (error: any) {
       console.error("[Onboarding] Error:", error);
@@ -220,6 +195,12 @@ export default function OnboardingPage() {
         </div>
       </div>
     );
+  }
+
+  // Show configuration error if Firebase not configured
+  if (!isFirebaseConfigured) {
+    const missingKeys = getMissingConfig();
+    return <ConfigErrorScreen missingKeys={missingKeys} />;
   }
 
   return (
@@ -272,7 +253,6 @@ export default function OnboardingPage() {
               onDataChange={handleDataChange}
               onNext={handleNextStep}
               referredBy={data.referredBy}
-              onDemoLogin={handleDemoLogin}
             />
           )}
 
