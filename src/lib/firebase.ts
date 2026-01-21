@@ -11,18 +11,23 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
 };
 
-// Check if Firebase is properly configured
+// Check if Firebase is properly configured with REAL credentials
+// Test keys (containing 'Test' or 'test') are not considered valid
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && 
   firebaseConfig.projectId &&
   firebaseConfig.apiKey.length > 10 &&
-  !firebaseConfig.apiKey.includes('your_')
+  !firebaseConfig.apiKey.includes('your_') &&
+  !firebaseConfig.apiKey.toLowerCase().includes('test') &&
+  firebaseConfig.apiKey.startsWith('AIzaSy')
 );
 
 // Check if Stripe is configured
 export const isStripeConfigured = Boolean(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.length > 10
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.length > 10 &&
+  (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_test_') ||
+   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_'))
 );
 
 // Check if app is in production mode (requires all services)
@@ -32,16 +37,20 @@ export const isProductionMode = isFirebaseConfigured && isStripeConfigured;
 export function getMissingConfig(): string[] {
   const missing: string[] = [];
   
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10) {
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10 || 
+      firebaseConfig.apiKey.toLowerCase().includes('test') ||
+      !firebaseConfig.apiKey.startsWith('AIzaSy')) {
     missing.push('NEXT_PUBLIC_FIREBASE_API_KEY');
   }
-  if (!firebaseConfig.projectId) {
+  if (!firebaseConfig.projectId || firebaseConfig.projectId.includes('test')) {
     missing.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
   }
   if (!firebaseConfig.authDomain) {
     missing.push('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN');
   }
-  if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
+      (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_test_') &&
+       !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_'))) {
     missing.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
   }
   
@@ -60,7 +69,7 @@ try {
     db = getFirestore(app);
     console.log('[Firebase] Successfully initialized');
   } else {
-    console.warn('[Firebase] Configuration manquante - veuillez configurer les variables d\'environnement');
+    console.warn('[Firebase] Configuration requise - veuillez ajouter vos clés Firebase réelles');
   }
 } catch (error) {
   console.error('[Firebase] Initialization failed:', error);
