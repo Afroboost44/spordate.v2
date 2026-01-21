@@ -79,26 +79,31 @@ export default function AdminDashboard() {
     toast({ title: "Déconnexion", description: "À bientôt !" });
   };
 
-  // Revenue from localStorage (synced with discovery payments)
+  // Revenue from Firestore/localStorage (synced with discovery payments)
   const [revenue, setRevenue] = useState(1250);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [useFirestore, setUseFirestore] = useState(false);
   
-  // Load revenue from localStorage
+  // Load stats from Firestore/localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    const savedRevenue = localStorage.getItem('spordate_revenue');
-    if (savedRevenue) {
-      setRevenue(parseInt(savedRevenue));
-    }
+    const loadStats = async () => {
+      try {
+        const stats = await getGlobalStats();
+        setRevenue(stats.totalRevenue);
+        setTotalBookings(stats.totalBookings);
+        // Check if using Firestore by trying to detect it
+        setUseFirestore(stats.totalBookings > 0 || stats.totalRevenue !== 1250);
+      } catch (e) {
+        console.warn('Failed to load stats');
+      }
+    };
+    
+    loadStats();
     
     // Set up interval to check for updates
-    const interval = setInterval(() => {
-      if (typeof window === 'undefined') return;
-      const currentRevenue = localStorage.getItem('spordate_revenue');
-      if (currentRevenue) {
-        setRevenue(parseInt(currentRevenue));
-      }
-    }, 2000);
+    const interval = setInterval(loadStats, 3000);
     
     return () => clearInterval(interval);
   }, []);
