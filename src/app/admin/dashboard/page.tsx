@@ -39,6 +39,38 @@ const initialRequests = [
 export default function AdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check auth on mount
+  useEffect(() => {
+    const savedAuth = localStorage.getItem(ADMIN_AUTH_KEY);
+    if (savedAuth === AUTHORIZED_EMAIL) {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Handle admin login
+  const handleAdminLogin = () => {
+    if (loginEmail.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
+      localStorage.setItem(ADMIN_AUTH_KEY, AUTHORIZED_EMAIL);
+      setIsAuthenticated(true);
+      toast({ title: "Connexion réussie ✅", description: "Bienvenue dans le Dashboard Admin." });
+    } else {
+      toast({ variant: "destructive", title: "Accès refusé", description: "Email non autorisé." });
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+    setIsAuthenticated(false);
+    toast({ title: "Déconnexion", description: "À bientôt !" });
+  };
 
   // Mock states for interactivity
   const [kpis] = useState({ revenue: 1250, registeredUsers: 157, activePartners: 12 });
