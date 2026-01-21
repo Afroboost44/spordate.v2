@@ -716,39 +716,6 @@ END:VCALENDAR`;
               </div>
             </div>
 
-            {/* Payment Method Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm text-gray-400">Méthode de paiement</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="button"
-                  variant={paymentMethod === 'card' ? 'default' : 'outline'}
-                  onClick={() => setPaymentMethod('card')}
-                  className={`h-16 flex flex-col items-center gap-1 ${
-                    paymentMethod === 'card' 
-                      ? 'bg-violet-600 border-violet-500' 
-                      : 'bg-transparent border-gray-700'
-                  }`}
-                >
-                  <CreditCard className="h-5 w-5" />
-                  <span className="text-xs">Carte</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant={paymentMethod === 'twint' ? 'default' : 'outline'}
-                  onClick={() => setPaymentMethod('twint')}
-                  className={`h-16 flex flex-col items-center gap-1 ${
-                    paymentMethod === 'twint' 
-                      ? 'bg-violet-600 border-violet-500' 
-                      : 'bg-transparent border-gray-700'
-                  }`}
-                >
-                  <Smartphone className="h-5 w-5" />
-                  <span className="text-xs">Twint</span>
-                </Button>
-              </div>
-            </div>
-
             {/* Meeting Place Selection */}
             <div className="space-y-3">
               <Label className="text-sm text-gray-400 flex items-center gap-2">
