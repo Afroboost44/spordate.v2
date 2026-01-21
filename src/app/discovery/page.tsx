@@ -31,6 +31,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { registerBooking, getConfirmedTickets, getPartners, DEFAULT_PARTNERS, type Partner } from "@/lib/db";
 
+import { sendPartnerNotification } from "@/lib/notifications";
+import { isFirebaseConfigured, getMissingConfig } from "@/lib/firebase";
+import { ConfigErrorScreen } from "@/components/ConfigErrorScreen";
+
 // Revenue storage key for admin sync (kept for backward compatibility)
 const TICKETS_STORAGE_KEY = 'spordate_tickets';
 const LAST_BOOKING_KEY = 'spordate_last_booking';
