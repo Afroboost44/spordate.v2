@@ -63,6 +63,11 @@ export async function createUserProfile(
  * Get user profile by UID
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  if (!isFirebaseConfigured || !db) {
+    console.warn('Firebase not configured');
+    return null;
+  }
+  
   const docRef = doc(db, 'users', uid);
   const docSnap = await getDoc(docRef);
   
@@ -80,6 +85,11 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  * Find user by referral code
  */
 export async function findUserByReferralCode(code: string): Promise<UserProfile | null> {
+  if (!isFirebaseConfigured || !db) {
+    console.warn('Firebase not configured');
+    return null;
+  }
+  
   const q = query(collection(db, 'users'), where('referralCode', '==', code));
   const querySnapshot = await getDocs(q);
   
