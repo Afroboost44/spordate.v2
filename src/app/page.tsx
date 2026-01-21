@@ -264,6 +264,14 @@ export default function OnboardingPage() {
               Invité par {referredBy}
             </div>
           )}
+          
+          {/* Mode démo warning */}
+          {!isFirebaseConfigured && step === 1 && (
+            <div className="mt-3 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-2 text-amber-400 text-xs">
+              <AlertTriangle className="h-4 w-4" />
+              <span>Mode démo - Firebase non configuré</span>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent>
