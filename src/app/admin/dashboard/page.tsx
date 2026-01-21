@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from "@/components/ui/label";
-import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle, UserPlus, Check, X, Server, Database, UserCheck, DollarSign, Shield, LogOut } from 'lucide-react';
+import { Activity, Globe, Save, RefreshCw, BarChart, Users, Building, Briefcase, Eye, Lock, Trash2, EyeOff, LockOpen, CreditCard, Banknote, Mail, Palette, MessageSquare, SlidersHorizontal, AlertCircle, UserPlus, Check, X, Server, Database, UserCheck, DollarSign, Shield, LogOut, QrCode, Download, Building2, MapPin, Plus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,7 +18,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { ADMIN_EMAIL } from '@/lib/sports';
-import { getGlobalStats, type GlobalStats } from '@/lib/db';
+import { getGlobalStats, getPartners, addPartner, deletePartner, getPartnerReferralUrl, DEFAULT_PARTNERS, type GlobalStats, type Partner } from '@/lib/db';
+import { QRCodeSVG } from 'qrcode.react';
 
 // Admin storage key
 const ADMIN_AUTH_KEY = 'spordate_admin_auth';
