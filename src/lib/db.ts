@@ -329,3 +329,129 @@ export function getConfirmedTickets(): number[] {
     return [];
   }
 }
+
+// ==================== PARTNERS FUNCTIONS ====================
+
+/**
+ * Generate a unique partner referral ID
+ */
+export function generatePartnerReferralId(name: string): string {
+  const prefix = name.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 6);
+  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}-${suffix}`;
+}
+
+/**
+ * Get all partners
+ */
+export async function getPartners(): Promise<Partner[]> {
+  // Try Firestore first
+  if (isFirebaseConfigured && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'partners'));
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt),
+        })) as Partner[];
+      }
+    } catch (error) {
+      console.error('[Firestore] Error getting partners:', error);
+    }
+  }
+
+  // Fallback to localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(PARTNERS_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('[localStorage] Error getting partners:', e);
+    }
+  }
+
+  return DEFAULT_PARTNERS;
+}
+
+/**
+ * Add a new partner
+ */
+export async function addPartner(partner: Omit<Partner, 'id' | 'referralId' | 'createdAt'>): Promise<Partner> {
+  const newPartner: Partner = {
+    ...partner,
+    id: `partner-${Date.now()}`,
+    referralId: generatePartnerReferralId(partner.name),
+    createdAt: new Date(),
+  };
+
+  // Try Firestore first
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = await addDoc(collection(db, 'partners'), {
+        ...newPartner,
+        createdAt: newPartner.createdAt.toISOString(),
+      });
+      newPartner.id = docRef.id;
+      console.log('[Firestore] Partner added:', newPartner.id);
+    } catch (error) {
+      console.error('[Firestore] Error adding partner:', error);
+    }
+  }
+
+  // Also save to localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = await getPartners();
+      const updated = [...existing.filter(p => p.id !== newPartner.id), newPartner];
+      localStorage.setItem(PARTNERS_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {
+      console.error('[localStorage] Error saving partner:', e);
+    }
+  }
+
+  return newPartner;
+}
+
+/**
+ * Delete a partner
+ */
+export async function deletePartner(partnerId: string): Promise<void> {
+  // Try Firestore
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'partners', partnerId));
+    } catch (error) {
+      console.error('[Firestore] Error deleting partner:', error);
+    }
+  }
+
+  // Update localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = await getPartners();
+      const updated = existing.filter(p => p.id !== partnerId);
+      localStorage.setItem(PARTNERS_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {
+      console.error('[localStorage] Error deleting partner:', e);
+    }
+  }
+}
+
+/**
+ * Find partner by referral ID
+ */
+export async function findPartnerByReferralId(referralId: string): Promise<Partner | null> {
+  const partners = await getPartners();
+  return partners.find(p => p.referralId === referralId) || null;
+}
+
+/**
+ * Get partner referral URL
+ */
+export function getPartnerReferralUrl(referralId: string): string {
+  return `https://spordateur.com/?ref=${referralId}`;
+}
+
