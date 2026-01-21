@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Heart, MapPin, Undo2, Zap, Lock, CheckCircle, RefreshCcw, Handshake, Share2, CreditCard, Smartphone, Check, Ticket, Loader2, Building2, Navigation } from 'lucide-react';
+import { X, Heart, MapPin, Undo2, Zap, Lock, CheckCircle, RefreshCcw, Handshake, Share2, CreditCard, Smartphone, Check, Ticket, Loader2, Building2, Navigation, Clock, Users, Calendar, MessageCircle, Send, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -26,10 +26,27 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { registerBooking, getConfirmedTickets, getPartners, DEFAULT_PARTNERS, type Partner } from "@/lib/db";
 
 // Revenue storage key for admin sync (kept for backward compatibility)
 const TICKETS_STORAGE_KEY = 'spordate_tickets';
+const LAST_BOOKING_KEY = 'spordate_last_booking';
+
+// Mock participants for social proof
+const mockParticipants = [
+  { id: 1, name: 'Julie', avatar: 'J', sport: 'Afroboost' },
+  { id: 2, name: 'Marc', avatar: 'M', sport: 'Danse' },
+  { id: 3, name: 'Sophie', avatar: 'S', sport: 'Fitness' },
+];
+
+// Mock upcoming sessions
+const mockSessions = [
+  { id: 1, title: 'Afroboost Débutant', day: 'Lundi', time: '19:00', spots: 3 },
+  { id: 2, title: 'Danse Africaine', day: 'Mercredi', time: '18:30', spots: 5 },
+  { id: 3, title: 'Cardio Dance', day: 'Vendredi', time: '20:00', spots: 2 },
+];
 
 const initialProfiles = [
   { id: 1, name: 'Julie, 28', location: 'Paris', sports: ['Afroboost', 'Danse'], bio: 'Passionnée d\'Afroboost, je cherche un partenaire pour danser !', imageId: 'discovery-1', price: 25 },
