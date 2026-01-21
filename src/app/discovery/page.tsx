@@ -902,7 +902,7 @@ END:VCALENDAR`;
             <div>
               <h3 className="text-2xl font-bold mb-2">Réservation confirmée ! 🎉</h3>
               <p className="text-gray-400 text-sm">
-                Votre séance avec {lastBooking?.profile} est réservée
+                Votre séance {lastBooking?.isDuo ? 'Duo' : 'Solo'} avec {lastBooking?.profile} est réservée
                 {lastBooking?.partner !== 'Non défini' && ` à ${lastBooking?.partner}`}
               </p>
             </div>
@@ -911,7 +911,13 @@ END:VCALENDAR`;
             <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-left">
               <div className="flex items-center gap-3 mb-3">
                 <Ticket className="h-5 w-5 text-violet-400" />
-                <span className="font-semibold">Votre ticket</span>
+                <span className="font-semibold">Votre ticket {lastBooking?.isDuo ? 'Duo' : 'Solo'}</span>
+                {lastBooking?.isDuo && (
+                  <Badge className="bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white text-xs">
+                    <Gift className="h-3 w-3 mr-1" />
+                    2 places
+                  </Badge>
+                )}
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -922,6 +928,39 @@ END:VCALENDAR`;
                   <span className="text-gray-400">Lieu</span>
                   <span>{lastBooking?.partner}</span>
                 </div>
+                {lastBooking?.partnerAddress && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Adresse</span>
+                    <span className="text-right text-xs max-w-[150px]">{lastBooking.partnerAddress}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Montant</span>
+                  <span className="text-green-400 font-semibold">{lastBooking?.amount}€</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Calendar Buttons */}
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500 mb-2">Ajouter à mon calendrier</p>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={addToGoogleCalendar}
+                  variant="outline"
+                  className="flex-1 border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Google Calendar
+                </Button>
+                <Button 
+                  onClick={downloadIcsFile}
+                  variant="outline"
+                  className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-700/30"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Fichier .ics
+                </Button>
               </div>
             </div>
 
@@ -931,7 +970,9 @@ END:VCALENDAR`;
               className="w-full bg-green-600 hover:bg-green-500"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
-              Envoyer le ticket à un ami
+              {lastBooking?.isDuo 
+                ? "Envoyer l'invitation à mon partenaire" 
+                : "Envoyer le ticket à un ami"}
             </Button>
 
             <Button 
