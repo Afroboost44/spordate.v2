@@ -1,5 +1,5 @@
 import { db, isFirebaseConfigured } from './firebase';
-import { doc, setDoc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, query, collection, where, getDocs, addDoc, updateDoc, increment } from 'firebase/firestore';
 
 // Types
 export interface UserProfile {
@@ -11,6 +11,28 @@ export interface UserProfile {
   referredBy?: string;
   createdAt: Date;
 }
+
+export interface Booking {
+  id?: string;
+  oderId: string;
+  profileId: number;
+  profileName: string;
+  amount: number;
+  currency: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  createdAt: Date;
+}
+
+export interface GlobalStats {
+  totalRevenue: number;
+  totalBookings: number;
+  lastUpdated: Date;
+}
+
+// localStorage keys for demo mode
+const REVENUE_STORAGE_KEY = 'spordate_revenue';
+const BOOKINGS_STORAGE_KEY = 'spordate_bookings';
+const TICKETS_STORAGE_KEY = 'spordate_tickets';
 
 /**
  * Generate a unique referral code in format SPORT-XXXX
