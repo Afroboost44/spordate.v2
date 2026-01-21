@@ -1,4 +1,4 @@
-import { db } from './firebase';
+import { db, isFirebaseConfigured } from './firebase';
 import { doc, setDoc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
 
 // Types
@@ -46,11 +46,15 @@ export async function createUserProfile(
     createdAt: new Date(),
   };
 
-  // Save to Firestore
-  await setDoc(doc(db, 'users', uid), {
-    ...userProfile,
-    createdAt: userProfile.createdAt.toISOString(),
-  });
+  // Save to Firestore only if configured
+  if (isFirebaseConfigured && db) {
+    await setDoc(doc(db, 'users', uid), {
+      ...userProfile,
+      createdAt: userProfile.createdAt.toISOString(),
+    });
+  } else {
+    console.warn('Firebase not configured - profile stored locally only');
+  }
 
   return userProfile;
 }
