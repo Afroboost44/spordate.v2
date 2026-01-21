@@ -237,7 +237,49 @@ export default function DiscoveryPage() {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
-  // Open partner detail modal
+  // Add to calendar
+  const addToCalendar = () => {
+    if (!lastBooking) return;
+    
+    const meetingPartner = partners.find(p => p.name === lastBooking.partner);
+    const title = encodeURIComponent(`Séance Afroboost avec ${lastBooking.profile}`);
+    const location = meetingPartner 
+      ? encodeURIComponent(`${meetingPartner.address}, ${meetingPartner.city}`)
+      : encodeURIComponent('Spordateur');
+    const details = encodeURIComponent(`Réservé via Spordateur\nPartenaire: ${lastBooking.profile}\nLieu: ${lastBooking.partner}`);
+    
+    // Create Google Calendar link
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 1); // Tomorrow
+    startDate.setHours(19, 0, 0, 0); // 19:00
+    const endDate = new Date(startDate);
+    endDate.setHours(20, 0, 0, 0); // 20:00
+    
+    const formatDate = (d: Date) => d.toISOString().replace(/-|:|\.\d+/g, '').slice(0, -1);
+    
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDate(startDate)}/${formatDate(endDate)}&location=${location}&details=${details}`;
+    
+    window.open(calendarUrl, '_blank');
+    toast({ title: "Calendrier ouvert 📅", description: "Ajoutez l'événement à votre agenda !" });
+  };
+
+  // Select partner from "Où pratiquer?" list - pre-select for booking
+  const handlePartnerSelect = (partner: Partner) => {
+    if (selectedMeetingPlace === partner.id) {
+      // If already selected, open detail modal
+      setSelectedPartner(partner);
+      setShowPartnerModal(true);
+    } else {
+      // Select this partner as meeting place
+      setSelectedMeetingPlace(partner.id!);
+      toast({
+        title: `${partner.name} sélectionné ✓`,
+        description: "Ce lieu sera pré-sélectionné pour votre réservation",
+      });
+    }
+  };
+
+  // Open partner detail modal (from other places)
   const handlePartnerClick = (partner: Partner) => {
     setSelectedPartner(partner);
     setShowPartnerModal(true);
