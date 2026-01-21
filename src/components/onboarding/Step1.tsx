@@ -3,16 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Sparkles, AlertTriangle, Zap } from "lucide-react";
-import { isFirebaseConfigured } from "@/lib/firebase";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Step1Props } from "./types";
 
-interface Step1ExtendedProps extends Step1Props {
-  onDemoLogin?: () => void;
-}
-
-export function Step1({ data, onDataChange, onNext, referredBy, onDemoLogin }: Step1ExtendedProps) {
+export function Step1({ data, onDataChange, onNext, referredBy }: Step1Props) {
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,12 +34,6 @@ export function Step1({ data, onDataChange, onNext, referredBy, onDemoLogin }: S
     onNext();
   };
 
-  const handleDemoClick = () => {
-    if (onDemoLogin) {
-      onDemoLogin();
-    }
-  };
-
   return (
     <div className="space-y-4">
       {/* Social Proof Banner - Invitation active */}
@@ -61,14 +50,6 @@ export function Step1({ data, onDataChange, onNext, referredBy, onDemoLogin }: S
               Vous rejoignez la communauté via un partenaire
             </p>
           </div>
-        </div>
-      )}
-
-      {/* Mode démo warning */}
-      {!isFirebaseConfigured && (
-        <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-2 text-amber-400 text-xs">
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-          <span>Mode démo - Firebase non configuré</span>
         </div>
       )}
 
@@ -123,22 +104,6 @@ export function Step1({ data, onDataChange, onNext, referredBy, onDemoLogin }: S
           Continuer <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </form>
-
-      {/* Demo Login Button */}
-      {onDemoLogin && (
-        <div className="pt-2 border-t border-border/20">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleDemoClick}
-            className="w-full text-xs text-muted-foreground hover:text-foreground"
-            data-testid="demo-login-btn"
-          >
-            <Zap className="h-3 w-3 mr-1" />
-            Connexion Démo (test rapide)
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
