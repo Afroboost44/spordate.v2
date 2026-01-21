@@ -1,4 +1,5 @@
 // Types partagés pour l'onboarding
+import type { Sport } from '@/lib/sports';
 
 export interface OnboardingData {
   email: string;
@@ -22,6 +23,7 @@ export interface Step2Props {
   onBack: () => void;
   onSubmit: () => Promise<void>;
   loading: boolean;
+  sports: Sport[];
 }
 
 export interface StepGrowthProps {
@@ -29,21 +31,13 @@ export interface StepGrowthProps {
   onGoToProfile: () => void;
 }
 
-// Sports disponibles avec icônes Lucide
-export const SPORTS = [
-  { id: "tennis", label: "Tennis", icon: "Volleyball" },
-  { id: "padel", label: "Padel", icon: "TableTennis" },
-  { id: "running", label: "Running", icon: "Footprints" },
-  { id: "fitness", label: "Fitness", icon: "Dumbbell" },
-] as const;
-
 // Niveaux sportifs
 export const LEVELS = [
-  { id: "debutant", label: "Débutant", description: "Je découvre" },
-  { id: "intermediaire", label: "Intermédiaire", description: "Je progresse" },
-  { id: "confirme", label: "Confirmé", description: "Je maîtrise" },
-  { id: "expert", label: "Expert", description: "Je performe" },
+  { id: 'debutant', label: 'Débutant', description: 'Je découvre' },
+  { id: 'intermediaire', label: 'Intermédiaire', description: 'Je progresse' },
+  { id: 'confirme', label: 'Confirmé', description: 'Je maîtrise' },
+  { id: 'expert', label: 'Expert', description: 'Je performe' },
 ] as const;
 
 // Clé localStorage pour la persistance
-export const ONBOARDING_STORAGE_KEY = "spordate_onboarding";
+export const ONBOARDING_STORAGE_KEY = 'spordate_onboarding';
