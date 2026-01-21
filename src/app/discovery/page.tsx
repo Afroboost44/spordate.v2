@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Heart, MapPin, Undo2, Zap, Lock, CheckCircle, RefreshCcw, Handshake, Share2, CreditCard, Smartphone, Check, Ticket, Loader2 } from 'lucide-react';
+import { X, Heart, MapPin, Undo2, Zap, Lock, CheckCircle, RefreshCcw, Handshake, Share2, CreditCard, Smartphone, Check, Ticket, Loader2, Building2, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -26,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerBooking, getConfirmedTickets } from "@/lib/db";
+import { registerBooking, getConfirmedTickets, getPartners, DEFAULT_PARTNERS, type Partner } from "@/lib/db";
 
 // Revenue storage key for admin sync (kept for backward compatibility)
 const TICKETS_STORAGE_KEY = 'spordate_tickets';
