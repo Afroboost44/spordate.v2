@@ -288,30 +288,77 @@ export default function DiscoveryPage() {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
-  // Add to calendar
-  const addToCalendar = () => {
+  // Add to Google Calendar
+  const addToGoogleCalendar = () => {
     if (!lastBooking) return;
     
-    const meetingPartner = partners.find(p => p.name === lastBooking.partner);
-    const title = encodeURIComponent(`Séance Afroboost avec ${lastBooking.profile}`);
-    const location = meetingPartner 
-      ? encodeURIComponent(`${meetingPartner.address}, ${meetingPartner.city}`)
+    const ticketType = lastBooking.isDuo ? 'Duo' : 'Solo';
+    const title = encodeURIComponent(`Séance Afroboost ${ticketType} avec ${lastBooking.profile}`);
+    const location = lastBooking.partnerAddress 
+      ? encodeURIComponent(lastBooking.partnerAddress)
       : encodeURIComponent('Spordateur');
-    const details = encodeURIComponent(`Réservé via Spordateur\nPartenaire: ${lastBooking.profile}\nLieu: ${lastBooking.partner}`);
+    const details = encodeURIComponent(`🎟️ Ticket ${ticketType} - ${lastBooking.amount}€\nPartenaire: ${lastBooking.profile}\nLieu: ${lastBooking.partner}\n\nRéservé via Spordateur`);
     
-    // Create Google Calendar link
+    // Create event for tomorrow at 19:00
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 1); // Tomorrow
-    startDate.setHours(19, 0, 0, 0); // 19:00
+    startDate.setDate(startDate.getDate() + 1);
+    startDate.setHours(19, 0, 0, 0);
     const endDate = new Date(startDate);
-    endDate.setHours(20, 0, 0, 0); // 20:00
+    endDate.setHours(20, 0, 0, 0);
     
     const formatDate = (d: Date) => d.toISOString().replace(/-|:|\.\d+/g, '').slice(0, -1);
     
     const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDate(startDate)}/${formatDate(endDate)}&location=${location}&details=${details}`;
     
     window.open(calendarUrl, '_blank');
-    toast({ title: "Calendrier ouvert 📅", description: "Ajoutez l'événement à votre agenda !" });
+    toast({ title: "Google Calendar ouvert 📅", description: "Ajoutez l'événement à votre agenda !" });
+  };
+
+  // Download .ics calendar file
+  const downloadIcsFile = () => {
+    if (!lastBooking) return;
+    
+    const ticketType = lastBooking.isDuo ? 'Duo' : 'Solo';
+    
+    // Create event for tomorrow at 19:00
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 1);
+    startDate.setHours(19, 0, 0, 0);
+    const endDate = new Date(startDate);
+    endDate.setHours(20, 0, 0, 0);
+    
+    const formatIcsDate = (d: Date) => {
+      return d.toISOString().replace(/-|:|\.\d+/g, '').slice(0, -1) + 'Z';
+    };
+    
+    const location = lastBooking.partnerAddress || 'Spordateur';
+    
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Spordateur//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:${formatIcsDate(startDate)}
+DTEND:${formatIcsDate(endDate)}
+SUMMARY:Séance Afroboost ${ticketType} avec ${lastBooking.profile}
+DESCRIPTION:🎟️ Ticket ${ticketType} - ${lastBooking.amount}€\\nPartenaire: ${lastBooking.profile}\\nLieu: ${lastBooking.partner}\\n\\nRéservé via Spordateur
+LOCATION:${location}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `spordateur-seance-${ticketType.toLowerCase()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({ title: "Fichier téléchargé 📅", description: "Ouvrez-le pour l'ajouter à votre calendrier !" });
   };
 
   // Select partner from "Où pratiquer?" list - pre-select for booking
