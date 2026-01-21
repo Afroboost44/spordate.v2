@@ -58,9 +58,15 @@ export default function DiscoveryPage() {
 
   // Load confirmed tickets from localStorage
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const saved = localStorage.getItem(TICKETS_STORAGE_KEY);
     if (saved) {
-      setConfirmedTickets(JSON.parse(saved));
+      try {
+        setConfirmedTickets(JSON.parse(saved));
+      } catch (e) {
+        console.warn('Failed to parse tickets');
+      }
     }
     
     // Check for referral in URL
