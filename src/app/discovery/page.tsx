@@ -26,9 +26,9 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerBooking, getConfirmedTickets } from "@/lib/db";
 
-// Revenue storage key for admin sync
-const REVENUE_STORAGE_KEY = 'spordate_revenue';
+// Revenue storage key for admin sync (kept for backward compatibility)
 const TICKETS_STORAGE_KEY = 'spordate_tickets';
 
 const initialProfiles = [
