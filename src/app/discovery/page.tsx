@@ -349,7 +349,7 @@ export default function DiscoveryPage() {
                 <Card 
                   key={partner.id} 
                   className="bg-card/50 border-border/20 hover:border-primary/50 transition-all cursor-pointer group"
-                  onClick={() => toast({ title: partner.name, description: `${partner.address}, ${partner.city}` })}
+                  onClick={() => handlePartnerClick(partner)}
                 >
                   <CardContent className="p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center text-white font-bold text-lg">
@@ -364,9 +364,7 @@ export default function DiscoveryPage() {
                         {partner.city}
                       </p>
                     </div>
-                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
-                      {partner.type}
-                    </Badge>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </CardContent>
                 </Card>
               ))}
