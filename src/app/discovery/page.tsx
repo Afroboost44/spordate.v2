@@ -197,7 +197,14 @@ export default function DiscoveryPage() {
   // Open payment modal
   const handleBookSession = () => {
     setSelectedMeetingPlace('');
+    setIsDuoTicket(false);
     setShowPaymentModal(true);
+  };
+
+  // Calculate current price based on solo/duo
+  const getCurrentPrice = () => {
+    if (!currentProfile) return 25;
+    return isDuoTicket ? 50 : currentProfile.price;
   };
 
   // Process payment
@@ -209,6 +216,8 @@ export default function DiscoveryPage() {
     // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000));
     
+    const finalPrice = getCurrentPrice();
+    
     try {
       // Register booking in Firestore/localStorage
       const userId = localStorage.getItem('spordate_user_id') || `user-${Date.now()}`;
@@ -216,7 +225,7 @@ export default function DiscoveryPage() {
         userId,
         currentProfile.id,
         currentProfile.name,
-        currentProfile.price || 25
+        finalPrice
       );
       
       // Update local state
@@ -231,6 +240,9 @@ export default function DiscoveryPage() {
       const bookingInfo = {
         profile: currentProfile.name.split(',')[0],
         partner: meetingPartner?.name || 'Non défini',
+        partnerAddress: meetingPartner ? `${meetingPartner.address}, ${meetingPartner.city}` : undefined,
+        isDuo: isDuoTicket,
+        amount: finalPrice,
       };
       setLastBooking(bookingInfo);
       localStorage.setItem(LAST_BOOKING_KEY, JSON.stringify(bookingInfo));
@@ -243,8 +255,8 @@ export default function DiscoveryPage() {
       toast({
         title: "Paiement confirmé ! ✅",
         description: meetingPartner 
-          ? `RDV avec ${currentProfile.name.split(',')[0]} à ${meetingPartner.name}`
-          : `Séance réservée avec ${currentProfile.name.split(',')[0]}`,
+          ? `RDV ${isDuoTicket ? 'Duo' : 'Solo'} avec ${currentProfile.name.split(',')[0]} à ${meetingPartner.name}`
+          : `Séance ${isDuoTicket ? 'Duo' : 'Solo'} réservée avec ${currentProfile.name.split(',')[0]}`,
       });
     } catch (error) {
       console.error('Payment error:', error);
