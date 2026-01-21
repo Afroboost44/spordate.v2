@@ -544,7 +544,7 @@ END:VCALENDAR`;
           
           <div className="p-6 space-y-6">
             {/* Duo Option Toggle */}
-            <div className="bg-gradient-to-r from-violet-900/30 to-pink-900/30 rounded-xl p-4 border border-violet-500/30">
+            <div data-testid="duo-option-toggle" className="bg-gradient-to-r from-violet-900/30 to-pink-900/30 rounded-xl p-4 border border-violet-500/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center">
@@ -569,7 +569,7 @@ END:VCALENDAR`;
             </div>
 
             {/* Price Summary */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+            <div data-testid="price-summary" className="bg-white/5 rounded-xl p-4 border border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-400">
                   {isDuoTicket ? 'Séance Duo Afroboost (2x 1h)' : 'Séance Afroboost (1h)'}
