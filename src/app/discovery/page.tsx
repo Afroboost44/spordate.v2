@@ -227,6 +227,22 @@ export default function DiscoveryPage() {
     }
   };
 
+  // Share ticket on WhatsApp
+  const shareTicketOnWhatsApp = () => {
+    if (!lastBooking) return;
+    
+    const message = encodeURIComponent(
+      `Je vais m'entraîner à ${lastBooking.partner}, rejoins-moi ! 💪🔥\n\nRDV avec ${lastBooking.profile} sur Spordateur\nhttps://spordateur.com/discovery`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
+
+  // Open partner detail modal
+  const handlePartnerClick = (partner: Partner) => {
+    setSelectedPartner(partner);
+    setShowPartnerModal(true);
+  };
+
   const currentProfile = profiles[currentIndex];
   const profileImage = discoveryImages.find(img => img.id === currentProfile?.imageId);
   const hasTicket = currentProfile && confirmedTickets.includes(currentProfile.id);
