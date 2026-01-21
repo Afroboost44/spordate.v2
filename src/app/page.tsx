@@ -1,128 +1,119 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Dumbbell, 
-  ArrowRight, 
-  ArrowLeft, 
-  Check, 
-  Share2, 
-  Copy,
-  Loader2,
-  AlertTriangle
-} from "lucide-react";
+import { Dumbbell, Check } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
-import { createUserProfile, generateReferralCode, type UserProfile } from "@/lib/db";
+import { createUserProfile, type UserProfile } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Step1, 
+  Step2, 
+  StepGrowth, 
+  ONBOARDING_STORAGE_KEY,
+  type OnboardingData 
+} from "@/components/onboarding";
 
-// Sports disponibles
-const SPORTS = [
-  { id: "tennis", label: "Tennis", emoji: "🎾" },
-  { id: "padel", label: "Padel", emoji: "🏓" },
-  { id: "running", label: "Running", emoji: "🏃" },
-  { id: "fitness", label: "Fitness", emoji: "💪" },
-];
-
-// Niveaux sportifs
-const LEVELS = [
-  { id: "debutant", label: "Débutant" },
-  { id: "intermediaire", label: "Intermédiaire" },
-  { id: "confirme", label: "Confirmé" },
-  { id: "expert", label: "Expert" },
-];
+// État initial du formulaire
+const initialData: OnboardingData = {
+  email: "",
+  password: "",
+  confirmPassword: "",
+  selectedSports: [],
+  selectedLevel: "",
+  referredBy: null,
+};
 
 export default function OnboardingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  // États du formulaire
+  // États
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [data, setData] = useState<OnboardingData>(initialData);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Step 1: Inscription
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Step 2: Sports & Niveau
-  const [selectedSports, setSelectedSports] = useState<string[]>([]);
-  const [selectedLevel, setSelectedLevel] = useState("");
-
-  // Referral code depuis l'URL
-  const [referredBy, setReferredBy] = useState<string | null>(null);
-
-  // Capturer le code de parrainage depuis l'URL
+  // Capturer le code de parrainage depuis l'URL et restaurer l'état
   useEffect(() => {
+    // Récupérer le code de parrainage depuis l'URL
     const refCode = searchParams.get("ref");
-    if (refCode) {
-      setReferredBy(refCode);
+    
+    // Restaurer depuis localStorage
+    try {
+      const saved = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ne restaurer que si on n'est pas à l'étape 3 (compte créé)
+        if (parsed.step && parsed.step < 3) {
+          setStep(parsed.step);
+          setData(prev => ({
+            ...prev,
+            ...parsed.data,
+            // Le code de parrainage de l'URL a priorité
+            referredBy: refCode || parsed.data?.referredBy || null,
+          }));
+        }
+      } else if (refCode) {
+        setData(prev => ({ ...prev, referredBy: refCode }));
+      }
+    } catch (e) {
+      console.error("Erreur restauration localStorage:", e);
+      if (refCode) {
+        setData(prev => ({ ...prev, referredBy: refCode }));
+      }
     }
+    
+    setIsHydrated(true);
   }, [searchParams]);
 
-  // Toggle sport selection
-  const toggleSport = (sportId: string) => {
-    setSelectedSports((prev) =>
-      prev.includes(sportId)
-        ? prev.filter((s) => s !== sportId)
-        : [...prev, sportId]
-    );
-  };
-
-  // Step 1: Créer le compte Firebase
-  const handleStep1Submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (password !== confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas.",
-      });
+  // Sauvegarder dans localStorage à chaque changement
+  useEffect(() => {
+    if (!isHydrated) return;
+    
+    // Ne pas sauvegarder si le compte est créé
+    if (step >= 3) {
+      localStorage.removeItem(ONBOARDING_STORAGE_KEY);
       return;
     }
 
-    if (password.length < 6) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
-      });
-      return;
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+        step,
+        data: {
+          email: data.email,
+          // Ne pas sauvegarder les mots de passe pour des raisons de sécurité
+          selectedSports: data.selectedSports,
+          selectedLevel: data.selectedLevel,
+          referredBy: data.referredBy,
+        },
+      }));
+    } catch (e) {
+      console.error("Erreur sauvegarde localStorage:", e);
     }
+  }, [step, data, isHydrated]);
 
-    setStep(2);
-  };
+  // Mettre à jour les données
+  const handleDataChange = useCallback((newData: Partial<OnboardingData>) => {
+    setData(prev => ({ ...prev, ...newData }));
+  }, []);
 
-  // Step 2: Enregistrer le profil et finaliser
-  const handleStep2Submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Passer à l'étape suivante
+  const handleNextStep = useCallback(() => {
+    setStep(prev => prev + 1);
+  }, []);
 
-    if (selectedSports.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez sélectionner au moins un sport.",
-      });
-      return;
-    }
+  // Revenir à l'étape précédente
+  const handlePrevStep = useCallback(() => {
+    setStep(prev => prev - 1);
+  }, []);
 
-    if (!selectedLevel) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez sélectionner votre niveau.",
-      });
-      return;
-    }
-
+  // Soumettre le formulaire (Step 2)
+  const handleSubmit = useCallback(async () => {
     setLoading(true);
 
     try {
@@ -130,7 +121,11 @@ export default function OnboardingPage() {
       
       // Si Firebase est configuré, créer le compte auth
       if (isFirebaseConfigured && auth) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth, 
+          data.email, 
+          data.password
+        );
         uid = userCredential.user.uid;
       } else {
         // Mode démo - générer un UID fictif
@@ -141,14 +136,17 @@ export default function OnboardingPage() {
       // Créer le profil (local ou Firestore selon config)
       const profile = await createUserProfile(
         uid,
-        email,
-        selectedSports,
-        selectedLevel,
-        referredBy || undefined
+        data.email,
+        data.selectedSports,
+        data.selectedLevel,
+        data.referredBy || undefined
       );
 
       setUserProfile(profile);
       setStep(3);
+      
+      // Nettoyer le localStorage après succès
+      localStorage.removeItem(ONBOARDING_STORAGE_KEY);
 
       toast({
         title: "Compte créé !",
@@ -176,45 +174,23 @@ export default function OnboardingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [data, toast]);
 
-  // Partager le lien de parrainage
-  const shareReferralLink = async () => {
-    if (!userProfile) return;
+  // Aller au profil
+  const handleGoToProfile = useCallback(() => {
+    router.push("/profile");
+  }, [router]);
 
-    const shareUrl = `https://spordateur.com?ref=${userProfile.referralCode}`;
-    const shareText = `Rejoins-moi sur Spordate pour trouver des partenaires de sport ! 🏃‍♂️🎾`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Spordate - Trouve ton partenaire de sport",
-          text: shareText,
-          url: shareUrl,
-        });
-      } catch (error) {
-        console.log("Partage annulé");
-      }
-    } else {
-      // Fallback: copier le lien
-      await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Lien copié !",
-        description: "Le lien a été copié dans le presse-papier.",
-      });
-    }
-  };
-
-  // Copier le lien
-  const copyReferralLink = async () => {
-    if (!userProfile) return;
-    const shareUrl = `https://spordateur.com?ref=${userProfile.referralCode}`;
-    await navigator.clipboard.writeText(shareUrl);
-    toast({
-      title: "Lien copié !",
-      description: "Le lien a été copié dans le presse-papier.",
-    });
-  };
+  // Attendre l'hydratation pour éviter les problèmes de SSR
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <div className="animate-pulse">
+          <Dumbbell className="h-12 w-12 text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
@@ -234,9 +210,9 @@ export default function OnboardingPage() {
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                   step === s
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground scale-110"
                     : step > s
                     ? "bg-green-500 text-white"
                     : "bg-muted text-muted-foreground"
@@ -257,207 +233,36 @@ export default function OnboardingPage() {
             {step === 2 && "Sélectionne tes sports favoris et ton niveau."}
             {step === 3 && "Invite tes amis à rejoindre Spordate !"}
           </CardDescription>
-
-          {/* Badge parrainage */}
-          {referredBy && step === 1 && (
-            <div className="mt-2 px-3 py-1 bg-green-500/10 text-green-400 text-xs rounded-full inline-block">
-              Invité par {referredBy}
-            </div>
-          )}
-          
-          {/* Mode démo warning */}
-          {!isFirebaseConfigured && step === 1 && (
-            <div className="mt-3 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center gap-2 text-amber-400 text-xs">
-              <AlertTriangle className="h-4 w-4" />
-              <span>Mode démo - Firebase non configuré</span>
-            </div>
-          )}
         </CardHeader>
 
         <CardContent>
           {/* STEP 1: Email & Password */}
           {step === 1 && (
-            <form onSubmit={handleStep1Submit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="ton@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  data-testid="email-input"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  data-testid="password-input"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  data-testid="confirm-password-input"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white"
-                data-testid="step1-submit"
-              >
-                Continuer <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </form>
+            <Step1
+              data={data}
+              onDataChange={handleDataChange}
+              onNext={handleNextStep}
+              referredBy={data.referredBy}
+            />
           )}
 
           {/* STEP 2: Sports & Niveau */}
           {step === 2 && (
-            <form onSubmit={handleStep2Submit} className="space-y-6">
-              {/* Sports selection */}
-              <div className="space-y-3">
-                <Label>Sélectionne tes sports</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {SPORTS.map((sport) => (
-                    <div
-                      key={sport.id}
-                      onClick={() => toggleSport(sport.id)}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all text-center ${
-                        selectedSports.includes(sport.id)
-                          ? "border-primary bg-primary/10"
-                          : "border-border/20 hover:border-border/50"
-                      }`}
-                      data-testid={`sport-${sport.id}`}
-                    >
-                      <span className="text-2xl block mb-1">{sport.emoji}</span>
-                      <span className="text-sm font-medium">{sport.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Level selection */}
-              <div className="space-y-3">
-                <Label>Ton niveau</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {LEVELS.map((level) => (
-                    <div
-                      key={level.id}
-                      onClick={() => setSelectedLevel(level.id)}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all text-center text-sm ${
-                        selectedLevel === level.id
-                          ? "border-primary bg-primary/10"
-                          : "border-border/20 hover:border-border/50"
-                      }`}
-                      data-testid={`level-${level.id}`}
-                    >
-                      {level.label}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep(1)}
-                  className="flex-1"
-                  data-testid="step2-back"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Retour
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white"
-                  disabled={loading}
-                  data-testid="step2-submit"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Création...
-                    </>
-                  ) : (
-                    <>
-                      Créer mon compte <ArrowRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
+            <Step2
+              data={data}
+              onDataChange={handleDataChange}
+              onBack={handlePrevStep}
+              onSubmit={handleSubmit}
+              loading={loading}
+            />
           )}
 
           {/* STEP 3: Growth - Partage */}
           {step === 3 && userProfile && (
-            <div className="space-y-6 text-center">
-              <div className="p-4 bg-green-500/10 rounded-lg">
-                <p className="text-green-400 font-medium">
-                  Ton compte est créé ! 🎉
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Ton code de parrainage :
-                </p>
-                <div className="p-3 bg-muted rounded-lg font-mono text-lg font-bold">
-                  {userProfile.referralCode}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Partage ce lien avec tes amis :
-                </p>
-                <div className="p-3 bg-muted rounded-lg text-xs break-all">
-                  https://spordateur.com?ref={userProfile.referralCode}
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  onClick={copyReferralLink}
-                  variant="outline"
-                  className="flex-1"
-                  data-testid="copy-link"
-                >
-                  <Copy className="mr-2 h-4 w-4" /> Copier
-                </Button>
-                <Button
-                  onClick={shareReferralLink}
-                  className="flex-1 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white"
-                  data-testid="share-link"
-                >
-                  <Share2 className="mr-2 h-4 w-4" /> Partager
-                </Button>
-              </div>
-
-              <Button
-                onClick={() => router.push("/profile")}
-                variant="ghost"
-                className="w-full mt-4"
-                data-testid="go-to-profile"
-              >
-                Accéder à mon profil →
-              </Button>
-            </div>
+            <StepGrowth
+              referralCode={userProfile.referralCode}
+              onGoToProfile={handleGoToProfile}
+            />
           )}
         </CardContent>
       </Card>
