@@ -27,6 +27,12 @@ const initialData: OnboardingData = {
   referredBy: null,
 };
 
+// Identifiants démo
+const DEMO_CREDENTIALS = {
+  email: "demo@spordate.com",
+  password: "demo123456",
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,7 +46,7 @@ export default function OnboardingPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [sports, setSports] = useState<Sport[]>(DEFAULT_SPORTS);
 
-  // Load sports and restore state
+  // Load sports and restore state from localStorage
   useEffect(() => {
     const init = async () => {
       // Load sports
@@ -55,18 +61,21 @@ export default function OnboardingPage() {
       // Get referral code from URL
       const refCode = searchParams.get("ref");
       
-      // Restore from localStorage
+      // Restore from localStorage (PERSISTANCE)
       try {
         const saved = localStorage.getItem(ONBOARDING_STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
+          // Restore step and data if not completed
           if (parsed.step && parsed.step < 3) {
             setStep(parsed.step);
             setData(prev => ({
               ...prev,
               ...parsed.data,
+              // URL referral code takes priority
               referredBy: refCode || parsed.data?.referredBy || null,
             }));
+            console.log('[Onboarding] Restored from localStorage, step:', parsed.step);
           }
         } else if (refCode) {
           setData(prev => ({ ...prev, referredBy: refCode }));
@@ -84,25 +93,30 @@ export default function OnboardingPage() {
     init();
   }, [searchParams]);
 
-  // Save to localStorage on changes
+  // Save to localStorage on changes (PERSISTANCE)
   useEffect(() => {
     if (!isHydrated) return;
     
+    // Clear localStorage if account created
     if (step >= 3) {
       localStorage.removeItem(ONBOARDING_STORAGE_KEY);
       return;
     }
 
+    // Save current state
     try {
-      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+      const dataToSave = {
         step,
         data: {
           email: data.email,
+          // Don't save passwords for security
           selectedSports: data.selectedSports,
           selectedLevel: data.selectedLevel,
           referredBy: data.referredBy,
         },
-      }));
+      };
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(dataToSave));
+      console.log('[Onboarding] Saved to localStorage, step:', step);
     } catch (e) {
       console.warn('[Onboarding] localStorage save failed');
     }
@@ -119,6 +133,21 @@ export default function OnboardingPage() {
   const handlePrevStep = useCallback(() => {
     setStep(prev => prev - 1);
   }, []);
+
+  // DEMO LOGIN: Auto-fill and go to Step 2
+  const handleDemoLogin = useCallback(() => {
+    setData(prev => ({
+      ...prev,
+      email: DEMO_CREDENTIALS.email,
+      password: DEMO_CREDENTIALS.password,
+      confirmPassword: DEMO_CREDENTIALS.password,
+    }));
+    setStep(2);
+    toast({
+      title: "Mode Démo activé ⚡",
+      description: "Identifiants pré-remplis. Sélectionnez vos sports !",
+    });
+  }, [toast]);
 
   const handleSubmit = useCallback(async () => {
     setLoading(true);
@@ -243,6 +272,7 @@ export default function OnboardingPage() {
               onDataChange={handleDataChange}
               onNext={handleNextStep}
               referredBy={data.referredBy}
+              onDemoLogin={handleDemoLogin}
             />
           )}
 
