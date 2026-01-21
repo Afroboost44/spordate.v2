@@ -120,6 +120,97 @@ export default function AdminDashboard() {
   const [heroTitle, setHeroTitle] = useState("Trouve ton Partenaire de Sport Idéal");
   const [message, setMessage] = useState({ recipient: 'all_users', subject: '', body: ''});
 
+  // Partners state
+  const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [newPartner, setNewPartner] = useState({
+    name: '',
+    address: '',
+    city: '',
+    type: 'Studio' as 'Salle' | 'Studio' | 'Club' | 'Association',
+  });
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  // Load partners
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const loadPartners = async () => {
+      try {
+        const loadedPartners = await getPartners();
+        setPartners(loadedPartners);
+      } catch (e) {
+        setPartners(DEFAULT_PARTNERS);
+      }
+    };
+    loadPartners();
+  }, []);
+
+  // Add new partner
+  const handleAddPartner = async () => {
+    if (!newPartner.name || !newPartner.city) {
+      toast({ variant: "destructive", title: "Erreur", description: "Nom et ville requis" });
+      return;
+    }
+    
+    try {
+      const partner = await addPartner({
+        name: newPartner.name,
+        address: newPartner.address,
+        city: newPartner.city,
+        type: newPartner.type,
+        active: true,
+      });
+      setPartners([...partners, partner]);
+      setNewPartner({ name: '', address: '', city: '', type: 'Studio' });
+      toast({ title: "Partenaire ajouté ✅", description: `Code: ${partner.referralId}` });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible d'ajouter le partenaire" });
+    }
+  };
+
+  // Delete partner
+  const handleDeletePartner = async (partnerId: string) => {
+    try {
+      await deletePartner(partnerId);
+      setPartners(partners.filter(p => p.id !== partnerId));
+      toast({ title: "Partenaire supprimé" });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Erreur" });
+    }
+  };
+
+  // Download QR Code
+  const downloadQrCode = () => {
+    if (!qrRef.current || !selectedPartner) return;
+    
+    const svg = qrRef.current.querySelector('svg');
+    if (!svg) return;
+    
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new window.Image();
+    
+    img.onload = () => {
+      canvas.width = 400;
+      canvas.height = 400;
+      if (ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, 400, 400);
+        ctx.drawImage(img, 0, 0, 400, 400);
+        
+        const a = document.createElement('a');
+        a.download = `QR-${selectedPartner.referralId}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      }
+    };
+    
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
 
   // --- USER MANAGEMENT LOGIC ---
   const toggleUserVisibility = (id: string) => {
