@@ -83,6 +83,8 @@ export default function AdminDashboard() {
   
   // Load revenue from localStorage
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const savedRevenue = localStorage.getItem('spordate_revenue');
     if (savedRevenue) {
       setRevenue(parseInt(savedRevenue));
@@ -90,6 +92,7 @@ export default function AdminDashboard() {
     
     // Set up interval to check for updates
     const interval = setInterval(() => {
+      if (typeof window === 'undefined') return;
       const currentRevenue = localStorage.getItem('spordate_revenue');
       if (currentRevenue) {
         setRevenue(parseInt(currentRevenue));
