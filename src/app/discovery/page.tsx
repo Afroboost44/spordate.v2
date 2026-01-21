@@ -361,9 +361,11 @@ export default function DiscoveryPage() {
           packageType: isDuoTicket ? 'duo' : 'solo',
           originUrl: window.location.origin,
           metadata: {
-            profileId: currentProfile.id,
+            profileId: String(currentProfile.id),
             profileName: currentProfile.name.split(',')[0],
             partnerId: selectedMeetingPlace || '',
+            partnerName: meetingPartner?.name || '',
+            partnerAddress: meetingPartner ? `${meetingPartner.address}, ${meetingPartner.city}` : '',
             ticketType: isDuoTicket ? 'duo' : 'solo',
           },
         }),
