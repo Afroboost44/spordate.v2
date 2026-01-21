@@ -543,12 +543,47 @@ END:VCALENDAR`;
           </DialogHeader>
           
           <div className="p-6 space-y-6">
+            {/* Duo Option Toggle */}
+            <div className="bg-gradient-to-r from-violet-900/30 to-pink-900/30 rounded-xl p-4 border border-violet-500/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7B1FA2] to-[#E91E63] flex items-center justify-center">
+                    <Gift className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">J'invite mon partenaire</p>
+                    <p className="text-xs text-gray-400">Offrir la séance (2 places)</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={isDuoTicket}
+                  onCheckedChange={setIsDuoTicket}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#7B1FA2] data-[state=checked]:to-[#E91E63]"
+                />
+              </div>
+              {isDuoTicket && (
+                <div className="mt-3 pt-3 border-t border-white/10 text-xs text-violet-300">
+                  ✨ Vous recevrez un lien WhatsApp à partager avec votre invité(e)
+                </div>
+              )}
+            </div>
+
             {/* Price Summary */}
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-400">Séance Afroboost (1h)</span>
-                <span className="font-semibold">{currentProfile?.price}€</span>
+                <span className="text-gray-400">
+                  {isDuoTicket ? 'Séance Duo Afroboost (2x 1h)' : 'Séance Afroboost (1h)'}
+                </span>
+                <span className="font-semibold">{getCurrentPrice()}€</span>
               </div>
+              {isDuoTicket && (
+                <div className="flex justify-between items-center text-sm text-violet-300 mb-2">
+                  <span className="flex items-center gap-1">
+                    <Gift className="h-3 w-3" /> Place offerte incluse
+                  </span>
+                  <span className="line-through text-gray-500">{(currentProfile?.price || 25) * 2}€</span>
+                </div>
+              )}
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-500">Frais de service</span>
                 <span className="text-gray-500">0€</span>
@@ -556,7 +591,7 @@ END:VCALENDAR`;
               <Separator className="my-3 bg-white/10" />
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total</span>
-                <span className="text-green-400">{currentProfile?.price}€</span>
+                <span className="text-green-400">{getCurrentPrice()}€</span>
               </div>
             </div>
 
