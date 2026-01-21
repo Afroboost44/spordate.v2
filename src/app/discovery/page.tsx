@@ -52,17 +52,29 @@ export default function DiscoveryPage() {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'twint'>('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [confirmedTickets, setConfirmedTickets] = useState<number[]>([]);
+  const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  // Load confirmed tickets from localStorage/Firestore
+  // Load confirmed tickets and partners
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     // Load tickets
     const tickets = getConfirmedTickets();
     setConfirmedTickets(tickets);
+    
+    // Load partners
+    const loadPartners = async () => {
+      try {
+        const loadedPartners = await getPartners();
+        setPartners(loadedPartners.filter(p => p.active));
+      } catch (e) {
+        setPartners(DEFAULT_PARTNERS);
+      }
+    };
+    loadPartners();
     
     // Check for referral in URL
     const ref = searchParams.get('ref');
