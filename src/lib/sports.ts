@@ -8,6 +8,7 @@ export interface Sport {
   icon: string; // Lucide icon name or 'custom'
   emoji?: string;
   active: boolean;
+  priority?: number;
 }
 
 // LocalStorage key for sports
