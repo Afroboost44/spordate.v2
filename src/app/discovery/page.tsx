@@ -341,7 +341,7 @@ export default function DiscoveryPage() {
     const meetingPartner = partners.find(p => p.id === selectedMeetingPlace);
     
     try {
-      // Save pending booking info for after Stripe redirect
+      // Save pending booking info
       const pendingBooking = {
         profileId: currentProfile.id,
         profileName: currentProfile.name.split(',')[0],
@@ -352,6 +352,38 @@ export default function DiscoveryPage() {
         amount: finalPrice,
       };
       localStorage.setItem('pending_booking', JSON.stringify(pendingBooking));
+
+      // If price is 0, skip Stripe and confirm booking directly
+      if (finalPrice === 0) {
+        // Free booking - no payment needed
+        const booking = {
+          id: `free_${Date.now()}`,
+          profile: pendingBooking.profileName,
+          partner: pendingBooking.partnerName || 'Non spécifié',
+          partnerAddress: pendingBooking.partnerAddress || '',
+          date: new Date().toISOString(),
+          isDuo: isDuoTicket,
+          amount: 0,
+        };
+        
+        // Save to bookings history
+        const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        existingBookings.push(booking);
+        localStorage.setItem('bookings', JSON.stringify(existingBookings));
+        
+        // Show success
+        setLastBooking(booking);
+        setShowPaymentModal(false);
+        setShowSuccessModal(true);
+        setIsProcessing(false);
+        localStorage.removeItem('pending_booking');
+        
+        toast({
+          title: "Réservation confirmée ! 🎉",
+          description: "Votre séance gratuite a été réservée avec succès.",
+        });
+        return;
+      }
 
       // Call Stripe checkout API - use /payment-api to bypass /api routing issues
       const response = await fetch('/payment-api', {
