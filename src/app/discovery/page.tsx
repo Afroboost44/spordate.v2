@@ -353,8 +353,8 @@ export default function DiscoveryPage() {
       };
       localStorage.setItem('pending_booking', JSON.stringify(pendingBooking));
 
-      // Call Stripe checkout API
-      const response = await fetch('/api/checkout', {
+      // Call Stripe checkout API - use /payment-api to bypass /api routing issues
+      const response = await fetch('/payment-api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
