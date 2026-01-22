@@ -133,16 +133,23 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-      if (!isFirebaseConfigured || !auth) {
-        throw new Error('Firebase non configuré');
-      }
+      let uid: string;
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        data.email, 
-        data.password
-      );
-      const uid = userCredential.user.uid;
+      if (isFirebaseConfigured && auth) {
+        // Use Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(
+          auth, 
+          data.email, 
+          data.password
+        );
+        uid = userCredential.user.uid;
+      } else {
+        // Fallback: generate local user ID
+        uid = `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // Store credentials in localStorage for demo purposes
+        localStorage.setItem('spordate_user_email', data.email);
+        localStorage.setItem('spordate_user_id', uid);
+      }
 
       const profile = await createUserProfile(
         uid,
@@ -158,7 +165,9 @@ export default function OnboardingPage() {
 
       toast({
         title: "Compte créé ! 🎉",
-        description: "Bienvenue dans la communauté Spordate.",
+        description: isFirebaseConfigured 
+          ? "Bienvenue dans la communauté Spordate."
+          : "Bienvenue ! Mode local activé.",
       });
     } catch (error: any) {
       console.error("[Onboarding] Error:", error);
@@ -197,9 +206,9 @@ export default function OnboardingPage() {
     );
   }
 
-  // Show configuration error if Firebase not configured
-  if (!isFirebaseConfigured) {
-    const missingKeys = getMissingConfig();
+  // Show configuration error only if Stripe is not configured
+  const missingKeys = getMissingConfig();
+  if (missingKeys.length > 0) {
     return <ConfigErrorScreen missingKeys={missingKeys} />;
   }
 
