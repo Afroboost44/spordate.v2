@@ -729,7 +729,7 @@ END:VCALENDAR`;
                 <span className="text-gray-400">
                   {isDuoTicket ? 'Séance Duo Afroboost (2x 1h)' : 'Séance Afroboost (1h)'}
                 </span>
-                <span className="font-semibold">{getCurrentPrice()}€</span>
+                <span className="font-semibold">{getCurrentPrice() === 0 ? 'Gratuit' : `${getCurrentPrice()}€`}</span>
               </div>
               {isDuoTicket && (
                 <div className="flex justify-between items-center text-sm text-violet-300 mb-2">
@@ -746,7 +746,7 @@ END:VCALENDAR`;
               <Separator className="my-3 bg-white/10" />
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total</span>
-                <span className="text-green-400">{getCurrentPrice()}€</span>
+                <span className="text-green-400">{getCurrentPrice() === 0 ? 'Gratuit' : `${getCurrentPrice()}€`}</span>
               </div>
             </div>
 
