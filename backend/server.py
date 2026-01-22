@@ -12,8 +12,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict
 from dotenv import load_dotenv
 
-# Load environment variables from .env.local
-load_dotenv("/app/.env.local")
+# Load environment variables - Kubernetes will inject these, .env.local is fallback
+load_dotenv()
 
 app = FastAPI(title="Spordateur API", version="1.0.0")
 
