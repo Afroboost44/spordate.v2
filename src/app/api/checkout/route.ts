@@ -85,8 +85,10 @@ export async function POST(request: NextRequest) {
     // Build success and cancel URLs
     const successUrl = `${originUrl}/discovery?payment=success&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${originUrl}/discovery?payment=cancelled`;
+    console.log('[Stripe Route] URLs:', { successUrl, cancelUrl });
 
     // Create Stripe Checkout Session
+    console.log('[Stripe Route] Calling stripe.checkout.sessions.create...');
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -116,12 +118,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log for tracking (in production, save to database)
-    console.log('[Stripe] Checkout session created:', {
+    console.log('[Stripe Route] Session created successfully:', {
       sessionId: session.id,
-      amount,
-      packageType,
-      metadata,
+      url: session.url?.substring(0, 50) + '...',
     });
 
     return NextResponse.json({
@@ -130,17 +129,23 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Stripe] Error creating checkout session:', error);
+    console.error('[Stripe Route] ERROR:', error);
     
-    if (error instanceof Error && error.message.includes('STRIPE_SECRET_KEY')) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    console.error('[Stripe Route] Error details:', { message: errorMessage, stack: errorStack });
+    
+    if (errorMessage.includes('STRIPE_SECRET_KEY')) {
       return NextResponse.json(
-        { error: 'Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables.' },
+        { error: 'Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables.', details: errorMessage },
         { status: 503 }
       );
     }
 
+    // Always return JSON, never let it fall through to HTML error
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'Failed to create checkout session', details: errorMessage },
       { status: 500 }
     );
   }
