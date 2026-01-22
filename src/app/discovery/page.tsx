@@ -802,12 +802,12 @@ END:VCALENDAR`;
               {isProcessing ? (
                 <div className="flex items-center gap-3">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Redirection vers Stripe...</span>
+                  <span>{getCurrentPrice() === 0 ? 'Confirmation...' : 'Redirection vers Stripe...'}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
-                  <span>Payer {getCurrentPrice()}€</span>
+                  <span>{getCurrentPrice() === 0 ? 'Réserver gratuitement' : `Payer ${getCurrentPrice()}€`}</span>
                   {isDuoTicket && <Badge className="bg-white/20 text-white text-xs ml-1">Duo</Badge>}
                 </div>
               )}
