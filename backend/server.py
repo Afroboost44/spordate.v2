@@ -59,8 +59,9 @@ class CheckoutResponse(BaseModel):
     sessionId: str
 
 
+# Routes with /api prefix (expected by the infrastructure)
 @app.get("/api/health")
-async def health_check():
+async def api_health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
@@ -68,7 +69,18 @@ async def health_check():
     }
 
 
+# Also add routes without /api prefix in case the ingress strips it
+@app.get("/health")
+async def health_check():
+    """Health check endpoint (without /api prefix)"""
+    return {
+        "status": "healthy",
+        "stripe_configured": bool(STRIPE_SECRET_KEY),
+    }
+
+
 @app.post("/api/checkout", response_model=CheckoutResponse)
+@app.post("/checkout", response_model=CheckoutResponse)
 async def create_checkout_session(request: CheckoutRequest):
     """Create a Stripe Checkout Session"""
     print(f"[Checkout] Request received: {request}")
