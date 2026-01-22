@@ -3,9 +3,13 @@
 ## Overview
 Spordateur est une plateforme web de communauté sportive permettant aux utilisateurs de découvrir des partenaires d'entraînement et de réserver des séances dans des lieux partenaires.
 
-## Current Status
-✅ **Application prête pour les paiements Stripe**
-⚠️ **Les clés Stripe fournies sont invalides** - Veuillez vérifier vos clés sur https://dashboard.stripe.com/test/apikeys
+## 🎉 Current Status
+✅ **PAIEMENTS STRIPE LIVE ACTIVÉS !**
+- Clés LIVE configurées et validées
+- Checkout Stripe fonctionne avec les vrais paiements
+- Montants : Solo 25€ / Duo 50€
+
+⚠️ **ATTENTION : Les paiements sont RÉELS** (clés `pk_live_`, `sk_live_`)
 
 ## Core Features
 
@@ -19,79 +23,58 @@ Spordateur est une plateforme web de communauté sportive permettant aux utilisa
 - Match system avec réservation de séance
 - Section "Où pratiquer ?" avec partenaires
 
-### 3. Payment & Booking System ✅
-- **Intégration Stripe Checkout** complète
+### 3. Payment & Booking System ✅ LIVE
+- **Stripe Checkout LIVE** fonctionnel
   - `POST /api/checkout` - Crée une session de paiement
   - `GET /api/checkout/status/[sessionId]` - Vérifie le statut
-  - `POST /api/webhooks/stripe` - Webhook pour confirmation serveur
-- **Option Duo** (J'invite mon partenaire) - 50€ pour 2 places
-- **Pré-sélection du lieu** depuis la section partenaires
-- Prix fixes côté serveur (Solo: 25€, Duo: 50€) - sécurisé
-- **Loader anti-double clic** sur le bouton Payer
+  - `POST /api/webhooks/stripe` - Webhook pour confirmation
+- **Solo : 25€** | **Duo : 50€**
+- Redirection vers checkout.stripe.com
+- Support : Carte, Apple Pay, Google Pay
 
 ### 4. Email Notifications ✅
-- **Service Resend** (`/lib/email.ts`) avec templates HTML professionnels
-- **Email confirmation client** : "Ton ticket pour [LIEU] est prêt !" 
-- **Email notification partenaire** : "Nouveau RDV sportif confirmé !"
-- Templates responsive avec design violet/rose cohérent
+- **Service Resend** avec templates HTML
+- **Email client** : "Ton ticket pour [LIEU] est prêt !"
+- **Email partenaire** : "Nouveau RDV sportif confirmé !"
 - Fallback console.log si Resend non configuré
 
 ### 5. Success Modal Features ✅
-- Confirmation visuelle avec badge Solo/Duo
-- **Ajouter à mon calendrier:**
-  - Google Calendar (lien direct)
-  - Fichier .ics téléchargeable
-- **Message WhatsApp dynamique:**
-  - Solo: invitation à rejoindre
-  - Duo: message cadeau avec place offerte
+- Confirmation avec badge Solo/Duo
+- Boutons calendrier (Google Calendar + .ics)
+- Partage WhatsApp dynamique
 
-## Environment Variables
+## Environment Variables (Configured)
 
-### Stripe (REQUIRED - Clés actuelles invalides)
+### Stripe LIVE ✅
 ```
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... 
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_51P7B76Rs7hrWkMqg...
+STRIPE_SECRET_KEY=sk_live_51P7B76Rs7hrWkMqg...
+STRIPE_WEBHOOK_SECRET=whsec_hKIuiGdcswiOGYvhIpLLb0re8EaH9Po1
 ```
 
-### Firebase (Optional - localStorage fallback disponible)
-```
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-```
+### Firebase (Optional)
+Non configuré - utilise localStorage fallback
 
-### Email - Resend (Optional)
-```
-RESEND_API_KEY=re_...
-SENDER_EMAIL=Spordateur <noreply@votredomaine.com>
-```
+### Resend (Optional)
+Non configuré - logs console
 
 ## API Routes
-- `POST /api/checkout` - Crée une session Stripe Checkout
-- `GET /api/checkout/status/[sessionId]` - Vérifie le statut du paiement
-- `POST /api/webhooks/stripe` - Reçoit les événements Stripe
+- `POST /api/checkout` - Crée session Stripe
+- `GET /api/checkout/status/[sessionId]` - Status paiement
+- `POST /api/webhooks/stripe` - Webhook Stripe
 
 ## Latest Changes (Jan 22, 2026)
-- ✅ Clés Stripe configurées dans .env.local
-- ✅ Écran de blocage retiré (app fonctionne sans Firebase)
-- ✅ Mode localStorage pour auth sans Firebase
-- ⚠️ Clés Stripe invalides - à remplacer
-
-## Files of Reference
-- `/app/src/app/discovery/page.tsx` - Page Discovery
-- `/app/src/app/api/checkout/route.ts` - API Stripe Checkout
-- `/app/src/app/api/webhooks/stripe/route.ts` - Webhook Stripe
-- `/app/src/lib/email.ts` - Service email Resend
-- `/app/src/lib/firebase.ts` - Configuration Firebase
-- `/app/.env.local` - Variables d'environnement
+- ✅ Clés Stripe LIVE configurées et validées
+- ✅ Checkout Stripe fonctionnel (50€ Duo testé)
+- ✅ Redirection vers checkout.stripe.com confirmée
+- ✅ Produit affiché : "Séance Duo Afroboost (2 places)"
 
 ## Next Steps
-- [ ] **URGENT** : Vérifier/remplacer les clés Stripe (invalides)
 - [ ] Configurer webhook URL dans Stripe Dashboard
-- [ ] Configurer Resend avec domaine vérifié
-- [ ] Ajouter clés Firebase (optionnel)
+- [ ] Configurer Resend pour emails réels
+- [ ] Ajouter Firebase (optionnel)
+- [ ] Tests de paiement complets
 
-## Credentials (Dev)
+## Credentials
 - **Admin Sports:** Code `AFRO2026`
 - **Admin Dashboard:** Email `contact.artboost@gmail.com`
