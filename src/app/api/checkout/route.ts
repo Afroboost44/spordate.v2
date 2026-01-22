@@ -9,18 +9,46 @@ const PACKAGES = {
 
 type PackageType = keyof typeof PACKAGES;
 
-// Initialize Stripe
-const getStripe = () => {
+// Log environment status at module load
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+console.log('[Stripe Route] Module loaded, STRIPE_SECRET_KEY present:', !!STRIPE_KEY, STRIPE_KEY ? `(${STRIPE_KEY.substring(0, 10)}...)` : '(undefined)');
+
+// Initialize Stripe lazily
+let stripeInstance: Stripe | null = null;
+
+const getStripe = (): Stripe => {
+  if (stripeInstance) return stripeInstance;
+  
   const apiKey = process.env.STRIPE_SECRET_KEY;
+  console.log('[Stripe Route] getStripe called, key present:', !!apiKey);
+  
   if (!apiKey) {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
-  return new Stripe(apiKey);
+  
+  stripeInstance = new Stripe(apiKey, {
+    apiVersion: '2025-01-27.acacia',
+  });
+  return stripeInstance;
 };
 
 export async function POST(request: NextRequest) {
+  console.log('[Stripe Route] POST request received');
+  
   try {
-    const body = await request.json();
+    // Parse body with error handling
+    let body;
+    try {
+      body = await request.json();
+      console.log('[Stripe Route] Request body:', JSON.stringify(body));
+    } catch (parseError) {
+      console.error('[Stripe Route] JSON parse error:', parseError);
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
     const { 
       packageType, 
       originUrl,
@@ -33,6 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Validate package type
     if (!packageType || !PACKAGES[packageType]) {
+      console.log('[Stripe Route] Invalid package type:', packageType);
       return NextResponse.json(
         { error: 'Invalid package type. Must be "solo" or "duo"' },
         { status: 400 }
@@ -41,14 +70,17 @@ export async function POST(request: NextRequest) {
 
     // Validate origin URL
     if (!originUrl) {
+      console.log('[Stripe Route] Missing originUrl');
       return NextResponse.json(
         { error: 'Origin URL is required' },
         { status: 400 }
       );
     }
 
+    console.log('[Stripe Route] Getting Stripe instance...');
     const stripe = getStripe();
     const amount = PACKAGES[packageType];
+    console.log('[Stripe Route] Creating session for:', { packageType, amount, originUrl });
 
     // Build success and cancel URLs
     const successUrl = `${originUrl}/discovery?payment=success&session_id={CHECKOUT_SESSION_ID}`;
