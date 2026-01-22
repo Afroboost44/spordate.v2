@@ -11,9 +11,19 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, Dict
 from dotenv import load_dotenv
+import os
 
-# Load environment variables - Kubernetes will inject these, .env.local is fallback
-load_dotenv()
+# Load environment variables - try multiple locations
+# 1. First, environment variables injected by Kubernetes (already in os.environ)
+# 2. Then fall back to .env.local if variables are missing
+if not os.environ.get("STRIPE_SECRET_KEY"):
+    # Try loading from .env.local
+    env_paths = ["/app/.env.local", ".env.local", "../.env.local"]
+    for env_path in env_paths:
+        if os.path.exists(env_path):
+            load_dotenv(env_path)
+            print(f"[Backend] Loaded environment from {env_path}")
+            break
 
 app = FastAPI(title="Spordateur API", version="1.0.0")
 
