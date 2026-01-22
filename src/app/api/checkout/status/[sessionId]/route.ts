@@ -7,9 +7,7 @@ const getStripe = () => {
   if (!apiKey) {
     throw new Error('STRIPE_SECRET_KEY is not configured');
   }
-  return new Stripe(apiKey, {
-    apiVersion: '2025-05-28.basil',
-  });
+  return new Stripe(apiKey);
 };
 
 export async function GET(
