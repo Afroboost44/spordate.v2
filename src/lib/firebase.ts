@@ -12,13 +12,11 @@ const firebaseConfig = {
 };
 
 // Check if Firebase is properly configured with REAL credentials
-// Test keys (containing 'Test' or 'test') are not considered valid
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && 
   firebaseConfig.projectId &&
   firebaseConfig.apiKey.length > 10 &&
   !firebaseConfig.apiKey.includes('your_') &&
-  !firebaseConfig.apiKey.toLowerCase().includes('test') &&
   firebaseConfig.apiKey.startsWith('AIzaSy')
 );
 
@@ -30,24 +28,17 @@ export const isStripeConfigured = Boolean(
    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_'))
 );
 
-// Check if app is in production mode (requires all services)
+// App can work with Stripe alone (payments work, auth uses localStorage fallback)
+export const isAppReady = isStripeConfigured;
+
+// Full production mode requires both Firebase and Stripe
 export const isProductionMode = isFirebaseConfigured && isStripeConfigured;
 
-// Get missing configuration for error display
+// Get missing configuration for error display (only critical ones)
 export function getMissingConfig(): string[] {
   const missing: string[] = [];
   
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 10 || 
-      firebaseConfig.apiKey.toLowerCase().includes('test') ||
-      !firebaseConfig.apiKey.startsWith('AIzaSy')) {
-    missing.push('NEXT_PUBLIC_FIREBASE_API_KEY');
-  }
-  if (!firebaseConfig.projectId || firebaseConfig.projectId.includes('test')) {
-    missing.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID');
-  }
-  if (!firebaseConfig.authDomain) {
-    missing.push('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN');
-  }
+  // Stripe is required for payments
   if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
       (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_test_') &&
        !process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.startsWith('pk_live_'))) {
@@ -69,7 +60,7 @@ try {
     db = getFirestore(app);
     console.log('[Firebase] Successfully initialized');
   } else {
-    console.warn('[Firebase] Configuration requise - veuillez ajouter vos clés Firebase réelles');
+    console.log('[Firebase] Non configuré - utilisation du mode localStorage');
   }
 } catch (error) {
   console.error('[Firebase] Initialization failed:', error);
