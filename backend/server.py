@@ -48,6 +48,12 @@ class CheckoutRequest(BaseModel):
     metadata: Optional[Dict[str, str]] = {}
 
 
+@app.get("/")
+async def root():
+    """Root endpoint for health checks"""
+    return {"status": "ok", "service": "spordateur-api"}
+
+
 class CheckoutResponse(BaseModel):
     url: str
     sessionId: str
