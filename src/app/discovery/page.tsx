@@ -598,7 +598,7 @@ END:VCALENDAR`;
                     className="flex-1 bg-gradient-to-r from-[#7B1FA2] to-[#E91E63] text-white"
                   >
                     <Zap className="mr-2 h-4 w-4" />
-                    Réserver une séance • {currentProfile.price}€
+                    {currentProfile.price === 0 ? 'Réserver gratuitement' : `Réserver une séance • ${currentProfile.price}€`}
                   </Button>
                 ) : (
                   <Button 
